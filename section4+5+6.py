@@ -265,7 +265,7 @@ def optimize_svml_hist_hyperparameters(tile, rate="full", n_folds=10,optional_su
         cv=n_folds,
         n_jobs = n_jobs_global_param,
         verbose=1,
-        refit="aps",  # Use aps as the metric to actually decide which classifier is the best
+        refit="auc_prc_r",  # Use aps as the metric to actually decide which classifier is the best
     )
     
     gs_rf.fit(X,y)
@@ -1393,88 +1393,3 @@ def compare_svm_kernel_best_hyp(train_tile="b278",test_tile="b234"):
 
 ##################################3
 
-
-"""
-
-def class_weight_full_tile():
-    
-    X,y = retrieve_tile("b278","full") 
-    Xt,yt=retrieve_tile("b234")  
-    
-    fig, ax = plt.subplots()
-
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000,tol=1e-4))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="class_weight=None")
-
-    for imbalance in np.logspace(1, 5, 10):
-        clf = make_pipeline(StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000,tol=1e-4,class_weight={0:1,1:imbalance}))
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="class_weight="+str(imbalance))
-
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000,tol=1e-4, class_weight="balanced"))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="class_weight=Auto")    
-    leg = ax.legend()
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-    plt.show()  
-    
-def class_weight_balanced_tiles(rate):
-    X,y = retrieve_tile("b278","full") 
-    Xt,yt=retrieve_tile("b234")
-
-
-    fig, ax = plt.subplots()
-
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000,tol=1e-4))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="full tile cw=None")
-
-
-    X,y = retrieve_tile("b278",rate)
-
-
-    for imbalance in np.logspace(1, 5, 10):
-        clf = make_pipeline(StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000,tol=1e-4,class_weight={0:1,1:imbalance}))
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label=rate+" cw="+str(imbalance),linestyle='--', dashes=(5, 5))  
-
-
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000,tol=1e-4))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label=rate+" cw=None",linestyle='--')    
-
-    leg = ax.legend(ncol=3)
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-    plt.show()  
-    
-
-
-
-
-
-
-
-"""
-
-
-#HACER Q TODO SEA MATRIZ DE PLOTS, NO SIMPLEMENTE TESTEAR EN UNO
-#https://machinelearningmastery.com/smote-oversampling-for-imbalanced-classification/
-#Realmente seleccionar los experimentos mas relevantes y hacerlos en tles virtuales
-# El plot de la correlación de features de PCA whitening... usarlo para descartar que la correlación realmente ayude a RF
-# https://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html#sphx-glr-auto-examples-svm-plot-rbf-parameters-py
-# ver el stratified shuffable splits..

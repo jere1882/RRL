@@ -6,6 +6,9 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+""" FEATURE SELECTION AND DIMENSIONALITY REDUCTION """
+
 def univariate_selection_f_classif(train="b234",test="b278"):
 
     save_folder = "/home/jere/Desktop/section7-fs/automated/"
@@ -640,93 +643,6 @@ def feature_agglomeration_full_experiment(linkage):
     plt.savefig(save_folder+"feature_agglomeration_global_score_linkage="+linkage+".png")
 
 
-
-def plot_fetures_distribution(tile="b278"):
-
-    save_folder = "/home/jere/Desktop/section7-fs/automated/"
-
-    X,y = retrieve_tile(tile,"full") 
-
-    h = 4
-    k = 5
-
-    fig, ax = plt.subplots(h, k, sharey=False,sharex=False,figsize=(30.0,15))
-    for i in range(h):
-        for j in range(k):
-            index = j*k+i
-            col = X.columns[index]
-            a = (X[col]).hist(bins=100,ax=ax[i,j])  
-            a.set_title(col)
-            a.tick_params(axis='both', which='major', labelsize= 0)
-
-    fig.suptitle('Features in tile '+tile+' part 1')
-    plt.savefig(save_folder+"allfeatures_"+tile+"_1.png")
-    fig, ax = plt.subplots(h, k, sharey=False,sharex=False,figsize=(30.0,15))
-
-    for i in range(h):
-        for j in range(k):
-            index = j*k+i+20
-            col = X.columns[index]
-            a = (X[col]).hist(bins=100,ax=ax[i,j])  
-            a.set_title(col)
-            a.tick_params(axis='both', which='major', labelsize= 0)
-
-    fig.suptitle('Features in tile '+tile+' part 2')
-    plt.savefig(save_folder+"allfeatures_"+tile+"_2.png")
-    fig, ax = plt.subplots(h, k, sharey=False,sharex=False,figsize=(30,15))
-
-    for i in range(h):
-        for j in range(k):
-            index = j*k+i+40    
-            if (index < len(X.columns)):
-                col = X.columns[index]
-                a = (X[col]).hist(bins=100,ax=ax[i,j])  
-                a.set_title(col)
-                a.tick_params(axis='both', which='major', labelsize= 0)
-
-    fig.suptitle('Features in tile '+tile+' part 3')
-    plt.savefig(save_folder+"allfeatures_"+tile+"_3.png")
-
-
-
-        #(X[index])[y==0]..hist(bins=2000)(label="No-RRL")
-        #(X[index])[y==1]..hist(bins=2000)(kind='kde',label="RRL")
-        #leg = ax.legend()
-
-def compare_same_feature_different_tiles(f_index=0,tiles=["b234","b360","b278","b261"]):
-
-    save_folder = "/home/jere/Desktop/section7-fs/automated/"
-
-    fig, ax = plt.subplots(2, 2, sharey=True,sharex=True,figsize=(15.0, 10.0))
-
-
-    X,y = retrieve_tile(tiles[0],"full") 
-    col = X.columns[f_index]
-
-    a = (X[col]).hist(bins=100,ax=ax[0,0],density=True)  
-    a.set_title(tiles[0])
-
-
-    X,y = retrieve_tile(tiles[1],"full") 
-    a = (X[col]).hist(bins=100,ax=ax[0,1],density=True)  
-    a.set_title(tiles[1])
-
-    X,y = retrieve_tile(tiles[2],"full") 
-    a = (X[col]).hist(bins=100,ax=ax[1,0],density=True)  
-    a.set_title(tiles[2])
-
-    X,y = retrieve_tile(tiles[3],"full") 
-    a = (X[col]).hist(bins=100,ax=ax[1,1],density=True)  
-    a.set_title(tiles[3])
-
-    fig.suptitle('Feature '+col)
-    plt.savefig(save_folder+"feature_comparison_"+str(f_index)+".png")
-
-
-def compare_all_features():
-    for i in range(62):
-        compare_same_feature_different_tiles(f_index=i)
-
 def correlation_matrix(tile="b278",method='pearson'):
     X,y = retrieve_tile(tile)
     corr_df =  X.corr(method=method) 
@@ -784,6 +700,28 @@ def calculate_auc_correlation_threshold(threshold=0.5,train="b278",test="b360",m
 
     fig, ax = plt.subplots()
     ax.plot(score.keys(),score.values())
+
+    ########### BASELINE
+    clf = Pipeline( 
+    [("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')),
+     ("scaler",StandardScaler()), 
+     ("feature_map", Nystroem(gamma=0.0001, n_components=300)), 
+     ("svm", LinearSVC(dual=False,max_iter=100000,C=10000.0))])
+
+    X,y = retrieve_tile(train)
+    clf.fit(X,y)
+    decs  = clf.decision_function(Xt)
+    p,r,t = metrics.precision_recall_curve(yt,decs)
+    ax.plot(r,p,linestyle='-',linewidth=3,label=" no feature selection ") 
+    precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
+    recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+    precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
+    robust_auc = auc(recall_interpolated, precision_interpolated)
+
+    
+    horiz_line_data = np.array([robust_auc for i in range(1,len(X.columns))])
+    ax.plot(range(0,1,0.01), horiz_line_data, 'r--',label="Baseline")
+
     plt.xlabel('Correlation threshold to remove')
     plt.ylabel('ROBUST AUC PRC')
     plt.title('Removing correlated features. method= ' + method + " "  + str(train) + ' testing in '+str(test))
@@ -820,89 +758,3 @@ def drop_correlated_features_full_experiment(method="pearson"):
     plt.title('Remove correlated features. method='+method)
 
     plt.savefig(save_folder+"overall_drop_correlated_features_method="+method+".png")
-
-
-
-"""
-def plot_pca_2D():
-    X,y = retrieve_tile("b278","full") 
-    
-    pca = PCA(2)  # project to 2 dimensions
-    projected = pca.fit_transform(X)
-
-    rrl = projected[y==1,:]
-    y_rrl = y[y==1]
-
-    norrl = projected[y!=1,:]
-    y_norrl = y[y!=1]
-
-    plt.scatter(norrl[:, 0],norrl[:, 1],c="blue",s=0.5)
-    plt.scatter(rrl[:, 0], rrl[:, 1], c="red",s=0.5)
-
-    plt.xlabel('PCA component 1')
-    plt.ylabel('PCA component 2')
-
-
-def scaling_pca_order():
-    
-    X,y = retrieve_tile("b278","full") 
-    Xt,yt=retrieve_tile("b234")   
-
-    fig, ax = plt.subplots()
-    for i in range(10,15):
-        clf = make_pipeline(StandardScaler(),PCA(n_components=i),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000))
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label=str(i)+" components, scaling first")  
-          
-        clf = make_pipeline(PCA(n_components=i),StandardScaler(),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000))
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label=str(i)+" components, PCA first",linestyle='--', dashes=(5, 5))    
-    
-    leg = ax.legend()
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-    plt.show()
-    
-
-
-
-def effect_pca_whitening():
-    X,y = retrieve_tile("b278","full") 
-    Xt,yt=retrieve_tile("b234")   
-
-    fig, ax = plt.subplots()
-    clf = make_pipeline(StandardScaler(),PCA(n_components=20),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="Regular PCA ncomp=20 + SVM Linear")
-
-    clf = make_pipeline(StandardScaler(),PCA(n_components=20,whiten=True),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="whitened PCA ncomp=20 + SVM Linear")
-
-
-    clf = make_pipeline(StandardScaler(),PCA(n_components=40),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="Regular PCA ncomp=40 + SVM Linear")
-
-    clf = make_pipeline(StandardScaler(),PCA(n_components=40,whiten=True),LinearSVC(C=0.1,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="whitened PCA ncomp=40 + SVM Linear")
-
-
-    leg = ax.legend()
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-    plt.show()
-"""
