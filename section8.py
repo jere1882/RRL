@@ -1,4 +1,5 @@
 """ VISUALIZATION """
+exec(open("/home/jere/Dropbox/University/Tesina/src/section7.py").read())
 
 
 def plot_fetures_distribution(tile="b278"):
