@@ -297,12 +297,12 @@ def print_svm_grid_svm_l_hist(train_tile="b278",rate="full"):
     with open('experiments/svm/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
         gs_rf= pickle.load(output)
 
-    scores = gs_rf.cv_results_['mean_test_aps'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
+    scores = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
                     
     plt.figure(figsize=(6, 8))
     #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
     plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.6))
+               norm=MidpointNormalize(vmin=0.2, midpoint=0.35))
     plt.ylabel('nbins')
     plt.xlabel('gamma')
     plt.colorbar()
@@ -331,7 +331,7 @@ def print_svm_grid_svm_l_hist(train_tile="b278",rate="full"):
     plt.figure(figsize=(6, 8))
     #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
     plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.6))
+               norm=MidpointNormalize(vmin=0.2, midpoint=0.18))
     plt.ylabel('nbins')
     plt.xlabel('gamma')
     plt.colorbar()
