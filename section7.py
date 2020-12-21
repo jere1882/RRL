@@ -6,6 +6,7 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 
+exec(open("/home/jere/Dropbox/University/Tesina/src/section4+5+6.py").read())
 
 """ FEATURE SELECTION AND DIMENSIONALITY REDUCTION """
 
@@ -698,8 +699,6 @@ def calculate_auc_correlation_threshold(threshold=0.5,train="b278",test="b360",m
     plt.title('Removing correlated features. method= ' + method + " "  + str(train) + ' testing in '+str(test))
     plt.savefig(save_folder+"remove_correlated+method="+method+"train="+train+"test="+test+"_curves.png")
 
-    fig, ax = plt.subplots()
-    ax.plot(score.keys(),score.values())
 
     ########### BASELINE
     clf = Pipeline( 
@@ -707,20 +706,21 @@ def calculate_auc_correlation_threshold(threshold=0.5,train="b278",test="b360",m
      ("scaler",StandardScaler()), 
      ("feature_map", Nystroem(gamma=0.0001, n_components=300)), 
      ("svm", LinearSVC(dual=False,max_iter=100000,C=10000.0))])
-
     X,y = retrieve_tile(train)
+    Xt,yt=retrieve_tile(test) 
+
     clf.fit(X,y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,linestyle='-',linewidth=3,label=" no feature selection ") 
+    fig, ax = plt.subplots()
+    ax.plot(score.keys(),score.values(), marker='o')
     precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
     recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
     precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
     robust_auc = auc(recall_interpolated, precision_interpolated)
-
-    
-    horiz_line_data = np.array([robust_auc for i in range(1,len(X.columns))])
-    ax.plot(range(0,1,0.01), horiz_line_data, 'r--',label="Baseline")
+    dom = np.linspace(threshold,1)
+    horiz_line_data = np.array([robust_auc for i in dom])
+    ax.plot(dom, horiz_line_data, 'r--',label="Baseline")
 
     plt.xlabel('Correlation threshold to remove')
     plt.ylabel('ROBUST AUC PRC')
