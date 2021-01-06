@@ -1,168 +1,324 @@
 exec(open("/home/jere/Dropbox/University/Tesina/src/section1+2+3.py").read())
 
-#### Experiments related to preprocessing - SVM Linear (Section 4 report)####
+results_folder = "/home/jere/Desktop/preprocessing/"
 
-def scales_svm(train="b278",test="b234"):
+################################################### ESTANDARIZACION ################################################################
+
+def scales_svm(train="b278",test="b234",kernel="linear"):
+
     X,y = retrieve_tile(train,"full")
     Xt,yt=retrieve_tile(test) 
     fig, ax = plt.subplots()
 
-    clf = LinearSVC(C=0.01,verbose=3,dual=False, max_iter=10000)
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="No scaling")
+    curves = {}
+    
+    if (kernel=="linear"):
+        svc = LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)
+    elif (kernel=="rbf"):
+        svc = Pipeline( 
+                [("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
+                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])    
 
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    print(".")
+    
+    clf = make_pipeline(StandardScaler(),svc)
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
+    curves["StandardScaler"] = (p,r)
     ax.plot(r,p,label="StandardScaler")
 
-    clf = make_pipeline(MinMaxScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    print(".")
+
+    clf = make_pipeline(MinMaxScaler(),svc)
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
+    curves["MinMaxScaler"] = (p,r)
     ax.plot(r,p,label="MinMaxScaler")
 
-    clf = make_pipeline(MaxAbsScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    print(".")
+
+    clf = make_pipeline(MaxAbsScaler(),svc)
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
+    curves["MaxAbsScaler"] = (p,r)
     ax.plot(r,p,label="MaxAbsScaler") 
 
-    clf = make_pipeline(RobustScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    print(".")
+
+    clf = make_pipeline(RobustScaler(),svc)
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
+    curves["RobustScaler"] = (p,r)
     ax.plot(r,p,label="RobustScaler")
 
-    clf = make_pipeline(Normalizer(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    print(".")
+
+    clf = make_pipeline(Normalizer(),StandardScaler(),svc)
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="Normalizer")
-        
-    clf = make_pipeline(PowerTransformer(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="PowerTransformer")
-               
+    curves["Normalizer"] = (p,r)
+    ax.plot(r,p,label="Normalizer + StandardScaler")
+                 
     leg = ax.legend();
     plt.xlabel('recall')
     plt.ylabel('precision')
-    plt.title('Effect of different scaling techniques, svm-linear. Training in tile ' + str(train) + ' testing in '+str(test))
+    plt.title('train ' + str(train) + '- test '+str(test))
 
-    plt.show()
+    with open(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'wb') as output:
+        pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
+
+    plt.savefig(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png")
+
+def generate_figure_5_subplots():
+    scales_svm()
+    scales_svm("b234","b261")
+    scales_svm("b261","b360")
+    scales_svm("b360","b278")
+
+def generate_figure_5_bis_subplots():
+    scales_svm(kernel="rbf")
+    scales_svm("b234","b261",kernel="rbf")
+    scales_svm("b261","b360",kernel="rbf")
+    scales_svm("b360","b278",kernel="rbf")
     
+        
     
-def kbins_discretizers_linear(train="b278",test="b234"):
+#################################################### BINNING #######################################################
+
+def get_robust_auc_from_p_r(p,r):
+        p, r  = p[::-1], r[::-1],
+        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        precision_interpolated = np.interp(recall_interpolated, r, p)
+        return auc(recall_interpolated, precision_interpolated)
+
+bins_range = [10,50,100,150,200,300,500]
+kmeans_bins_range = [5,10]
+
+def kbins_discretizers(train="b278",test="b234",kernel="linear"):
+    
     X,y = retrieve_tile(train,"full")
     Xt,yt=retrieve_tile(test) 
     fig, ax = plt.subplots()
 
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
+    curves = {}
+    
+    if (kernel=="linear"):
+        svc = make_pipeline(StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    elif (kernel=="rbf"):
+        svc = Pipeline( 
+                [("scaler",StandardScaler()),
+                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
+                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
+                 
+    svc.fit(X, y)
+    decs  = svc.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
     ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
+    curves["baseline"]=(p,r,get_robust_auc_from_p_r(p,r))
     
     # Bins quantile
-    for bins in [10,50,100,500]:
-        clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile'),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
+    for bins in bins_range:
+        clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile'),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
         p,r,t = metrics.precision_recall_curve(yt,decs)
         ax.plot(r,p,label="KBinsDiscretizer quantile nbins="+str(bins))
+        curves[("quantile",bins)]=(p,r,get_robust_auc_from_p_r(p,r))
 
     # Bins uniformes
-    for bins in [10,50,100,500]:
-        clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='uniform'),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
+    for bins in bins_range:
+        clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='uniform'),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
         p,r,t = metrics.precision_recall_curve(yt,decs)
         ax.plot(r,p,label="KBinsDiscretizer unfirom nbins="+str(bins))
+        curves[("uniform",bins)]=(p,r,get_robust_auc_from_p_r(p,r))
 
     # Bins kmeans
-    for bins in [5,10]:
-        clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='kmeans'),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
+    for bins in kmeans_bins_range:
+        clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='kmeans'),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
         p,r,t = metrics.precision_recall_curve(yt,decs)
         ax.plot(r,p,label="KBinsDiscretizer kmeans nbins="+str(bins))
-                   
+        curves[("kmeans",bins)]=(p,r,get_robust_auc_from_p_r(p,r))
+
     leg = ax.legend();
     
-    
-    plt.title('svm-l. KBinsDiscretizer. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
+    with open(results_folder+kernel+'-bins-train='+train+ "test="+test+".pkl", 'wb') as output:
+        pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
 
-def quantile_discretizers_linear(train="b278",test="b234"):
+    plt.title('train ' + str(train) + ' - test '+str(test))
+
+    plt.savefig(results_folder+kernel+'-KBinsDiscretizer-train='+train+ "test="+test+".png")
+
+def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
+        
+    with open(results_folder+kernel+'-bins-train='+train+ "test="+test+".pkl", 'rb') as output:
+        curves = pickle.load(output)      
+
+
+    (p,r,auc) = curves["baseline"]
+
+    fig, ax = plt.subplots()
+
+    y = [auc for x in bins_range] 
+
+    ax.plot(bins_range, y ,linewidth=1,label="baseline")
+
+    ##### UNIFORM BINS
+    aucs = []
+    for nbins in bins_range:
+        aucs = [curves[("uniform",nbins)][2]] + aucs 
+
+    ax.plot(bins_range,aucs,label="Uniform",marker='.')
+
+    ##### QUANTILE BINS
+    aucs = []
+    for nbins in bins_range:
+        aucs = [curves[("quantile",nbins)][2]] + aucs 
+
+    ax.plot(bins_range,aucs,label="Quantile",marker='.')
+
+
+    ##### KMEANS BINS
+    aucs = []
+    for nbins in kmeans_bins_range:
+        aucs = [curves[("kmeans",nbins)][2]] + aucs 
+
+    ax.plot(kmeans_bins_range,aucs,label="KMeans",marker='.')
+
+    plt.xlabel('Number of bins')
+    plt.ylabel('Robust AUC-PRC')
+    leg = ax.legend();
+    #plt.show()
+    plt.title('train ' + str(train) + ' - test '+str(test))
+
+    plt.savefig(results_folder+kernel+'-KBinsDiscretizerAUC-train='+train+ "test="+test+".png")
+
+def generate_figure_6_data(kernel):
+    kbins_discretizers(kernel=kernel)
+    kbins_discretizers("b234","b261",kernel)
+    kbins_discretizers("b261","b360",kernel)
+    kbins_discretizers("b360","b278",kernel)
+    
+def generate_figure_6_subplots(kernel):
+    generate_figure_6_subplot(kernel=kernel)
+    generate_figure_6_subplot("b234","b261",kernel)
+    generate_figure_6_subplot("b261","b360",kernel)
+    generate_figure_6_subplot("b360","b278",kernel)
+
+######################################################  QUANTILE ###################################################
+
+
+n_quantiles_values = [5,10,25,50,100,250,500,1000]
+
+def quantile_transformer(train="b278",test="b234",kernel="linear"):
+    
     X,y = retrieve_tile(train,"full")
     Xt,yt=retrieve_tile(test) 
     fig, ax = plt.subplots()
 
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
+    curves = {}
+    
+    if (kernel=="linear"):
+        svc = make_pipeline(StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    elif (kernel=="rbf"):
+        svc = Pipeline( 
+                [("scaler",StandardScaler()),
+                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
+                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
+                 
+    svc.fit(X, y)
+    decs  = svc.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
     ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
+    curves["baseline"]=(p,r,get_robust_auc_from_p_r(p,r))
     
     # uniforme
-    for n_quantiles in [10,100,500,1000]:
-        clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform"),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
+    for n_quantiles in n_quantiles_values:
+        clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform"),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
         p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer uniform n_quantiles="+str(n_quantiles))
+        ax.plot(r,p,label="uniform ; n_quantiles="+str(n_quantiles))
+        curves[("uniform",n_quantiles)]=(p,r,get_robust_auc_from_p_r(p,r))
 
-    # Bins normal
-    for n_quantiles in [10,100,500,1000]:
-        clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal"),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
+    # normal
+    for n_quantiles in n_quantiles_values:
+        clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform"),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
         p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer normal n_quantiles="+str(n_quantiles))
-                   
+        ax.plot(r,p,label="normal ; n_quantiles="+str(n_quantiles))
+        curves[("normal",n_quantiles)]=(p,r,get_robust_auc_from_p_r(p,r))
+
     leg = ax.legend();
     
-    plt.title('svm-l. QuantileTransformer. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
+    with open(results_folder+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'wb') as output:
+        pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
+
+    plt.title('train ' + str(train) + ' - test '+str(test))
+
+    plt.savefig(results_folder+kernel+'-quantile-train='+train+ "test="+test+".png")
 
 
+def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
+        
+    with open(results_folder+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'rb') as output:
+        curves = pickle.load(output)      
 
-def quantile_discretizers_zoom_linear(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
+
+    (p,r,auc) = curves["baseline"]
+
     fig, ax = plt.subplots()
 
-    clf = make_pipeline(StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
-    
-    # uniforme
-    for n_quantiles in [5,10,25,50]:
-        clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform"),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer uniform n_quantiles="+str(n_quantiles))
+    y = [auc for x in n_quantiles_values] 
 
-    # Bins normal
-    for n_quantiles in [5,10,25,50]:
-        clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal"),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer normal n_quantiles="+str(n_quantiles))
-                   
+    ax.plot(n_quantiles_values, y ,linewidth=1,label="baseline")
+
+    ##### UNIFORM BINS
+    aucs = []
+    for q in n_quantiles_values:
+        aucs = [curves[("uniform",q)][2]] + aucs 
+
+    ax.plot(n_quantiles_values,aucs,label="Uniform",marker='.')
+
+    ##### QUANTILE BINS
+    aucs = []
+    for q in n_quantiles_values:
+        aucs = [curves[("normal",q)][2]] + aucs 
+
+    ax.plot(n_quantiles_values,aucs,label="Normal",marker='.')
+
+
+    plt.xlabel('Number of quantiles')
+    plt.ylabel('Robust AUC-PRC')
     leg = ax.legend();
+    #plt.show()
+    plt.title('train ' + str(train) + ' - test '+str(test))
+
+    plt.savefig(results_folder+kernel+'-quantiles-AUC-train='+train+ "test="+test+".png")
+
+def generate_figure_7_data(kernel):
+    quantile_transformer(kernel=kernel)
+    quantile_transformer("b234","b261",kernel)
+    quantile_transformer("b261","b360",kernel)
+    quantile_transformer("b360","b278",kernel)
     
-    plt.title('svm-l. QuantileTransformer. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
+def generate_figure_7_subplots(kernel):
+    generate_figure_7_subplot(kernel=kernel)
+    generate_figure_7_subplot("b234","b261",kernel)
+    generate_figure_7_subplot("b261","b360",kernel)
+    generate_figure_7_subplot("b360","b278",kernel)
+
+
+########################################################## OVERALL COMPARISON ###############################################################
 
 def best_preprocessing_linear(train="b278",test="b234"):
     X,y = retrieve_tile(train,"full")
@@ -173,61 +329,92 @@ def best_preprocessing_linear(train="b278",test="b234"):
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
+    ax.plot(r,p,label="StandardScaler",linestyle='--')
 
     clf = make_pipeline(PowerTransformer(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="PowerTransformer",linestyle='--', dashes=(5, 5))    
+    ax.plot(r,p,label="PowerTransformer")    
 
-    bins = 100
-    clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile'),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
+    clf = make_pipeline(KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile'),StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="KBinsDiscretizer solo nbins="+str(bins))
+    ax.plot(r,p,label="Quantile Binning, 100 bins")
 
-    clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile'),StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
+    clf = make_pipeline(QuantileTransformer(n_quantiles=1000, output_distribution="normal"),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
     clf.fit(X, y)
     decs  = clf.decision_function(Xt)
     p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="KBinsDiscretizer+StandardScaler nbins="+str(bins))
+    ax.plot(r,p,label="Normal QuantileTransformer, 1000 quantiles")
 
-    clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile'),PowerTransformer(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="KBinsDiscretizer+PowerTransformer nbins="+str(bins))
-      
-    n_quantiles = 10
-
-    clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal"),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000)) 
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="QuantileTransformer normal n_quantiles="+str(n_quantiles))
-
-    clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal"),StandardScaler(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="QuantileTransformer+StandardScaler nbins="+str(bins))
-
-    clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal"),PowerTransformer(),LinearSVC(C=0.01,verbose=3,dual=False, max_iter=100000))
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="QuantileTransformer+PowerTransformer nbins="+str(bins))
-
-
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
     leg = ax.legend();
 
+    plt.title('train ' + str(train) + ' - test '+str(test))
+    plt.savefig(results_folder+"linear"+'best-train='+train+ "test="+test+".png")
 
-    plt.title('svm-l. Combinations of best preprocessings. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
+def generate_figure_8_subplots():
+    best_preprocessing_linear("b278","b234")
+    best_preprocessing_linear("b234","b261")
+    best_preprocessing_linear("b261","b360")
+    best_preprocessing_linear("b360","b278")
+    best_preprocessing_linear("b278","b261")
+    best_preprocessing_linear("b234","b360")
+    best_preprocessing_linear("b261","b278")
+    best_preprocessing_linear("b360","b234")
+    
+
+def best_preprocessing_rbf(train="b278",test="b234"):
+    X,y = retrieve_tile(train,"full")
+    Xt,yt=retrieve_tile(test) 
+    fig, ax = plt.subplots()
+
+    svc = Pipeline( 
+            [("scaler",StandardScaler()),
+             ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
+             ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
+    svc.fit(X, y)
+    decs  = svc.decision_function(Xt)
+    p,r,t = metrics.precision_recall_curve(yt,decs)
+    ax.plot(r,p,label="StandardScaler",linestyle='--')
+
+    clf = make_pipeline(KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile'),svc)
+    clf.fit(X, y)
+    decs  = clf.decision_function(Xt)
+    p,r,t = metrics.precision_recall_curve(yt,decs)
+    ax.plot(r,p,label="Quantile Binning, 100 bins")
 
 
+    clf = make_pipeline(PowerTransformer(),svc)
+    clf.fit(X, y)
+    decs  = clf.decision_function(Xt)
+    p,r,t = metrics.precision_recall_curve(yt,decs)
+    ax.plot(r,p,label="PowerTransformer")    
+
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    leg = ax.legend();
+
+    plt.title('train ' + str(train) + ' - test '+str(test))
+    plt.savefig(results_folder+"rbf"+'best-train='+train+ "test="+test+".png")
+
+def generate_figure_9_subplots():
+    best_preprocessing_rbf("b278","b234")
+    best_preprocessing_rbf("b234","b261")
+    best_preprocessing_rbf("b261","b360")
+    best_preprocessing_rbf("b360","b278")
+    best_preprocessing_rbf("b278","b261")
+    best_preprocessing_rbf("b234","b360")
+    best_preprocessing_rbf("b261","b278")
+    best_preprocessing_rbf("b360","b234")
+    
+    
+    
+    
+    
 ######### Reoptimize SVM-L hyperparameters after an improved preprocessing (Section 6.1) #########
 
 svm_param_grid_hist = [
@@ -340,332 +527,7 @@ def print_svm_grid_svm_l_hist(train_tile="b278",rate="full"):
     plt.title('Average validation precision at a fixed recall of 0.9 (SVM-L)')
     plt.show()
     
-################# Experiments related to preprocessing - SVM-rbf (SEction 5 report)##############
 
-def scales_svmk(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
-    fig, ax = plt.subplots()
-
-    print("go")
-
-    clf =  Pipeline( 
-                [("scaler",StandardScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler")
-    print("BASELINE")
-
-
-    clf =  Pipeline( 
-                [("scaler",MinMaxScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="MinMaxScaler")
-    print("BASELINE")
-
-
-    clf =  Pipeline( 
-                [("scaler",MaxAbsScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])    
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="MaxAbsScaler") 
-
-    print("BASELINE")
-
-    #clf =  Pipeline( 
-    #            [("scaler",RobustScaler()), 
-    #             ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-    #             ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))]) 
-    #clf.fit(X, y)
-    #decs  = clf.decision_function(Xt)
-    #p,r,t = metrics.precision_recall_curve(yt,decs)
-    #ax.plot(r,p,label="RobustScaler")
-
-    print("BASELINE")
-
-
-    clf =  Pipeline( 
-                [("scaler",Normalizer()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))]) 
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="Normalizer")
-        
-    print("BASELINE")
-
-    clf =  Pipeline( 
-        [("scaler",PowerTransformer()), 
-         ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))]) 
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="PowerTransformer")
-               
-    leg = ax.legend();
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-    plt.title('Effect of different scaling techniques, svm-rbf. Training in tile ' + str(train) + ' testing in '+str(test))
-
-    plt.show()
-
-
-def kbins_discretizers_rbf(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
-    fig, ax = plt.subplots()
-
-
-    clf =  Pipeline( 
-                [("scaler",StandardScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
-    print("BASELINE")
-    # Bins quantile
-    for bins in [10,50,100,500]:    
-        clf =  Pipeline( 
-                    [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile')), 
-                     ("scaler",StandardScaler()),
-                     ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                     ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="KBinsDiscretizer quantile nbins="+str(bins))
-
-    print("Q")
-    # Bins uniformes
-    for bins in [10,50,100,500]:
-        clf =  Pipeline( 
-                    [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='uniform')), 
-                     ("scaler",StandardScaler()),
-                     ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                     ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])  
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="KBinsDiscretizer unfirom nbins="+str(bins))
-    print("U")
-
-    # Bins kmeans
-    for bins in [5,10,15]:
-        print("K")
-
-        clf =  Pipeline( 
-                    [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='kmeans')), 
-                     ("scaler",StandardScaler()),
-                     ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                     ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])    
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="KBinsDiscretizer kmeans nbins="+str(bins))
-
-    leg = ax.legend();
-    
-    plt.title('svm-k. KBinsDiscretizer. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
-    
-     
-def quantile_discretizers_rbf(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
-    fig, ax = plt.subplots()
-
-
-    clf =  Pipeline( 
-                [("scaler",StandardScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
-    
-    # uniforme
-    for n_quantiles in [10,100,500,1000]:
-        print("K")
-        clf =  Pipeline( 
-            [("transf",QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform")), ("scaler",StandardScaler()),
-             ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-             ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer uniform n_quantiles="+str(n_quantiles))
-
-    # Bins normal
-    for n_quantiles in [10,100,500,1000]:
-        print("K")
-        clf =  Pipeline( 
-            [("tra",QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal")), ("scaler",StandardScaler()),
-             ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-             ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer normal n_quantiles="+str(n_quantiles))
-                   
-    leg = ax.legend();
-    
-    plt.title('svm-k. QuantileTransformer. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
-    
-def kbins_discretizers_rbf_zoom(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
-    fig, ax = plt.subplots()
-
-
-    clf =  Pipeline( 
-                [("scaler",StandardScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
-    print("BASELINE")
-    # Bins quantile
-    for bins in [50,75,100,150,200]:    
-        clf =  Pipeline( 
-                    [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile')), 
-                     ("scaler",StandardScaler()),
-                     ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                     ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="KBinsDiscretizer+StandardScaler quantile nbins="+str(bins))
-
-        clf =  Pipeline( 
-                    [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile')), 
-                     ("scaler",PowerTransformer()),
-                     ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                     ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="KBinsDiscretizer+PowerTransformer quantile nbins="+str(bins))
-        
-
-    leg = ax.legend();
-    
-    plt.title('svm-k. KBinsDiscretizer zoom. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
-    
-
-def quantile_discretizers_rbf_zoom(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
-    fig, ax = plt.subplots()
-
-
-    clf =  Pipeline( 
-                [("scaler",StandardScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
-    
-    # Bins normal
-    for n_quantiles in [5,10,20,30]:
-        print("K")
-        clf =  Pipeline( 
-            [("tra",QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal")), ("scaler",StandardScaler()),
-             ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-             ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer+StandardScaler normal n_quantiles="+str(n_quantiles))
-
-        clf =  Pipeline( 
-            [("tra",QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal")), ("scaler",PowerTransformer()),
-             ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-             ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-        clf.fit(X, y)
-        decs  = clf.decision_function(Xt)
-        p,r,t = metrics.precision_recall_curve(yt,decs)
-        ax.plot(r,p,label="QuantileTransformer+PowerTransformer normal n_quantiles="+str(n_quantiles))
-                           
-    leg = ax.legend();
-    
-    plt.title('svm-k. QuantileTransformer zoom. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
-    
-    
-def best_preprocessing_rbf(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
-    fig, ax = plt.subplots()
-
-    clf =  Pipeline( 
-                [("scaler",StandardScaler()), 
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="StandardScaler",linestyle='--', dashes=(5, 5))
-
-    bins = 100
-    clf =  Pipeline( 
-                [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile')), 
-                 ("scaler",StandardScaler()),
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="KBinsDiscretizer+StandardScaler quantile nbins="+str(bins))
-
-
-    bins = 150
-    clf =  Pipeline( 
-                [("discretizer",KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile')), 
-                 ("scaler",StandardScaler()),
-                 ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-                 ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="KBinsDiscretizer+StandardScaler quantile nbins="+str(bins))
-        
-        
-    n_quantiles = 5
-    clf =  Pipeline( 
-        [("tra",QuantileTransformer(n_quantiles=n_quantiles, output_distribution="normal")), ("scaler",StandardScaler()),
-         ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-    clf.fit(X, y)
-    decs  = clf.decision_function(Xt)
-    p,r,t = metrics.precision_recall_curve(yt,decs)
-    ax.plot(r,p,label="QuantileTransformer+StandardScaler normal n_quantiles="+str(n_quantiles))
-
-    leg = ax.legend();
-
-
-    plt.title('svm-rbf. Combinations of best preprocessings. Training in tile ' + str(train) + ' testing in '+str(test))
-    plt.show()
     
     
 ########### Reoptimise svm rbf parameters (sect 6.2) ########################

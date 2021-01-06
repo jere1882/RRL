@@ -427,7 +427,7 @@ def compare_best_hyperparameters(train_tile="b278",test_tiles=["b234","b261","b3
     clf2 = Pipeline([
         ('scaler', StandardScaler()),
         ('clf', LinearSVC(verbose=3, max_iter=10000, C=0.1, dual=False)) ])
-        
+            
     clf2.fit(X,y)
 
     scores2 = test_classifier(clf2,test_tiles,"svm",train_tile,rate)
@@ -462,3 +462,157 @@ def compare_best_hyperparameters(train_tile="b278",test_tiles=["b234","b261","b3
         ax.plot(r,p,linestyle='dotted',label=tt+' svm-k',color=col)
 
     leg = ax.legend();
+
+def generate_figure_1():
+    with open('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/cv_results.csv', newline='') as csvfile:
+        dataset = pd.read_csv(csvfile, delimiter=' ')
+
+    ntrees = dataset['n_estimators'][:12]
+
+    auc_values_1 = dataset['auc_prc'][0:12]
+    auc_values_2 = dataset['auc_prc'][12:24]
+    auc_values_3 = dataset['auc_prc'][24:36]
+    auc_values_4 = dataset['auc_prc'][36:48]
+
+    fig, ax = plt.subplots()
+
+    plt.title('Random Forest: Cross validation grid search results in tile b278')
+    plt.xlabel('number of trees')
+    plt.ylabel('AUC-PRC')
+    ax.plot(ntrees,auc_values_1,label="criterion = gini ; max_features = log2", color="blue")
+    ax.plot(ntrees,auc_values_2,label="criterion = gini ; max_features = sqrt",color="blue",linestyle='dashed')
+    ax.plot(ntrees,auc_values_3,label="criterion = entropy ; max_features = log2",color="red")
+    ax.plot(ntrees,auc_values_4,label="criterion = entropy ; max_features = sqrt",color="red",linestyle='dashed')
+    leg = ax.legend();
+    
+def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"]):
+
+    # RF
+    X,y=retrieve_tile(train_tile)
+    clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
+    clf.fit(X,y)
+
+    # SVM
+    clf2 = Pipeline([
+        ('scaler', StandardScaler()),
+        ('clf', LinearSVC(verbose=3, max_iter=100000, C=0.1, dual=False)) ])
+            
+    clf2.fit(X,y)
+    
+    #SVM-K
+    nystroem_approx_svm = Pipeline( 
+        [("scaler",StandardScaler()), 
+         ("feature_map", Nystroem(n_components=300,gamma=0.0001)), 
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
+
+    nystroem_approx_svm.fit(X,y)    
+        
+        
+    for test in test_tiles:
+        Xtest, ytest = retrieve_tile(test)
+        curves = {}
+        
+        #RF
+        test_predictions = clf.predict_proba(Xtest)[:,1]
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["rf"] = (precision,recall)
+        
+        # SVM-L
+        test_predictions = clf2.decision_function(Xtest)
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["svml"] = (precision,recall)
+
+        # SVM-K
+        test_predictions = nystroem_approx_svm.decision_function(Xtest)
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["svmk"] = (precision,recall)
+
+        with open('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train_tile+ "Test="+test+".pkl", 'wb') as output:
+            pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
+
+def generate_figure_2_data():
+    generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"])
+    generate_test_performance_data(train_tile="b234",test_tiles=["b278","b261","b360"])
+    generate_test_performance_data(train_tile="b261",test_tiles=["b234","b278","b360"])
+    generate_test_performance_data(train_tile="b360",test_tiles=["b234","b261","b278"])
+
+
+def generate_figure_4_subplots():
+    
+    for train in ["b278","b234","b261","b360"]:
+        for test in ["b278","b234","b261","b360"]:
+            if (train==test):
+                continue
+            with open('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".pkl", 'rb') as input_file:
+                curves = pickle.load(input_file)
+
+            fig, ax = plt.subplots()
+
+            p,r = curves["rf"]
+            ax.plot(r,p)
+
+            #p,r = curves["svml"]
+            #ax.plot(r,p, label="Linear SVM")
+            
+            #p,r = curves["svmk"]
+            #ax.plot(r,p, label="RBF SVM")
+            
+            plt.title('Train ' + train + "- Test" + test)
+            plt.xlabel('Recall')
+            plt.ylabel('Precision')
+
+            #leg = ax.legend();
+    
+            plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/rf_test_results_train='+train+ "Test="+test+".png")
+        
+
+def generate_figure_2_subplots():
+    
+    for train in ["b278","b234","b261","b360"]:
+        for test in ["b278","b234","b261","b360"]:
+            if (train==test):
+                continue
+            with open('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".pkl", 'rb') as input_file:
+                curves = pickle.load(input_file)
+
+            fig, ax = plt.subplots()
+
+            p,r = curves["rf"]
+            ax.plot(r,p, label="Random Forest")
+
+            p,r = curves["svml"]
+            ax.plot(r,p, label="Linear SVM")
+            
+            p,r = curves["svmk"]
+            ax.plot(r,p, label="RBF SVM")
+            
+            plt.title('Train ' + train + "- Test" + test)
+            plt.xlabel('Recall')
+            plt.ylabel('Precision')
+
+            leg = ax.legend();
+    
+            plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".png")
+
+def generate_figure_3():
+    
+    with open('/home/jere/carpyncho/experiments/svm/optimize_hyperparameters/cv_result.txt', newline='') as csvfile:
+        dataset = pd.read_csv(csvfile, delimiter=' ')
+
+    C = dataset['C']
+    pafr5i = dataset['pafr5i']
+    pafr9i = dataset['pafr9i']
+    aps = dataset['aps']
+
+    fig, ax = plt.subplots()
+
+    plt.title('SVM Lineal - Cross validation grid search in tile b278')
+    plt.xlabel('log(C)')
+    plt.ylabel('score')
+    ax.plot(np.log(C),aps,label="Area under precision-recall curve",marker='.')
+    ax.plot(np.log(C),pafr5i,label="Precision at a filxed recall of 0.5",marker='.')
+    ax.plot(np.log(C),pafr9i,label="Precision at a fixed recall 0.9",marker='.')
+
+    leg = ax.legend();
+        
+    

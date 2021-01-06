@@ -11,14 +11,15 @@ def explore_nu_svc(train="b234",test="b278"):
     ######################################
     save_folder = "/home/jere/Desktop/section12/"
 
-    X,y=retrieve_tile(train)
-    Xt,yt=retrieve_tile(test)   
+    X,y=retrieve_tile(train,"1:500")
+    Xt,yt=retrieve_tile(test,"1:500")   
     fig, ax = plt.subplots(figsize=(20,10))
     scores = {}
     max_auc = 0
 
 
     ## RF utopy ################
+    print("Starting RF")
     clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
     clf.fit(X,y)
     decs  = clf.predict_proba(Xt)[:,1]
@@ -32,7 +33,11 @@ def explore_nu_svc(train="b234",test="b278"):
     robust_auc_rf = auc(recall_interpolated, precision_interpolated)
     ############################
     
+    print("Done RF")
+
     for nu in nu_range:
+        print("Trying out nu",nu)
+
         try:
             clf = Pipeline([("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')),
                     ("scaler",StandardScaler()),
