@@ -1,6 +1,6 @@
 ############### This code re-does the EXPERIMENT 2: Model selection ################
 """
-    Description: Optimize each classifier parameters by doing k-fold-cross-validation
+    Description: Optimize each classifier's parameters by doing k-fold-cross-validation
                  on a given tile.
 
 
@@ -10,13 +10,12 @@
         |- svm/ => LINEAR SVM RESULTS
         |- svm-k/ => SVM KERNEL APPROXIMATION RESULTS
     
+    for METHOD in {rf, svm ,svm-k}:
     
-    experiments/*/optimize_hyperparameters/ -> Here is where the results of cross validation parameters optimization are saved.
-        |- cvobject_train={tile}{_rate_suffix}.pkl    -> Indivitual results
+    experiments/METHOD/optimize_hyperparameters/ -> Here is where the results of cross validation parameters optimization are saved.
+        |- cvobject_train={tile}{_rate_suffix}.pkl    -> Individual results
         |- train={tile}{_rate_suffix}test={tile}.png  -> Precision-recall curves in test
         |- testscores_train={tile}{_rate_suffix}.pkl  -> Scores on test tiles
-
-        THE MOST IMPORTANT THING OF THIS FOLDER IS THE CROSS VALIDATION OBJECT
 
 """
 ####################################################################################
@@ -347,14 +346,14 @@ def optimize_svm_hyperparameters(tile, rate="full", n_folds=10,optional_suffix="
         cv=n_folds,
         n_jobs = n_jobs_global_param,
         verbose=3,
-        refit="aps",  # Use aps as the metric to actually decide which classifier is the best
+        refit="auc_prc_r",  # Use aps as the metric to actually decide which classifier is the best
     )
     
     gs_rf.fit(X,y)
     
     shutil.rmtree(cachedir)
     
-    with open('experiments/svm/optimize_hyperparameters/cvobject_train='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
+    with open('experiments/svm/optimize_hyperparameters/cvobject_train-nopreproces='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
         pickle.dump(gs_rf, output, pickle.HIGHEST_PROTOCOL)
         
     return gs_rf
@@ -393,12 +392,12 @@ def optimize_svmk_hyperparameters(tile="b278", rate="full", n_folds=10,optional_
         cv=10,
         n_jobs = 1,
         verbose=3,
-        refit="aps",  # Use aps as the metric to actually decide which classifier is the best
+        refit="auc_prc_r",  # Use aps as the metric to actually decide which classifier is the best
     )
 
     gs_rf.fit(X,y)
 
-    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
+    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train-nopreproces='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
         pickle.dump(gs_rf, output, pickle.HIGHEST_PROTOCOL)
             
     return gs_rf
@@ -485,6 +484,8 @@ def generate_figure_1():
     ax.plot(ntrees,auc_values_4,label="criterion = entropy ; max_features = sqrt",color="red",linestyle='dashed')
     leg = ax.legend();
     
+    
+# FIXME: This shouldn't save stuff to RF folder.
 def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"]):
 
     # RF
@@ -536,36 +537,6 @@ def generate_figure_2_data():
     generate_test_performance_data(train_tile="b261",test_tiles=["b234","b278","b360"])
     generate_test_performance_data(train_tile="b360",test_tiles=["b234","b261","b278"])
 
-
-def generate_figure_4_subplots():
-    
-    for train in ["b278","b234","b261","b360"]:
-        for test in ["b278","b234","b261","b360"]:
-            if (train==test):
-                continue
-            with open('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".pkl", 'rb') as input_file:
-                curves = pickle.load(input_file)
-
-            fig, ax = plt.subplots()
-
-            p,r = curves["rf"]
-            ax.plot(r,p)
-
-            #p,r = curves["svml"]
-            #ax.plot(r,p, label="Linear SVM")
-            
-            #p,r = curves["svmk"]
-            #ax.plot(r,p, label="RBF SVM")
-            
-            plt.title('Train ' + train + "- Test" + test)
-            plt.xlabel('Recall')
-            plt.ylabel('Precision')
-
-            #leg = ax.legend();
-    
-            plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/rf_test_results_train='+train+ "Test="+test+".png")
-        
-
 def generate_figure_2_subplots():
     
     for train in ["b278","b234","b261","b360"]:
@@ -590,9 +561,10 @@ def generate_figure_2_subplots():
             plt.xlabel('Recall')
             plt.ylabel('Precision')
 
-            leg = ax.legend();
+            if (train=="b278" and test=="b234"): # Only plot a single legend
+                leg = ax.legend();
     
-            plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".png")
+            plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".png",bbox_inches='tight')
 
 def generate_figure_3():
     

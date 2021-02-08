@@ -4,8 +4,7 @@ results_folder = "/home/jere/Desktop/preprocessing/"
 
 ################################################### ESTANDARIZACION ################################################################
 
-def scales_svm(train="b278",test="b234",kernel="linear"):
-
+def generate_scales_svm_data(train="b278",test="b234",kernel="linear"):
     X,y = retrieve_tile(train,"full")
     Xt,yt=retrieve_tile(test) 
     fig, ax = plt.subplots()
@@ -64,7 +63,9 @@ def scales_svm(train="b278",test="b234",kernel="linear"):
     curves["Normalizer"] = (p,r)
     ax.plot(r,p,label="Normalizer + StandardScaler")
                  
-    leg = ax.legend();
+    if (test=="b234" and train=="b278"):
+        leg = ax.legend();
+        
     plt.xlabel('recall')
     plt.ylabel('precision')
     plt.title('train ' + str(train) + '- test '+str(test))
@@ -72,22 +73,62 @@ def scales_svm(train="b278",test="b234",kernel="linear"):
     with open(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'wb') as output:
         pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
 
-    plt.savefig(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png",bbox_inches='tight')
 
-def generate_figure_5_subplots():
-    scales_svm()
-    scales_svm("b234","b261")
-    scales_svm("b261","b360")
-    scales_svm("b360","b278")
 
-def generate_figure_5_bis_subplots():
-    scales_svm(kernel="rbf")
-    scales_svm("b234","b261",kernel="rbf")
-    scales_svm("b261","b360",kernel="rbf")
-    scales_svm("b360","b278",kernel="rbf")
-    
+def generate_figure_5_subplot(train="b278",test="b234",kernel="linear"):
         
+    with open(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'rb') as output:
+        curves = pickle.load(output)      
+
+    fig, ax = plt.subplots()
     
+    (p,r) = curves["StandardScaler"]
+    ax.plot(r,p,label="StandardScaler")
+
+    (p,r) = curves["MinMaxScaler"]
+    ax.plot(r,p,label="MinMaxScaler")
+    
+    (p,r) = curves["MaxAbsScaler"]
+    ax.plot(r,p,label="MaxAbsScaler")
+
+    (p,r) = curves["RobustScaler"]
+    ax.plot(r,p,label="RobustScaler")
+
+    (p,r) = curves["Normalizer"]
+    ax.plot(r,p,label="Normalizer + StandardScaler")
+    
+    plt.xlabel('recall')
+    plt.ylabel('precision')
+
+    if (train=="b278" and test=="b234"):
+        leg = ax.legend()
+        
+    plt.title('train ' + str(train) + '- test '+str(test))
+    plt.savefig(results_folder+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png",bbox_inches='tight')
+
+
+def generate_figure_5_data(kernel):
+    generate_scales_svm_data(kernel=kernel)
+    generate_scales_svm_data("b234","b261",kernel)
+    generate_scales_svm_data("b261","b360",kernel)
+    generate_scales_svm_data("b360","b278",kernel)
+    #generate_scales_svm_data("b278","b261",kernel)
+    #generate_scales_svm_data("b234","b360",kernel)
+    #generate_scales_svm_data("b261","b278",kernel)
+    #generate_scales_svm_data("b360","b234",kernel)
+        
+def generate_figure_5_plots(kernel):
+    generate_figure_5_subplot(kernel=kernel)
+    generate_figure_5_subplot("b234","b261",kernel)
+    generate_figure_5_subplot("b261","b360",kernel)
+    generate_figure_5_subplot("b360","b278",kernel)
+    #generate_figure_5_subplot("b278","b261",kernel)
+    #generate_figure_5_subplot("b234","b360",kernel)
+    #generate_figure_5_subplot("b261","b278",kernel)
+    #generate_figure_5_subplot("b360","b234",kernel)
+        
+        
 #################################################### BINNING #######################################################
 
 def get_robust_auc_from_p_r(p,r):
@@ -155,7 +196,7 @@ def kbins_discretizers(train="b278",test="b234",kernel="linear"):
 
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder+kernel+'-KBinsDiscretizer-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+kernel+'-KBinsDiscretizer-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
         
@@ -195,17 +236,22 @@ def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
 
     plt.xlabel('Number of bins')
     plt.ylabel('Robust AUC-PRC')
-    leg = ax.legend();
+    if (train=="b360" and test=="b278"):
+        leg = ax.legend();
     #plt.show()
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder+kernel+'-KBinsDiscretizerAUC-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+kernel+'-KBinsDiscretizerAUC-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_6_data(kernel):
-    kbins_discretizers(kernel=kernel)
-    kbins_discretizers("b234","b261",kernel)
-    kbins_discretizers("b261","b360",kernel)
-    kbins_discretizers("b360","b278",kernel)
+    #kbins_discretizers(kernel=kernel)
+    #kbins_discretizers("b234","b261",kernel)
+    #kbins_discretizers("b261","b360",kernel)
+    #kbins_discretizers("b360","b278",kernel)
+    kbins_discretizers("b278","b261",kernel)
+    kbins_discretizers("b234","b360",kernel)
+    kbins_discretizers("b261","b278",kernel)
+    kbins_discretizers("b360","b234",kernel)
     
 def generate_figure_6_subplots(kernel):
     generate_figure_6_subplot(kernel=kernel)
@@ -213,7 +259,7 @@ def generate_figure_6_subplots(kernel):
     generate_figure_6_subplot("b261","b360",kernel)
     generate_figure_6_subplot("b360","b278",kernel)
 
-######################################################  QUANTILE ###################################################
+######################################################  QUANTILE  TRANSFORMER ##########################################
 
 
 n_quantiles_values = [5,10,25,50,100,250,500,1000]
@@ -265,7 +311,7 @@ def quantile_transformer(train="b278",test="b234",kernel="linear"):
 
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder+kernel+'-quantile-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+kernel+'-quantile-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 
 def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
@@ -299,18 +345,24 @@ def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
 
     plt.xlabel('Number of quantiles')
     plt.ylabel('Robust AUC-PRC')
-    leg = ax.legend();
+    if (train=="b360" and test=="b278"):
+        leg = ax.legend();
+    
     #plt.show()
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder+kernel+'-quantiles-AUC-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+kernel+'-quantiles-AUC-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_7_data(kernel):
-    quantile_transformer(kernel=kernel)
+    quantile_transformer("b278","b234",kernel)
     quantile_transformer("b234","b261",kernel)
     quantile_transformer("b261","b360",kernel)
     quantile_transformer("b360","b278",kernel)
-    
+    quantile_transformer("b278","b261",kernel)
+    quantile_transformer("b234","b360",kernel)
+    quantile_transformer("b261","b278",kernel)
+    quantile_transformer("b360","b234",kernel)
+
 def generate_figure_7_subplots(kernel):
     generate_figure_7_subplot(kernel=kernel)
     generate_figure_7_subplot("b234","b261",kernel)
@@ -351,10 +403,12 @@ def best_preprocessing_linear(train="b278",test="b234"):
 
     plt.xlabel('Recall')
     plt.ylabel('Precision')
-    leg = ax.legend();
+    
+    if (train=="b261" and test=="b360"):
+        leg = ax.legend();
 
     plt.title('train ' + str(train) + ' - test '+str(test))
-    plt.savefig(results_folder+"linear"+'best-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+"linear"+'best-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_8_subplots():
     best_preprocessing_linear("b278","b234")
@@ -365,14 +419,13 @@ def generate_figure_8_subplots():
     best_preprocessing_linear("b234","b360")
     best_preprocessing_linear("b261","b278")
     best_preprocessing_linear("b360","b234")
-    
 
 def best_preprocessing_rbf(train="b278",test="b234"):
     X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
+    Xt,yt=retrieve_tile(test)
     fig, ax = plt.subplots()
 
-    svc = Pipeline( 
+    svc = Pipeline(
             [("scaler",StandardScaler()),
              ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
              ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
@@ -396,10 +449,12 @@ def best_preprocessing_rbf(train="b278",test="b234"):
 
     plt.xlabel('Recall')
     plt.ylabel('Precision')
-    leg = ax.legend();
+
+    if (train=="b261" and test=="278"):
+        leg = ax.legend();
 
     plt.title('train ' + str(train) + ' - test '+str(test))
-    plt.savefig(results_folder+"rbf"+'best-train='+train+ "test="+test+".png")
+    plt.savefig(results_folder+"rbf"+'best-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_9_subplots():
     best_preprocessing_rbf("b278","b234")
@@ -412,10 +467,7 @@ def generate_figure_9_subplots():
     best_preprocessing_rbf("b360","b234")
     
     
-    
-    
-    
-######### Reoptimize SVM-L hyperparameters after an improved preprocessing (Section 6.1) #########
+######### Reoptimize SVM-L hyperparameters after an improved preprocessing #########
 
 svm_param_grid_hist = [
     { 'clf__C': np.logspace(-5, 15, 21),
@@ -470,67 +522,9 @@ def cv_experiment_svm_hist(train_tile="b278", test_tiles=["b234","b261","b360"],
     scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,trainrate=rate,folder="svm")
     display_cv_results(train_tile,rate,folder="svm")
     return scores
-    
-class MidpointNormalize(Normalize):
-    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
-        self.midpoint = midpoint
-        Normalize.__init__(self, vmin, vmax, clip)
-
-    def __call__(self, value, clip=None):
-        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-        return np.ma.masked_array(np.interp(value, x, y))
-
-def print_svm_grid_svm_l_hist(train_tile="b278",rate="full"):
-    with open('experiments/svm/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
-        gs_rf= pickle.load(output)
-
-    scores = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
-                    
-    plt.figure(figsize=(6, 8))
-    #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
-    plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.35))
-    plt.ylabel('nbins')
-    plt.xlabel('gamma')
-    plt.colorbar()
-    plt.yticks(np.arange(len(svm_param_grid_hist[0]['clf__C'])), svm_param_grid_hist[0]['clf__C'], rotation=45)
-    plt.xticks(np.arange(len(svm_param_grid_hist[0]['discretizer__n_bins'])), svm_param_grid_hist[0]['discretizer__n_bins'])
-    plt.title('Average validation AUCPRC (SVM-L)')
-    plt.show()
-
-                    
-    scores = gs_rf.cv_results_['mean_test_pafr5i'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
-                    
-    plt.figure(figsize=(6, 8))
-    #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
-    plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.6))
-    plt.ylabel('nbins')
-    plt.xlabel('gamma')
-    plt.colorbar()
-    plt.yticks(np.arange(len(svm_param_grid_hist[0]['clf__C'])), svm_param_grid_hist[0]['clf__C'], rotation=45)
-    plt.xticks(np.arange(len(svm_param_grid_hist[0]['discretizer__n_bins'])), svm_param_grid_hist[0]['discretizer__n_bins'])
-    plt.title('Average validation precision at a fixed recall of 0.5 (SVM-L)')
-    plt.show()
-
-    scores = gs_rf.cv_results_['mean_test_pafr9i'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
-                    
-    plt.figure(figsize=(6, 8))
-    #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
-    plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.18))
-    plt.ylabel('nbins')
-    plt.xlabel('gamma')
-    plt.colorbar()
-    plt.yticks(np.arange(len(svm_param_grid_hist[0]['clf__C'])), svm_param_grid_hist[0]['clf__C'], rotation=45)
-    plt.xticks(np.arange(len(svm_param_grid_hist[0]['discretizer__n_bins'])), svm_param_grid_hist[0]['discretizer__n_bins'])
-    plt.title('Average validation precision at a fixed recall of 0.9 (SVM-L)')
-    plt.show()
-    
 
     
-    
-########### Reoptimise svm rbf parameters (sect 6.2) ########################
+########### Reoptimise svm rbf parameters  #######################
     
 def optimize_svmk_hist_hyperparameters(tile="b278", rate="full", n_folds=10,optional_suffix=""):
 
@@ -558,104 +552,171 @@ def optimize_svmk_hist_hyperparameters(tile="b278", rate="full", n_folds=10,opti
         pickle.dump(gs_rf, output, pickle.HIGHEST_PROTOCOL)
             
     return gs_rf
-
-def svm_param_grid_show():
-    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train=b278.pkl', 'rb') as output:
-        gs_rf= pickle.load(output)
-
-    scores = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(asvm_rbf_param_grid[0]['feature_map__gamma']),len(asvm_rbf_param_grid[0]['svm__C']))
-                    
-    plt.figure(figsize=(6, 8))
-    #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
-    plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.37))
-    plt.ylabel('gamma')
-    plt.xlabel('C')
-    plt.colorbar()
-    plt.yticks(np.arange(len(asvm_rbf_param_grid[0]['feature_map__gamma'])), asvm_rbf_param_grid[0]['feature_map__gamma'], rotation=45)
-    plt.xticks(np.arange(len(asvm_rbf_param_grid[0]['svm__C'])), asvm_rbf_param_grid[0]['svm__C'], rotation=60)
-    plt.title('Average validation  Robust AUCPRC')
-    plt.show()
-
-
-    scores = gs_rf.cv_results_['mean_test_pafr5i'].reshape(len(asvm_rbf_param_grid[0]['feature_map__gamma']),len(asvm_rbf_param_grid[0]['svm__C']))
-                    
-    plt.figure(figsize=(6, 8))
-    #plt.subplots_adjust(left=.2, right=0.95, bottom=0.15, top=0.95)
-    plt.imshow(scores, interpolation='nearest', cmap=plt.cm.hot,
-               norm=MidpointNormalize(vmin=0.2, midpoint=0.9))
-    plt.ylabel('gamma')
-    plt.xlabel('C')
-    plt.colorbar()
-    plt.yticks(np.arange(len(asvm_rbf_param_grid[0]['feature_map__gamma'])), asvm_rbf_param_grid[0]['feature_map__gamma'], rotation=45)
-    plt.xticks(np.arange(len(asvm_rbf_param_grid[0]['svm__C'])), asvm_rbf_param_grid[0]['svm__C'], rotation=60)
-    plt.title('Average validation precision at a fixed recall of 0.5')
-    plt.show()
-
+    
 def cv_experiment_svmk_hist(train_tile="b278", test_tiles=["b234","b261","b360"],rate="full"):
     gs_rf = optimize_svmk_hist_hyperparameters(train_tile,rate)
     scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,trainrate=rate,folder="svm-k")
     display_cv_results(train_tile,rate,folder="svm-k")
     return scores
+    
+
+########### Create heatmaps with the same scale showing parameter optimization results ########
+
+def plot_heatmap(train_tile="b278"):
+
+    # Read cross validation objects
+    with open('experiments/svm/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
+        gs_rf= pickle.load(output)
+    scores_l = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
+
+    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train=b278.pkl', 'rb') as output:
+        gs_rf= pickle.load(output)
+    scores_svmk = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(asvm_rbf_param_grid[0]['feature_map__gamma']),len(asvm_rbf_param_grid[0]['svm__C']))
+
+    # Get min and max values
+    min_s = min(scores_svmk.min() , scores_l.min())
+    max_s = max(scores_svmk.max() , scores_l.max())
 
 
-############ Section 6.3 - Performance omparison ###############
+    center=None
 
-# This function plots the performance of SVM-L, SVM-RBF and RF with the optimal parameters found in sections 4-5-6:
+    for cmap in ["viridis","magma","inferno","cividis",None]:
+        ###### PRINT THE SVM-K HEATMAP######
+        df_m = scores_svmk
 
-def compare_best_hyperparameters_s6(train_tile="b278",test_tiles=["b234","b261","b360"]):
-    rate = "full"
+        fig, ax = plt.subplots(figsize=(11, 9))
+        sb.heatmap(df_m,square=True,vmin= min_s, vmax=max_s, cmap=cmap, center=center, linewidth=.3, linecolor='w')
+
+        xlabels = [ "{:.0e}".format(x) for x in asvm_rbf_param_grid[0]['svm__C'] ]
+        ylabels = [ "{:.0e}".format(x) for x in asvm_rbf_param_grid[0]['feature_map__gamma'] ]
+
+        plt.xticks(np.arange(len(asvm_rbf_param_grid[0]['svm__C']))+.5, labels=xlabels,rotation=60)
+        plt.yticks(np.arange(len(asvm_rbf_param_grid[0]['feature_map__gamma']))+.5, labels=ylabels, rotation=45)
+
+        # axis labels
+        plt.xlabel('C')
+        plt.ylabel('gamma')
+        # title
+        title = 'Average Robust AUCPRC'.upper()
+        plt.title(title, loc='left')
+
+        if cmap==None:
+            plt.savefig(results_folder+"heatmapk"+"NONE.png")
+        else:
+            plt.savefig(results_folder+"heatmapk"+cmap+".png")
+
+        ###### PRINT THE SVM-L HEATMAP######
+        
+        df_m = scores_l   
+        fig, ax = plt.subplots(figsize=(11, 9))
+        sb.heatmap(df_m,square=True,vmin= min_s, vmax=max_s, cmap=cmap, center=center, linewidth=.3, linecolor='w')
+
+        xlabels = [ "{:.0e}".format(x) for x in svm_param_grid_hist[0]['clf__C'] ]
+        ylabels = svm_param_grid_hist[0]['discretizer__n_bins']
+
+        plt.xticks(np.arange(len(svm_param_grid_hist[0]['discretizer__n_bins']))+.5, labels=ylabels,rotation=60)
+        plt.yticks(np.arange(len(svm_param_grid_hist[0]['clf__C']))+.5, labels=xlabels, rotation=45)
+
+        # axis labels
+        plt.ylabel('C')
+        plt.xlabel('nbins')
+        # title
+        title = 'Average Robust AUCPRC'.upper()
+        plt.title(title, loc='left')
+
+        if cmap==None:
+            plt.savefig(results_folder+"heatmapl"+"NONE.png")
+        else:
+            plt.savefig(results_folder+"heatmapl"+cmap+".png")
+
+################ End of section Performance comparison ###############
+
+def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"]):
 
     # RF
     X,y=retrieve_tile(train_tile)
     clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
     clf.fit(X,y)
 
-    scores = test_classifier(clf,test_tiles,"rf",train_tile,rate)
-
-    # SVM-linear
+    # SVM
     clf2 = Pipeline([
-        ("discretizer",KBinsDiscretizer(encode='ordinal', strategy='quantile',n_bins=150)),
+        ('disc',KBinsDiscretizer(n_bins=150, encode='ordinal', strategy='quantile')),
         ('scaler', StandardScaler()),
-        ('clf', LinearSVC(verbose=3, max_iter=10000,C=1, dual=False)) ])
-        
+        ('clf', LinearSVC(verbose=3, max_iter=100000, C=10, dual=False)) ])
+            
     clf2.fit(X,y)
-
-    scores2 = test_classifier(clf2,test_tiles,"svm",train_tile,rate)
     
     #SVM-K
-
     nystroem_approx_svm = Pipeline( 
-        [("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')), 
+        [('disc',KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')),
          ("scaler",StandardScaler()), 
          ("feature_map", Nystroem(n_components=300,gamma=0.0001)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=100000.0))])
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
 
     nystroem_approx_svm.fit(X,y)    
         
-    scores3 = test_classifier(nystroem_approx_svm,test_tiles,"svm-k",train_tile,rate)
+        
+    for test in test_tiles:
+        Xtest, ytest = retrieve_tile(test)
+        curves = {}
+        
+        #RF
+        test_predictions = clf.predict_proba(Xtest)[:,1]
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["rf"] = (precision,recall)
+        
+        # SVM-L
+        test_predictions = clf2.decision_function(Xtest)
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["svml"] = (precision,recall)
 
-    fig, ax = plt.subplots()
+        # SVM-K
+        test_predictions = nystroem_approx_svm.decision_function(Xtest)
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["svmk"] = (precision,recall)
 
-    plt.title('Training in tile' + train_tile + ' using optimal hyperparameters')
-    plt.xlabel('recall')
-    plt.ylabel('precision')
+        with open(results_folder+"best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
+            pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
+    
+    
+def generate_figure_10_data():
+    generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"])
+    generate_test_performance_data(train_tile="b234",test_tiles=["b278","b261","b360"])
+    generate_test_performance_data(train_tile="b261",test_tiles=["b234","b278","b360"])
+    generate_test_performance_data(train_tile="b360",test_tiles=["b234","b261","b278"])
+    
 
+def generate_figure_10_subplots():
+    
+    for train in ["b278","b234","b261","b360"]:
+        for test in ["b278","b234","b261","b360"]:
+            if (train==test):
+                continue
+            with open(results_folder+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
+                curves = pickle.load(input_file)
 
-    for tt,col in zip(test_tiles,["blue","red","green"]):
-                
-        (p,r,t) = (scores[tt])[7]
-        ax.plot(r,p,label=tt+' rf',color=col)
+            fig, ax = plt.subplots()
 
-        (p,r,t) = (scores2[tt])[7]
-        ax.plot(r,p,linestyle='--', dashes=(5, 5),label=tt+' svm-l',color=col)
+            p,r = curves["rf"]
+            ax.plot(r,p, label="Random Forest")
 
-        (p,r,t) = (scores3[tt])[7]
-        ax.plot(r,p,linestyle='dotted',label=tt+' svm-k',color=col)
+            p,r = curves["svml"]
+            ax.plot(r,p, label="Linear SVM")
+            
+            p,r = curves["svmk"]
+            ax.plot(r,p, label="RBF SVM")
+            
+            plt.title('Train ' + train + "- Test" + test)
+            plt.xlabel('Recall')
+            plt.ylabel('Precision')
 
-    leg = ax.legend();
+            leg = ax.legend();
+    
+            plt.savefig(results_folder+"best-train="+train+ "test="+test+".png")
 
-
+def run_all_figure_10():
+    generate_figure_10_data()
+    generate_figure_10_subplots()
 
 ######################################################################
 ########################## Bonus experiments ######################### 
