@@ -450,7 +450,7 @@ def best_preprocessing_rbf(train="b278",test="b234"):
     plt.xlabel('Recall')
     plt.ylabel('Precision')
 
-    if (train=="b261" and test=="278"):
+    if (train=="b261" and test=="b278"):
         leg = ax.legend();
 
     plt.title('train ' + str(train) + ' - test '+str(test))
@@ -562,21 +562,22 @@ def cv_experiment_svmk_hist(train_tile="b278", test_tiles=["b234","b261","b360"]
 
 ########### Create heatmaps with the same scale showing parameter optimization results ########
 
-def plot_heatmap(train_tile="b278"):
+def plot_heatmaps_preproc(train_tile="b278"):
 
     # Read cross validation objects
     with open('experiments/svm/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
         gs_rf= pickle.load(output)
+
     scores_l = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
 
-    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train=b278.pkl', 'rb') as output:
+    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
         gs_rf= pickle.load(output)
+
     scores_svmk = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(asvm_rbf_param_grid[0]['feature_map__gamma']),len(asvm_rbf_param_grid[0]['svm__C']))
 
     # Get min and max values
     min_s = min(scores_svmk.min() , scores_l.min())
     max_s = max(scores_svmk.max() , scores_l.max())
-
 
     center=None
 
@@ -1089,8 +1090,6 @@ def svmkreal_vs_aproximado_bins_subopt(train="b278",test="b234"):
     plt.show()  
     
     
-
-
 def svmkreal_vs_aproximado_nobins(train="b278",test="b234"):
     X,y = retrieve_tile(train,"full")
     Xt,yt=retrieve_tile(test)   

@@ -566,25 +566,63 @@ def generate_figure_2_subplots():
     
             plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".png",bbox_inches='tight')
 
-def generate_figure_3():
+def generate_figure_3(train_tile="b278"):
     
-    with open('/home/jere/carpyncho/experiments/svm/optimize_hyperparameters/cv_result.txt', newline='') as csvfile:
-        dataset = pd.read_csv(csvfile, delimiter=' ')
+    # Read cross validation objects
+    with open('experiments/svm/optimize_hyperparameters/cvobject_train-nopreproces='+train_tile+'.pkl', 'rb') as output:
+        gs_rf= pickle.load(output)
+    aucr = gs_rf.cv_results_['mean_test_auc_prc_r']
+    pafr5i = gs_rf.cv_results_['mean_test_pafr5i']
+    pafr9i = gs_rf.cv_results_['mean_test_pafr9i']
+    C = svm_param_grid[0]['clf__C']
 
-    C = dataset['C']
-    pafr5i = dataset['pafr5i']
-    pafr9i = dataset['pafr9i']
-    aps = dataset['aps']
 
     fig, ax = plt.subplots()
 
     plt.title('SVM Lineal - Cross validation grid search in tile b278')
     plt.xlabel('log(C)')
     plt.ylabel('score')
-    ax.plot(np.log(C),aps,label="Area under precision-recall curve",marker='.')
-    ax.plot(np.log(C),pafr5i,label="Precision at a filxed recall of 0.5",marker='.')
-    ax.plot(np.log(C),pafr9i,label="Precision at a fixed recall 0.9",marker='.')
+    ax.set_ylim([0,1])
+    ax.plot(np.log(C),aucr,label="R-AUCPRC",marker='.')
+    ax.plot(np.log(C),pafr5i,label="Precision at recall of 0.5",marker='.')
+    ax.plot(np.log(C),pafr9i,label="Precision at recall of 0.9",marker='.')
 
-    leg = ax.legend();
-        
-    
+    leg = ax.legend(bbox_to_anchor=(0.5,0.5));
+
+def generate_svm_heatmap(train_tile="b278"):
+    # Read cross validation objects
+    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train-nopreproces='+train_tile+'.pkl', 'rb') as output:
+        gs_rf= pickle.load(output)
+
+    metric = 'mean_test_auc_prc_r' # 'mean_test_pafr5i'
+
+    scores_svmk = gs_rf.cv_results_[metric].reshape(len(asvm_rbf_param_grid[0]['feature_map__gamma']),len(asvm_rbf_param_grid[0]['svm__C']))
+
+
+    cmap = "magma"
+
+    ###### PRINT THE SVM-K HEATMAP######
+    df_m = scores_svmk
+
+    fig, ax = plt.subplots(figsize=(11, 9))
+    sb.heatmap(df_m,square=True, cmap=cmap, linewidth=.3, linecolor='w')
+
+    xlabels = [ "{:.0e}".format(x) for x in asvm_rbf_param_grid[0]['svm__C'] ]
+    ylabels = [ "{:.0e}".format(x) for x in asvm_rbf_param_grid[0]['feature_map__gamma'] ]
+
+    plt.xticks(np.arange(len(asvm_rbf_param_grid[0]['svm__C']))+.5, labels=xlabels,rotation=60)
+    plt.yticks(np.arange(len(asvm_rbf_param_grid[0]['feature_map__gamma']))+.5, labels=ylabels, rotation=45)
+
+    # axis labels
+    plt.xlabel('C')
+    plt.ylabel('gamma')
+    # title
+    title = 'Robust AUC-PRC'.upper()#'Average Precision at a fixed recall of 0.5'.upper()
+    plt.title(title, loc='left')
+
+    if cmap==None:
+        plt.savefig(results_folder+"heatmapk"+"NONE.png")
+    else:
+        plt.savefig(results_folder+"heatmapk"+cmap+".png")
+
+            
