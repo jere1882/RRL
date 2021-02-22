@@ -39,6 +39,9 @@ from sklearn.preprocessing import KBinsDiscretizer
 
 n_jobs_global_param = 7 ## NUMBER OF PROCESSORS TO BE USED
 
+results_folder_initial_estimation = "/home/jere/Desktop/chapters-2-3-4/"
+
+
 exec(open("/home/jere/Dropbox/University/Tesina/src/common.py").read())
 
 """
@@ -408,59 +411,17 @@ def cv_experiment_svmk(train_tile="b278", test_tiles=["b234","b261","b360"],rate
     display_cv_results(train_tile,rate,folder="svm-k")
     return scores
 
-
+def get_optimal_parameters_i(kernel="linear"):
+    optimal = {}
+    if (kernel=="linear" or kernel=="svml"):
+        optimal["C"]=0.1
+    elif (kernel=="rbf" or kernel=="svmk"):
+        optimal["C"]=10000
+        optimal["gamma"]=0.0001
+    return optimal
+    
 """ ############################################# Sections 1-2-3 comparison ############################################ """
 
-# This function plots the performance of SVM-L, SVM-RBF and RF with the optimal parameters found in sections 1, 2 and 3
-def compare_best_hyperparameters(train_tile="b278",test_tiles=["b234","b261","b360"]):
-    rate = "full"
-
-    # RF
-    X,y=retrieve_tile(train_tile)
-    clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
-    clf.fit(X,y)
-
-    scores = test_classifier(clf,test_tiles,"rf",train_tile,rate)
-
-    # SVM
-    clf2 = Pipeline([
-        ('scaler', StandardScaler()),
-        ('clf', LinearSVC(verbose=3, max_iter=10000, C=0.1, dual=False)) ])
-            
-    clf2.fit(X,y)
-
-    scores2 = test_classifier(clf2,test_tiles,"svm",train_tile,rate)
-    
-    #SVM-K
-
-    nystroem_approx_svm = Pipeline( 
-        [("scaler",StandardScaler()), 
-         ("feature_map", Nystroem(n_components=300,gamma=0.00017782794100389227)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
-
-    nystroem_approx_svm.fit(X,y)    
-        
-    scores3 = test_classifier(nystroem_approx_svm,test_tiles,"svm-k",train_tile,rate)
-
-    fig, ax = plt.subplots()
-
-    plt.title('Training in tile' + train_tile + ' using optimal hyperparameters')
-    plt.xlabel('recall')
-    plt.ylabel('precision')
-
-
-    for tt,col in zip(test_tiles,["blue","red","green"]):
-                
-        (p,r,t) = (scores[tt])[7]
-        ax.plot(r,p,label=tt+' rf',color=col)
-
-        (p,r,t) = (scores2[tt])[7]
-        ax.plot(r,p,linestyle='--', dashes=(5, 5),label=tt+' svm-l',color=col)
-
-        (p,r,t) = (scores3[tt])[7]
-        ax.plot(r,p,linestyle='dotted',label=tt+' svm-k',color=col)
-
-    leg = ax.legend();
 
 def generate_figure_1():
     with open('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/cv_results.csv', newline='') as csvfile:
@@ -496,15 +457,15 @@ def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","
     # SVM
     clf2 = Pipeline([
         ('scaler', StandardScaler()),
-        ('clf', LinearSVC(verbose=3, max_iter=100000, C=0.1, dual=False)) ])
+        ('clf', LinearSVC(verbose=3, max_iter=100000, C=get_optimal_parameters_i("svml")["C"], dual=False)) ])
             
     clf2.fit(X,y)
     
     #SVM-K
     nystroem_approx_svm = Pipeline( 
         [("scaler",StandardScaler()), 
-         ("feature_map", Nystroem(n_components=300,gamma=0.0001)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=10000))])
+         ("feature_map", Nystroem(n_components=300,gamma=get_optimal_parameters_i("svml")["gamma"])), 
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_i("svmK")["C"]))])
 
     nystroem_approx_svm.fit(X,y)    
         
@@ -539,6 +500,8 @@ def generate_figure_2_data():
 
 def generate_figure_2_subplots():
     
+    scores = {}
+
     for train in ["b278","b234","b261","b360"]:
         for test in ["b278","b234","b261","b360"]:
             if (train==test):
@@ -549,12 +512,27 @@ def generate_figure_2_subplots():
             fig, ax = plt.subplots()
 
             p,r = curves["rf"]
+            precision_fold, recall_fold = p[::-1], r[::-1]
+            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
+            robust_auc = auc(recall_interpolated, precision_interpolated)     
+            scores[("rf",train,test)] = robust_auc
             ax.plot(r,p, label="Random Forest")
 
             p,r = curves["svml"]
+            precision_fold, recall_fold = p[::-1], r[::-1]
+            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
+            robust_auc = auc(recall_interpolated, precision_interpolated)     
+            scores[("svml",train,test)] = robust_auc
             ax.plot(r,p, label="Linear SVM")
             
             p,r = curves["svmk"]
+            precision_fold, recall_fold = p[::-1], r[::-1]
+            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
+            robust_auc = auc(recall_interpolated, precision_interpolated)     
+            scores[("svmk",train,test)] = robust_auc
             ax.plot(r,p, label="RBF SVM")
             
             plt.title('Train ' + train + "- Test" + test)
@@ -565,7 +543,12 @@ def generate_figure_2_subplots():
                 leg = ax.legend();
     
             plt.savefig('/home/jere/carpyncho/experiments/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".png",bbox_inches='tight')
-
+            
+    with open(results_folder_initial_estimation+"baseline_aucs.pkl", 'wb') as output:
+        pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL)   
+        
+    return scores
+    
 def generate_figure_3(train_tile="b278"):
     
     # Read cross validation objects
