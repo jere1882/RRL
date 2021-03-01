@@ -774,9 +774,9 @@ def generate_table_comparison(scores_after, scores_before):
 		for test in ["b278","b234","b261","b360"]:
 			if (train==test):
 				continue
-			print(train,test,"{:.2f}".format(scoreso[("rf",train,test)]),
-				"{:.2f}".format(scoreso[("svml",train,test)]),"{:.2f}".format(scores[("svml",train,test)]), "{:.2f}".format(scores[("svml",train,test)]-scoreso[("svml",train,test)]),
-				"{:.2f}".format(scoreso[("svmk",train,test)]),"{:.2f}".format(scores[("svmk",train,test)]), "{:.2f}".format(scores[("svmk",train,test)]-scoreso[("svmk",train,test)]))
+			print(train,test,"{:.3f}".format(scoreso[("rf",train,test)]),
+				"{:.3f}".format(scoreso[("svml",train,test)]),"{:.3f}".format(scores[("svml",train,test)]), "{:.3f}".format(scores[("svml",train,test)]-scoreso[("svml",train,test)]),
+				"{:.3f}".format(scoreso[("svmk",train,test)]),"{:.3f}".format(scores[("svmk",train,test)]), "{:.3f}".format(scores[("svmk",train,test)]-scoreso[("svmk",train,test)]))
 
 	return((scores,scoreso))
    

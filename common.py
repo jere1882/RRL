@@ -90,6 +90,8 @@ def suffix(s):
         return "_1000"
     if (s=="1:2000" or s=="full" or s==2000):
         return ""
+    else:
+        return ("_"+str(s))
         
 """ Retrieve a previously persisted tile """
 def retrieve_tile(tile,rate="full"):
@@ -148,10 +150,13 @@ def generate_virtual_tiles(nsplits=20):
             
             i=i+1
 
+def get_supported_rates(tile):
+    X,y = retrieve_tile(tile)
+    max_rate = len(y)/sum(y)
+    return([x for x in [1,10,100,150,200,250,350,425,500,750,1000,1250,1500,1750,2000,2250] if x<max_rate])
+
 """ Generated indexes for subtiles by undersampling the negative class """
 def generate_balanced_subtiles(virtual=False,nsplits=20):
-    
-    rates = [1,10,100,500,1000]
     
     if virtual:
         ts = [str(t) for t in range(0,nsplits)]
@@ -161,20 +166,17 @@ def generate_balanced_subtiles(virtual=False,nsplits=20):
         path = "tiles/undersampled_indexes"
 
     for tile in ts:
-        X,y = retrieve_tile(tile)
-        
+        X,y   = retrieve_tile(tile)
         rrl_indexes = y[y==1].index.values # Indexes corresponding to RRLS
         rrl_n = len(rrl_indexes)           # Number of RRLS in this tile
-
+        
         norrl_indexes = y[y==0].index.values
         random.shuffle(norrl_indexes)
-
-        for rate in rates:
-
+        
+        for rate in get_supported_rates(tile):
             unk_n       = rrl_n * rate   # Expected number of unknown sources in the undersampled DS with rate 'rate'
-            
             rate_ds = rrl_indexes.tolist() + norrl_indexes[0:unk_n].tolist()
-
+            
             # Persist
             with open(path+tile+suffix(rate)+".pkl", 'wb') as file:
                 pickle.dump(rate_ds,file)

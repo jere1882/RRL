@@ -585,7 +585,7 @@ def generate_feature_agglomeration_unified_all_tiles(kernel="linear"):
     generate_feature_agglomeration_unified_tile_subplot(train="b360",test="b278",kernel=kernel)
     generate_feature_agglomeration_unified_tile_subplot(train="b360",test="b234",kernel=kernel)
 
-def get_optimal_parameters_p(kernel="linear"):
+def get_optimal_parameters_fs(kernel="linear"):
     optimal = {}
     if (kernel=="linear" or kernel=="svml"):
         optimal["C"]=10
@@ -610,20 +610,20 @@ def generate_test_performance_data_fs(train_tile="b278",test_tiles=["b234","b261
 
     # SVM
     clf2 = Pipeline( 
-        [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_p("svml")["n_bins"], encode='ordinal', strategy='quantile')),
+        [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_fs("svml")["n_bins"], encode='ordinal', strategy='quantile')),
          ("scaler",StandardScaler()), 
-         ("feature_selector", SelectKBest(get_optimal_parameters_p("svmk")["fc"], k=get_optimal_parameters_p("svmk")["k"])),
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_p("svml")["C"]))])
+         ("feature_selector", SelectKBest(get_optimal_parameters_fs("svml")["fc"], k=get_optimal_parameters_fs("svml")["k"])),
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_fs("svml")["C"]))])
             
     clf2.fit(X,y)
     
     #SVM-K
     clf3 = Pipeline( 
-        [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_p("svmk")["n_bins"], encode='ordinal', strategy='quantile')),
+        [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_fs("svmk")["n_bins"], encode='ordinal', strategy='quantile')),
          ("scaler",StandardScaler()), 
-         ("feature_selector", SelectKBest(get_optimal_parameters_p("svmk")["fc"], k=get_optimal_parameters_p("svmk")["k"])),
-         ("feature_map", Nystroem(gamma=get_optimal_parameters_p("svmk")["gamma"], n_components=300)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_p("svmk")["C"],))])
+         ("feature_selector", SelectKBest(get_optimal_parameters_fs("svmk")["fc"], k=get_optimal_parameters_fs("svmk")["k"])),
+         ("feature_map", Nystroem(gamma=get_optimal_parameters_fs("svmk")["gamma"], n_components=300)), 
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_fs("svmk")["C"],))])
 
     clf3.fit(X,y)    
         
@@ -705,3 +705,15 @@ def generate_test_performance_data_fs_subplots():
         
 # generate_table_comparison(results_folder_dimensionality_reduction+ "baseline_aucs.pkl", results_folder_preproces+"baseline_aucs.pkl")
 
+def get_baseline_fs_stage(train,test,method):
+    if (method=="rf"):
+        return get_baseline_preprocessing_stage(train,test,method)
+    else:
+        with open(results_folder_preproces+"baseline_aucs.pkl", 'rb') as output:
+            scores = pickle.load(output)
+        if (method=="linear" or method=="lineal"):
+            method = "svml"
+        elif (method=="rbf"):
+            method = "svmk"
+        
+        return scores[(method,train,test)]
