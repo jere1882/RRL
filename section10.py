@@ -1,8 +1,23 @@
 exec(open("/home/jere/Dropbox/University/Tesina/src/section9.py").read())
 #### EXPLORE THE EFFECT THAT DIFFERENT HYPERPARAMETERS HAVE ON SVM-RBF
 
-results_folder_imbalance= "/home/jere/Desktop/section10/"
+import seaborn as sb
+
+results_folder_potential= "/home/jere/Desktop/section10/"
  
+ 
+def get_range(param,legacy=False):
+    if param=="C":
+        if legacy:
+            return np.logspace(-5, 12, 18)
+        else:
+            return np.logspace(-4, 12, 17)
+    elif param=="gamma":
+        if legacy:
+            return np.logspace(-15, 4,20)
+        else:
+            return np.logspace(-11, 1,13)
+
 def explore_rbf_potential(train="b278",test="b234",kernel="rbf"):
   
     X,y=get_feature_selected_tile(train,kernel,train,"full")   
@@ -10,8 +25,8 @@ def explore_rbf_potential(train="b278",test="b234",kernel="rbf"):
     fig, ax = plt.subplots(figsize=(20,10))
     scores = {}
     
-    for c in np.logspace(-5, 12, 18):
-        for gamma in np.logspace(-15, 4,20):
+    for c in get_range("C"):
+        for gamma in get_range("gamma"):
             clf = Pipeline([("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_fs("svmk")["n_bins"], encode='ordinal', strategy='quantile')),
                     ("scaler",StandardScaler()),
                     ("feature_map", Nystroem(gamma=gamma, n_components=300)),
@@ -32,49 +47,13 @@ def explore_rbf_potential(train="b278",test="b234",kernel="rbf"):
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             scores[(c,gamma)] = auc(recall_interpolated, precision_interpolated)
 
-    with open(results_folder_imbalance+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'wb') as s_file:
-        pickle.dump(scores,s_file)
-    return scores  
-
-
-def explore_rbf_potentialRESPALDO(train="b278",test="b234"):
-    
-    save_folder = "/home/jere/Desktop/section9/"
-
-    X,y=retrieve_tile(train)
-    Xt,yt=retrieve_tile(test)   
-    fig, ax = plt.subplots(figsize=(20,10))
-    scores = {}
-    
-    for c in np.logspace(-5, 12, 18):
-        for gamma in np.logspace(-15, 4,20):
-            clf = Pipeline([("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')),
-                    ("scaler",StandardScaler()),
-                    ("feature_map", Nystroem(gamma=gamma, n_components=300)),
-                    ("svm", LinearSVC(dual=False,max_iter=100000,C=c))])
-
-            clf.fit(X,y)
-            decs  = clf.decision_function(Xt)
-            
-            s = stats.describe(decs)
-            if ( abs(s.minmax[0] - s.minmax[1]) < 0.1 ):
-                scores[(c,gamma)] = -1
-                continue
-            
-            p,r,t = metrics.precision_recall_curve(yt,decs)
-
-            precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
-            precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
-            scores[(c,gamma)] = (p,r,auc(recall_interpolated, precision_interpolated))
-
-    with open(save_folder+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'wb') as s_file:
+    with open(results_folder_potential+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'wb') as s_file:
         pickle.dump(scores,s_file)
     return scores  
 
 def calculate_all_potential_rbf():
-    scores1= explore_rbf_potential(train="b278",test="b234")
-    scores2= explore_rbf_potential(train="b278",test="b261")
+    #scores1= explore_rbf_potential(train="b278",test="b234")
+    #scores2= explore_rbf_potential(train="b278",test="b261")
     scores3= explore_rbf_potential(train="b234",test="b261")
     scores4= explore_rbf_potential(train="b234",test="b360")
     scores5= explore_rbf_potential(train="b261",test="b360")
@@ -84,78 +63,83 @@ def calculate_all_potential_rbf():
 
 def plot_rbf_potential(train="b278",test="b234",legacy=False):
 
-    if (legacy):
-        prefix = "legacy/"
-    else:
-        prefix = ""
-    
-    with open(results_folder_imbalance+prefix+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'rb') as s_file:
-        scores = pickle.load(s_file)
+    try:
+        if (legacy):
+            prefix = "legacy/"
+        else:
+            prefix = ""
 
-    c_values = np.logspace(-5, 12, 18)
-    g_values = np.logspace(-15, 4,20)
-    perf = np.zeros((18,20))
+        with open(results_folder_potential+prefix+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'rb') as s_file:
+            scores = pickle.load(s_file)
 
-    for i in range(0,len(c_values)-1):
-        c = c_values[i]
-        for j in range(0,len(g_values)-1):
-            gamma = g_values[j]
-            if scores[(c,gamma)]!=-1
-                perf[i,j] = scores[(c,gamma)]
-            else
-                perf[i,j] = 0
-            
-    fig, ax = plt.subplots(figsize=(11, 9))
-    sb.heatmap(df_m,square=True,vmin= min_s, vmax=max_s, cmap="magma", linewidth=.3, linecolor='w')
+        c_values =  get_range("C",legacy)
+        g_values =  get_range("gamma",legacy)
+        perf = np.zeros((18,20))
 
-    xlabels = [ "{:.0e}".format(x) for x in c_values ]
-    ylabels = g_values
+        for i in range(0,len(c_values)-1):
+            c = c_values[i]
+            for j in range(0,len(g_values)-1):
+                gamma = g_values[j]
+                if scores[(c,gamma)]!=-1:
+                    perf[i,j] = scores[(c,gamma)]
+                else:
+                    perf[i,j] = 0
 
-    plt.xticks(np.arange(len(svm_param_grid_hist[0]['discretizer__n_bins']))+.5, labels=ylabels,rotation=60)
-    plt.yticks(np.arange(len(svm_param_grid_hist[0]['clf__C']))+.5, labels=xlabels, rotation=45)
+        perf = pd.DataFrame(perf)
+        rf_auc = get_baseline_preprocessing_stage(train,test,"rf")
 
-
-    plt.xlabel('gamma')
-    plt.ylabel('C')
-    plt.colorbar()
-    plt.xticks(np.arange(len(g_values)), g_values, rotation=45)
-    plt.yticks(np.arange(len(c_values)), c_values, rotation=0)
-    plt.title('Average validation  Robust AUCPRC')
-    plt.savefig(results_folder_imbalance+"_svmk_train="+train+"test="+test+"_grid.png")
-
-
-        df_m = scores_l   
+        # PLOT THE COLORS
         fig, ax = plt.subplots(figsize=(11, 9))
-        sb.heatmap(df_m,square=True,vmin= min_s, vmax=max_s, cmap=cmap, center=center, linewidth=.3, linecolor='w')
+        hmax = 0.6#max(rf_auc,np.max(perf.values))
 
-        xlabels = [ "{:.0e}".format(x) for x in svm_param_grid_hist[0]['clf__C'] ]
-        ylabels = svm_param_grid_hist[0]['discretizer__n_bins']
+        sb.heatmap(perf,square=True, cmap="magma", linewidth=.3, linecolor='w',vmax=hmax,
+                    cbar_kws={ 'label': 'R-AUCPRC' } , ax=ax)
 
-        plt.xticks(np.arange(len(svm_param_grid_hist[0]['discretizer__n_bins']))+.5, labels=ylabels,rotation=60)
-        plt.yticks(np.arange(len(svm_param_grid_hist[0]['clf__C']))+.5, labels=xlabels, rotation=45)
+        # PLOT HATCHED CELLS
+        zm = np.ma.masked_less(perf.values, rf_auc-0.05)
+        x= np.arange(len(perf.columns)+1)
+        y= np.arange(len(perf.index)+1)
+        ax.pcolor(x,y,zm, hatch='//', alpha=0.)
+
+        xlabels = [ "{:.0e}".format(x) for x in asvm_rbf_param_grid[0]['svm__C'] ]
+        ylabels = [ "{:.0e}".format(x) for x in asvm_rbf_param_grid[0]['feature_map__gamma'] ]
+
+        plt.yticks(np.arange(len(asvm_rbf_param_grid[0]['svm__C']))+.5, labels=xlabels,rotation=60)
+        plt.xticks(np.arange(len(asvm_rbf_param_grid[0]['feature_map__gamma']))+.5, labels=ylabels, rotation=45)
+        # PLOT THE RF TICK
+        cax = plt.gcf().axes[-1]
+        cax.hlines(y=rf_auc, xmin=0, xmax=1, colors = 'lawngreen', linewidth = 4, linestyles = 'solid',label="RF")
+
+        cax = plt.gcf().axes[-1]
+        cax.hlines(y=np.max(perf.values), xmin=0, xmax=1, colors = 'cyan', linewidth = 4, linestyles = 'solid',label="RF")
+
+        cax = plt.gcf().axes[-1]
+        cax.hlines(y=get_baseline_imb_stage(train,test,"svmk"), xmin=0, xmax=1, colors = 'dodgerblue', linewidth = 4, linestyles = 'solid',label="RF")
+
+        cax = plt.gcf().axes[-1]
+        cax.hlines(y=get_baseline_imb_stage(train,test,"svml"), xmin=0, xmax=1, colors = 'white', linewidth = 4, linestyles = 'solid',label="RF")
 
         # axis labels
         plt.ylabel('C')
-        plt.xlabel('nbins')
+        plt.xlabel('gamma')
         # title
         title = 'Average Robust AUCPRC'.upper()
-        plt.title(title, loc='left')
 
-        if cmap==None:
-            plt.savefig(results_folder_preproces+"heatmapl"+"NONE.png")
-        else:
-            plt.savefig(results_folder_preproces+"heatmapl"+cmap+".png")
+        plt.savefig(results_folder_potential+"heatmap_train="+train+"_test="+test+".png")
+    except:
+        print("Unable to generate heatmap for ",train,test)
+        pass
             
         
-def calculate_all_grids():
-    scores1= plot_rbf_potential(train="b278",test="b234")
-    scores2= plot_rbf_potential(train="b278",test="b261")
-    scores3= plot_rbf_potential(train="b234",test="b261")
-    scores4= plot_rbf_potential(train="b234",test="b360")
-    scores5= plot_rbf_potential(train="b261",test="b360")
-    scores6= plot_rbf_potential(train="b261",test="b278")
-    scores7= plot_rbf_potential(train="b360",test="b278")
-    scores8= plot_rbf_potential(train="b360",test="b234")    
+def calculate_all_grids(legacy=True):
+    scores1= plot_rbf_potential(train="b278",test="b234",legacy=legacy)
+    scores2= plot_rbf_potential(train="b278",test="b261",legacy=legacy)
+    scores3= plot_rbf_potential(train="b234",test="b261",legacy=legacy)
+    scores4= plot_rbf_potential(train="b234",test="b360",legacy=legacy)
+    scores5= plot_rbf_potential(train="b261",test="b360",legacy=legacy)
+    scores6= plot_rbf_potential(train="b261",test="b278",legacy=legacy)
+    scores7= plot_rbf_potential(train="b360",test="b278",legacy=legacy)
+    scores8= plot_rbf_potential(train="b360",test="b234",legacy=legacy)    
 
 
 

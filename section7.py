@@ -709,7 +709,7 @@ def get_baseline_fs_stage(train,test,method):
     if (method=="rf"):
         return get_baseline_preprocessing_stage(train,test,method)
     else:
-        with open(results_folder_preproces+"baseline_aucs.pkl", 'rb') as output:
+        with open(results_folder_dimensionality_reduction+"baseline_aucs.pkl", 'rb') as output:
             scores = pickle.load(output)
         if (method=="linear" or method=="lineal"):
             method = "svml"

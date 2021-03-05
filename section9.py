@@ -213,7 +213,7 @@ def undersampling_analyse_gain(kernel="linear"):
 def get_optimal_hyp_undersampling(kernel="linear"):
     
     (scores_avg,scores_min,scores_diff)= undersampling_analyse_gain(kernel)
-    [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() if scores_min[k]>=-0.005 ]
+    [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() if scores_min[k]>=-0.05 ]
 ###### 
 
 def oversampling_generate_data(train="b278",test="b234",method="naive",kernel="linear"):
@@ -460,9 +460,14 @@ def calculate_oversampling_gain(kernel="linear",method="naive"):
     
     return (scores_avg,scores_min)
 
+def calculate_oversampling_gain_all():
+    for kernel in ["linear","rbf"]:
+        for method in ["naive","SMOTE","ADASYN","SMOTEENN"]:
+            calculate_oversampling_gain(kernel,method)
+
 def get_optimal_hyp_oversampling(kernel="linear"):
     (scores_avg,scores_min)= calculate_oversampling_gain(kernel,"naive")
-    [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() if scores_min[k]>=-0.005 ]
+    [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() if scores_min[k]>=-0.1 ]
     
 ##### CLASS WEIGHT #######
 def class_weight(test="b278",train="b234",kernel="linear"):
@@ -629,7 +634,7 @@ def class_weight_analyse_gain(kernel="linear"):
     return (scores_avg,scores_min,scores,scores_diff)
 
 def get_optimal_hyp_cw(kernel="linear"):
-    (scores_avg,scores_min)= class_weight_analyse_gain(kernel)
+    (scores_avg,scores_min,scores,scores_diff)= class_weight_analyse_gain(kernel)
     [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() ]
       
 
@@ -643,8 +648,8 @@ def get_optimal_parameters_imb(kernel="linear"):
         optimal["n_bins"]=150
         optimal["k"]=48
         optimal["fc"]=mutual_info_classif
-        optimal["undersampling_rate"] = "full" #i.e. default
-        optimal["cw"]={0:1,1:5} #i.e. default
+        optimal["undersampling_rate"] = "full"
+        optimal["oversampling_rate"] = 1.0/500 #i.e. default
         
     elif (kernel=="rbf" or kernel=="svmk"):
         optimal["C"]=get_optimal_parameters_fs("svmk")["C"]
@@ -652,7 +657,6 @@ def get_optimal_parameters_imb(kernel="linear"):
         optimal["n_bins"]=get_optimal_parameters_fs("svmk")["n_bins"]       
         optimal["k"]=45
         optimal["fc"]=mutual_info_classif
-        optimal["cw"]={0:1,1:5}
         optimal["undersampling_rate"] = "full" #i.e. default
     return optimal
 
@@ -663,29 +667,34 @@ def generate_test_performance_data_imb(train_tile="b278",test_tiles=["b234","b26
     #clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
     #clf.fit(X,y)
 
-    # SVM
-    #X,y=get_feature_selected_tile(train_tile,"linear",train_tile,get_optimal_parameters_imb("svml")["undersampling_rate"])
-    #clf2 = Pipeline( 
-    #    [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_imb("svml")["n_bins"], encode='ordinal', strategy='quantile')),
-    #     ("scaler",StandardScaler()), 
-         #("feature_selector", SelectKBest(get_optimal_parameters_imb("svml")["fc"], k=get_optimal_parameters_imb("svml")["k"])),
-    #     ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_imb("svml")["C"],class_weight=get_optimal_parameters_imb("svml")["cw"]))])
-            
-    #clf2.fit(X,y)
+    #SVM
+    X,y=get_feature_selected_tile(train_tile,"linear",train_tile,get_optimal_parameters_imb("svml")["undersampling_rate"])
     
+    ros = RandomOverSampler(sampling_strategy=get_optimal_parameters_imb("svml")["oversampling_rate"])
+    X_resampled, y_resampled = ros.fit_resample(X, y)
+                
+    clf2 = Pipeline( 
+        [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_imb("svml")["n_bins"], encode='ordinal', strategy='quantile')),
+         ("scaler",StandardScaler()), 
+         ("feature_selector", SelectKBest(get_optimal_parameters_imb("svml")["fc"], k=get_optimal_parameters_imb("svml")["k"])),
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_imb("svml")["C"]))])
+            
+    clf2.fit(X_resampled,y_resampled)
+    
+    """
     #SVM-K
-        
     X,y=get_feature_selected_tile(train_tile,"rbf",train_tile,get_optimal_parameters_imb("svmk")["undersampling_rate"])
     clf3 = Pipeline( 
         [("discretizer",KBinsDiscretizer(n_bins=get_optimal_parameters_imb("svmk")["n_bins"], encode='ordinal', strategy='quantile')),
          ("scaler",StandardScaler()), 
          #("feature_selector", SelectKBest(get_optimal_parameters_imb("svmk")["fc"], k=get_optimal_parameters_imb("svmk")["k"])),
          ("feature_map", Nystroem(gamma=get_optimal_parameters_imb("svmk")["gamma"], n_components=300)), 
-         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_imb("svmk")["C"],class_weight=get_optimal_parameters_imb("svmk")["cw"]))])
+         ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_imb("svmk")["C"]))])
 
                          
     clf3.fit(X,y)    
-        
+        """
+
     for test in test_tiles:
         curves = {}
         
@@ -695,17 +704,18 @@ def generate_test_performance_data_imb(train_tile="b278",test_tiles=["b234","b26
         #curves["rf"] = (precision,recall)
         
         # SVM-L
-        #Xt,yt=get_feature_selected_tile(test,"linear",train_tile,"full")
-        #test_predictions = clf2.decision_function(Xt)
-        #precision, recall, thresh = metrics.precision_recall_curve(yt, test_predictions)
-        curves["svml"] = ([],[])#(precision,recall)
-
+        Xt,yt=get_feature_selected_tile(test,"linear",train_tile,"full")
+        test_predictions = clf2.decision_function(Xt)
+        precision, recall, thresh = metrics.precision_recall_curve(yt, test_predictions)
+        curves["svml"] = (precision,recall)
+        
+        """
         # SVM-K
         Xt,yt=get_feature_selected_tile(test,"rbf",train_tile,"full")
         test_predictions = clf3.decision_function(Xt)
         precision, recall, thresh = metrics.precision_recall_curve(yt, test_predictions)
         curves["svmk"] = (precision,recall)
-
+        """
         with open(results_folder_imbalance+"best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
             pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)    
 
@@ -723,22 +733,26 @@ def generate_test_performance_data_imb_subplots():
         for test in ["b278","b234","b261","b360"]:
             if (train==test):
                 continue
-            with open(results_folder_imbalance+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
-                curves = pickle.load(input_file)
 
+            fig, ax = plt.subplots()
+
+            # GET RANDOM FOREST DATA FROM PREPROCESSING STAGE
             with open(results_folder_preproces+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
                 rf_curves = pickle.load(input_file)
                 
-            fig, ax = plt.subplots()
-
             p,r = rf_curves["rf"]
             precision_fold, recall_fold = p[::-1], r[::-1]
             recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
-            scores[("rf",train,test)] = 0# robust_auc
+            scores[("rf",train,test)] = robust_auc
             ax.plot(r,p, label="Random Forest")
 
+
+            # GET SVM-L DATA FROM IMBLEARNING STAGE
+            with open(results_folder_imbalance+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
+                curves = pickle.load(input_file)
+                
             p,r = curves["svml"]
             precision_fold, recall_fold = p[::-1], r[::-1]
             recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
@@ -747,14 +761,18 @@ def generate_test_performance_data_imb_subplots():
             scores[("svml",train,test)] = robust_auc
             ax.plot(r,p, label="Linear SVM")
             
+            # GET SVM-K DATA FROM FEATURE SELECTION STAGE
+            with open(results_folder_dimensionality_reduction+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
+                curves = pickle.load(input_file)
             p,r = curves["svmk"]
             precision_fold, recall_fold = p[::-1], r[::-1]
             recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
-            scores[("svmk",train,test)] = robust_auc
+            scores[("svmK",train,test)] = robust_auc
+
             ax.plot(r,p, label="RBF SVM")
-            
+
             plt.title('Train ' + train + "- Test" + test)
             plt.xlabel('Recall')
             plt.ylabel('Precision')
@@ -770,14 +788,16 @@ def generate_test_performance_data_imb_subplots():
 # generate_table_comparison(results_folder_imbalance+ "baseline_aucs.pkl", results_folder_dimensionality_reduction+"baseline_aucs.pkl")
 
 def get_baseline_imb_stage(train,test,method):
-    if (method=="rf"):
+    
+    if (method=="rbf"):
+        method = "svmk"
+
+    if (method=="linear" or method=="lineal"):
+        method = "svml"
+            
+    if (method=="rf" or method=="svmk"):
         return get_baseline_preprocessing_stage(train,test,method)
     else:
         with open(results_folder_imbalance+"baseline_aucs.pkl", 'rb') as output:
-            scores = pickle.load(output)
-        if (method=="linear" or method=="lineal"):
-            method = "svml"
-        elif (method=="rbf"):
-            method = "svmk"
-        
+            scores = pickle.load(output)      
         return scores[(method,train,test)]
