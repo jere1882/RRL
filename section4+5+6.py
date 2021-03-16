@@ -95,8 +95,8 @@ def generate_figure_5_subplot(train="b278",test="b234",kernel="linear"):
     (p,r) = curves["RobustScaler"]
     ax.plot(r,p,label="RobustScaler")
 
-    (p,r) = curves["Normalizer"]
-    ax.plot(r,p,label="Normalizer + StandardScaler")
+    #(p,r) = curves["Normalizer"]
+    #ax.plot(r,p,label="Normalizer + StandardScaler")
     
     plt.xlabel('recall')
     plt.ylabel('precision')

@@ -795,8 +795,10 @@ def get_baseline_imb_stage(train,test,method):
     if (method=="linear" or method=="lineal"):
         method = "svml"
             
-    if (method=="rf" or method=="svmk"):
+    if (method=="rf"):
         return get_baseline_preprocessing_stage(train,test,method)
+    elif (method=="svmk"):
+        return get_baseline_fs_stage(train,test,method)
     else:
         with open(results_folder_imbalance+"baseline_aucs.pkl", 'rb') as output:
             scores = pickle.load(output)      

@@ -36,6 +36,7 @@ from sklearn.decomposition import PCA
 from sklearn.kernel_approximation import Nystroem
 from matplotlib.colors import Normalize
 from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.metrics import roc_auc_score
 
 n_jobs_global_param = 7 ## NUMBER OF PROCESSORS TO BE USED
 
