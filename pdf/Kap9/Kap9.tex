@@ -1,0 +1,25 @@
+\chapter{Conclusión y Trabajo Futuro}
+
+En esta tesina se abordó la problemática de clasificar estrellas variables de tipo RRL utilizando SVM, intentando igualar la performance obtenida por RF en trabajos previos, así como entender por qué los ensambles de árboles parecen funcionar mejor. \\
+
+En primer lugar se exploró escalar y discretizar los datos de distintas formas, seleccionándose binning quantile junto con un escalado estándar como la elección óptima. Esto permitió mitigar el efecto de distintas escalas, outliers y ruido en los atributos. Posteriormente se hallaron hiperparámetros $C$ y $\gamma$ óptimos utilizando cross validation, de forma tal que no se sobreajusten los datos de entrenamiento. \\
+
+En segundo lugar se evaluaron distintas técnicas de selección y extracción de variables, tendientes a reducir la cantidad de atributos usados para describir cada estrella. Se decidió eliminar 17 (14 en SVM-L) atributos utilizando filtros univariable, lo que permitió deshacerse de atributos no informativos y reducir la complejidad computacional y espacial significativamente. \\
+
+Se procedió a inspeccionar los datos en detalle, buscando comprender qué atributos son los más informativos para detectar RRLs. También se identificó la presencia de bloques de atributos altamente correlacionados en nuestros tiles, pero se descartó que esto tuviese un impacto negativo en la performance de los clasificadores SVM. \\
+
+Se experimentó con distintas técnicas para corregir el marcado desbalance de clases presente en los datos. Se concluyó que el uso de oversampling aleatorio conduce a una leve mejoría en SVM Lineal, en tanto que SVM-RBF no mejora su performance al corregir el desbalance. \\
+
+Como resultado final, la performance de SVM logró igualar a la de RF en varios de los tiles estudiados, aunque RF continúa siendo superior en otros (ver figura \ref{fig:poder_predictivo_curvas}). En este punto, ya se han abordado todas las razones obvias por las cuales SVM podría funcionar peor que RF: sobreajuste, escalado de los datos, ruido y outliers, atributos no informativos o altamente correlacionados y desbalance de clases. \\
+
+Finalmente, se profundiza sobre el hecho de que el problema de clasificación estudiado en esta tesina incumple una asunción básica en aprendizaje automatizado clásico: los datasets de entrenamiento y de testeo no están regidos por la misma distribución de probabilidad. Este fenómeno, llamado dataset drift, tiene poca visibilidad en el campo de aprendizaje automatizado a pesar de ser muy común en la práctica. \\
+
+Se propuso que la marcada diferencia entre las distribuciones de probabilidad subyacentes a cada tile es la causa por la cual la performance en test varía tanto entre distintos tiles. Basándose en resultados de trabajos previos, se conjetura que RF se ve menos afectado que SVM por la presencia de dataset shift, lo cuál explicaría por qué SVM es incapaz de superar a RF en pares de tiles espacialmente distantes. \\
+
+Finalmente se intentó corregir, sin éxito, la divergencia entre las distribuciones; eliminando atributos que contribuyen marcadamente a distinguir tiles. Considerando que prácticamente todos los atributos contribuyen a la divergencia, parece ser necesario recurrir a métodos más sofisticados para mitigar los efectos del dataset shift presente. \\
+
+Como trabajo futuro, se propone utilizar importance reweighting en los datos de entrenamiento antes de entrenar clasificadores SVM y RF, para mitigar el efecto de covariate shift. Debido a la alta dimensionalidad de los datos, se deberá buscar métodos aproximados dado que la complejidad computacional y espacial involucrada puede ser prohibitiva. \\
+
+Una alternativa es combinar datos de distintos tiles a la hora de entrenar, en vez de utilizar datos de un único tile. Esto permitirá que los clasificadores no estén tan sesgados hacia un área particular de la vía láctea. \\
+
+Finalmente, se sugiere modificar el conjunto de atributos utilizado para describir cada estrella, tratando de codificar la misma información de alguna forma que sirva para caracterizar estrellas independientemente del tile al que pertenece.
