@@ -68,7 +68,7 @@ Se calculó el R-AUCPRC en test para cada combinación de hiperparámetros de un
 \label{fig:poder_predictivo_curvas}
 \end{figure}
 
-Como conclusión de este experimento, podemos descartar que la asignación de hiperparámetros escogida sea el problema por el cuál SVM-RBF funciona peor que RF. Existen elecciones de hiperparámetros (como $C=10^4$ y $\gamma=10^{-4}$) que funcionan razonablemente bien en todos los pares testeados.
+Como conclusión de este experimento, podemos descartar que la asignación de hiperparámetros escogida sea el problema por el cual SVM-RBF funciona peor que RF. Existen elecciones de hiperparámetros (como $C=10^4$ y $\gamma=10^{-4}$) que funcionan razonablemente bien en todos los pares testeados.
 
 \section{Impacto de la variabilidad de datos en los clasificadores}
 
@@ -90,7 +90,7 @@ Para ejemplificar esta problemática, consideremos una situación donde se inten
 \label{fig:data_shift}
 \end{figure}
 
-Esta problemática ha recibido mucha atención en los últimos años, aunque a menudo pasa desapercibida, e incluso carece de un nombre estándar en la literatura, siendo referida con distintos nombres \cite{MORENOTORRES2012521} tales como: dataset shift \cite{quinonero2009dataset}, concept shift o concept drift \cite{widmer1998special} \cite{conceptdrift} , changing environments \cite{changingenvironments}, etc. Formalmente, definiremos \textbf{dataset shift} (variabilidad de datasets) como aquella situación en la cuál la distribución de probabilidad de los datos de entrenamiento es distinta a la distribución de probabilidad de los datos de test \cite{quinonero2009dataset} \cite{non-stationary}.
+Esta problemática ha recibido mucha atención en los últimos años, aunque a menudo pasa desapercibida, e incluso carece de un nombre estándar en la literatura, siendo referida con distintos nombres \cite{MORENOTORRES2012521} tales como: dataset shift \cite{quinonero2009dataset}, concept shift o concept drift \cite{widmer1998special} \cite{conceptdrift} , changing environments \cite{changingenvironments}, etc. Formalmente, definiremos \textbf{dataset shift} (variabilidad de datasets) como aquella situación en la cual la distribución de probabilidad de los datos de entrenamiento es distinta a la distribución de probabilidad de los datos de test \cite{quinonero2009dataset} \cite{non-stationary}.
 
 \begin{center}
 $ P_{train}(x,y) \neq P_{test}(x,y) $
@@ -100,7 +100,7 @@ La presencia de dataset shift es común en muchas aplicaciones prácticas y pued
 
 \begin{itemize}
 \item Ambientes no estacionarios: Datos obtenidos en distintas locaciones, en distintos instantes de tiempo, etcétera \cite{quinonero2009dataset} \cite{adaptative_learning} \cite{MORENOTORRES2012521}. Por ejemplo, un dataset recolectado en una cierta estación del año o en una cierta región geográfica es utilizado para realizar predicciones sobre datos recolectados en una estación del año o región geográfica notablemente distinta. 
-\item Sesgo introducido por el diseño experimental mediante el cuál se obtuvieron los datos \cite{MORENOTORRES2012521}. Por ejemplo, en ciencias sociales, habrá subconjuntos de una población general (e.g. estudiantes en la universidad que conduce un cierto experimento) que serán más fáciles de encuestar que otros. Tales subconjuntos de la población pueden estar sobre-representados, en tanto que otros subconjuntos (e.g. convictos) pueden ser completamente excluidos.
+\item Sesgo introducido por el diseño experimental mediante el cual se obtuvieron los datos \cite{MORENOTORRES2012521}. Por ejemplo, en ciencias sociales, habrá subconjuntos de una población general (e.g. estudiantes en la universidad que conduce un cierto experimento) que serán más fáciles de encuestar que otros. Tales subconjuntos de la población pueden estar sobre-representados, en tanto que otros subconjuntos (e.g. convictos) pueden ser completamente excluidos.
 \item Incapacidad de reproducir las condiciones de testeo al momento de entrenar.
 \end{itemize}
 
@@ -113,7 +113,7 @@ Algunos ejemplos de dataset shift, extraídos de \cite{quinonero2009dataset}, so
 
 \subsection{Tipos de dataset shift}
 
-Es interesante discriminar entre distintos tipos de dataset shift. La variedad de dataset shift más ampliamente estudiada es \textbf{covariate shift}\footnote{En este contexto, la palabra \textit{covariate} (en inglés) se utiliza como sinónimo de atributo o feature.} (también llamado covariate drift), en la cuál la variabilidad entre los datos de entrenamiento y de testeo se encuentra únicamente en los atributos \cite{non-stationary} \cite{quinonero2009dataset} \cite{MORENOTORRES2012521} \cite{kouw2019introduction}. Esto se ejemplifica en la figura \ref{fig:ds_shift_sets}a. \\
+Es interesante discriminar entre distintos tipos de dataset shift. La variedad de dataset shift más ampliamente estudiada es \textbf{covariate shift}\footnote{En este contexto, la palabra \textit{covariate} (en inglés) se utiliza como sinónimo de atributo o feature.} (también llamado covariate drift), en la cual la variabilidad entre los datos de entrenamiento y de testeo se encuentra únicamente en los atributos \cite{non-stationary} \cite{quinonero2009dataset} \cite{MORENOTORRES2012521} \cite{kouw2019introduction}. Esto se ejemplifica en la figura \ref{fig:ds_shift_sets}a. \\
 
 Formalmente: 
 
@@ -201,7 +201,7 @@ Teóricamente, a falta de mayores asunciones, cambios en la distribución de los
 \begin{figure}[h!]
 \centering
   \includegraphics[width=0.6\textwidth]{Kap8/histogram_intersection.png}  
-\caption{Ilustración del cálculo de la intersección de histogramas de frecuencia correspondentes a los datos de test (rosa) y training (violeta). Hay aproximadamente 72\% de intersección entre las distribuciones, lo cuál indica un nivel razonable de covariate shift entre las distribuciones. Fuente: \url{towardsdatascience.com}}
+\caption{Ilustración del cálculo de la intersección de histogramas de frecuencia correspondentes a los datos de test (rosa) y training (violeta). Hay aproximadamente 72\% de intersección entre las distribuciones, lo cual indica un nivel razonable de covariate shift entre las distribuciones. Fuente: \url{towardsdatascience.com}}
 \label{fig:hist_intersection}
 \end{figure}
 
@@ -280,7 +280,7 @@ Es factible aplicar los dos métodos recién descriptos a nuestro problema de cl
 
 Se optó por intentar eliminar atributos que causan covariate shift, estudiando puntualmente el par de tiles $b360-b234$, pues muestra la mayor divergencia. En primer lugar, se analizó la importancia de cada variable a la hora de diferenciar entre $b360$ y $b234$. Esta importancia se obtiene a partir de los clasificadores entrenados en la sección anterior; en el caso de RF es la importancia gini y en el caso de LR se obtienede forma transparente a partir de los coeficientes asignados a cada variable \cite{molnar2019}. \\
 
-En la figura \ref{fig:covariate_ranking} se muestra, para cada atributo, la importancia obtenida por RF y LR (normalizada) a la hora de separar ambos tiles. Notar que se aplico feature selection previamente, por lo tanto sólo 45 atributos fueron evaluados. Los atributos están ordenados en el eje $x$ de acuerdo a su importancia para clasificar RRLs en el tile b360, de acuerdo a mutual information (ver sección \ref{experimentos_test_estadisticos}). Algunas observaciones:
+En la figura \ref{fig:covariate_ranking} se muestra, para cada atributo, la importancia obtenida por RF y LR (normalizada) a la hora de separar ambos tiles. Notar que se aplicó feature selection previamente, por lo tanto sólo 45 atributos fueron evaluados. Los atributos están ordenados en el eje $x$ de acuerdo a su importancia para clasificar RRLs en el tile b360, de acuerdo a mutual information (ver sección \ref{experimentos_test_estadisticos}). Algunas observaciones:
 
 \begin{itemize}
 \item Tanto RF como LR señalan mayormente a atributos de color entre los más informativos para distinguir entre b360 y b234. Es decir, los atributos de color contribuyen mucho a la presencia de covariate shift. Quizás sea necesario realizar algún tipo de preprocesamiento extra de tal forma que los datos de color sean más homogéneos entre distintos tiles.
@@ -311,7 +311,7 @@ Habiéndose obtenido los puntajes de importancia para cada atributo, se procedi�
 El hecho de que la presencia de covariate drift no disminuya lo suficientemente rápido al eliminar los primeros atributos puede deberse a los siguientes motivos:
 
 \begin{itemize}
-\item El drift podríá estar distribuido entre todos los atributos, por lo que los clasificadores aún pueden utilizar los atributos aún no eliminados para dividir entre b234 y b360 con alta efectividad.
+\item El drift podría estar distribuido entre todos los atributos, por lo que los clasificadores pueden utilizar los atributos aún no eliminados para dividir entre b234 y b360 con alta efectividad.
 \item Algún atributo que tiene alta capacidad de diferenciar entre b234 y b360 no fue eliminado por que mutual information lo considera importante para separar RRL y no-RRL.
 \end{itemize}
 
@@ -326,12 +326,12 @@ Para poder aclarar esta situación, se procedió a entrenar un clasificador por 
 
 Finalmente, una vez identificados los atributos que más contribuyen a la presencia de covariate drift, se procedió a evaluar si eliminarlos conduce a algún beneficio en el problema de clasificación original. Para ello, se entrenó SVM-RBF en b360, testeando en b234 utilizando los preprocesamientos e hiperparámetros óptimos hallados en la sección \ref{mejores_fs}. Antes de entrenar el clasificador, se eliminan los $n$ atributos que más contribuyen a la presencia de covariate drift, omitiendo eliminar aquellos que se encuentran entre los 5 más importantes para distinguir RRLs de noRRLs.  \\
 
-Desafortunadamente, no se observo mejoría alguna en R-AUCPRC. Esto puede deberse a que es necesario eliminar demasiados atributos para reducir el covariate drift significativamente, y la pérdida de información asociada es demasiado grande. 
+Desafortunadamente, no se observó mejoría alguna en R-AUCPRC. Esto puede deberse a que es necesario eliminar demasiados atributos para reducir el covariate drift significativamente, y la pérdida de información asociada es demasiado grande. 
 
 
 \section{Conclusiones}
 
-En este capítulo se verificó, utilizando distancia discriminatoria, que el problema de clasificación que se aborda en esta tesina sufre de un fenómeno denominado covariate shift, en el cuál las distribuciones de probabilidad de los datos de entrenamiento y de testeo son significativamente distintas. \\
+En este capítulo se verificó, utilizando distancia discriminatoria, que el problema de clasificación que se aborda en esta tesina sufre de un fenómeno denominado covariate shift, en el cual las distribuciones de probabilidad de los datos de entrenamiento y de testeo son significativamente distintas. \\
 
 Si bien en la sección \ref{impacto} se verificó que esto no imposibilita hallar hiperparámetros adecuados para todos los tiles, la presencia de covariate drift se propone como una explicación razonable a la disparidad de performance en clasificación que se ve al utilizar distintos tiles de entrenamiento y testeo. \\
 

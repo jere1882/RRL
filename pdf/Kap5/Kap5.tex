@@ -36,11 +36,11 @@ En este trabajo se experimentó únicamente con filtros univariable, los cuales 
 \item \textbf{mutual\_info}: Calcula la información mútua  \cite{han2012mining} entre dos variables aleatorias, la cuál es una medida de la reducción en incertidumbre para una variable aleatoria suponiendo que se conoce el valor de la otra. Intuitivamente, mide cuánta información una variable aleatoria contiene sobre otra. La implementación provista por sklearn hace uso de modelos no paramétricos basados en estimar la entropía de distancias de KNN (K vecinos más cercanos), tal y como se describe en \cite{mutual_info}. Este test es capaz de medir correlaciones no necesariamente lineares.
 \end{itemize}
 
-Nótese que en este trabajo no se han aplicado filtros multivariable. Es perfectamente posible que una cierta variable sea inútil en sí misma pero provea un aumento significativo en performance al ser utilizada con otras \cite{fs3}. Sin embargo estos métodos son computacionalmente mucho más costosos y muestran tendencia a sobreajustar, por lo que se decidió no aplicarlos. 
+Nótese que en este trabajo no se han aplicado filtros multivariable. Es perfectamente posible que una cierta variable sea inútil en sí misma pero provea un aumento significativo en performance al ser utilizada con otras \cite{fs3}. Sin embargo, los filtros multivariable son computacionalmente mucho más costosos y muestran tendencia a sobreajustar, por lo que se decidió no aplicarlos. 
 
 \subsection{Experimentos en SVM-Lineal}
 
-En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar filtros univariable como paso previo a SVM-Lineal. Las curvas muestran R-AUCPRC en test obtenido utilizando únicamente los $k$ atributos con mayor puntaje para entrenar y testear. Podemos concluir que:
+En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar filtros univariable como paso previo a SVM-Lineal. Las curvas muestran el R-AUCPRC en test obtenido utilizando únicamente los $k$ atributos con mayor puntaje para entrenar y testear. Podemos concluir que:
 
 \begin{itemize}
 \item El aumento en R-AUCPRC es muy modesto o nulo. Los filtros utilizados no tienen un impacto positivo significativo en el desempeño de nuestro clasificador.
@@ -84,7 +84,7 @@ Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o 
   \includegraphics[width=0.49\textwidth]{Kap5/linearBEST_K_f_classif.png} &   \includegraphics[width=0.49\textwidth]{Kap5/linearBEST_K_mutual_info_classif.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUCPRC respecto al baseline, obtenida al realizar seleccionar $k$ features. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUCPRC respecto al baseline, obtenida al realizar seleccionar $k$ features en SVM Lineal. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:optimal_k_svml}
 \end{figure}
 
@@ -132,11 +132,11 @@ Nuevamente, resulta complicado determinar el número óptimo de atributos a sele
   \includegraphics[width=0.49\textwidth]{Kap5/rbfBEST_K_f_classif.png} &   \includegraphics[width=0.49\textwidth]{Kap5/rbfBEST_K_mutual_info_classif.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUCPRC respecto al baseline, obtenida al realizar seleccionar $k$ features. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUCPRC respecto al baseline, obtenida al realizar seleccionar $k$ features en SVM-RBF. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:optimal_k_svmk}
 \end{figure}
 
-\section{Extracción de Variables}
+\section{Extracción de variables}
 
 \subsection{Introducción a extracción de variables}
 
@@ -157,9 +157,9 @@ Los métodos de extracción de variables pueden clasificarse en dos tipos \cite{
 
 En esta sección se describirá un método de extracción de variables no supervizado muy popular: Principal Component Analysis (PCA) \cite{han2012mining}. \\
 
-Supongamos que se desea reducir la cantidad de variables de un dataset $X$ descripto por $p$ atributos. Se definen las \textbf{componentes principales} de $X$ como la secuencia de $p$ vectores unitarios, donde el $i$-ésimo vector es la dirección que mejor ajusta los datos en tanto que es ortogonal a los primeros $i-1$ vectores. En este contexto, la dirección o línea que mejor ajusta los datos es definida como aquella que minimiza la distancia cuadrada promedio de todos los puntos a la linea. \\
+Supongamos que se desea reducir la cantidad de variables de un dataset $X$ descripto por $p$ atributos. Se definen las \textbf{componentes principales} de $X$ como la secuencia de $p$ vectores unitarios, donde el $i$-ésimo vector es la dirección que mejor ajusta los datos en tanto que es ortogonal a los primeros $i-1$ vectores. En este contexto, la dirección o línea que mejor ajusta los datos es definida como aquella que minimiza la distancia cuadrada promedio de todos los puntos a la línea. \\
 
-Estas direcciones constituyen una base ortonormal en la cuál las distintas dimensiones individuales están linealmente decorrelacionadas.  Equivalentemente, la $i$-ésima componente principal puede ser definida como la dirección ortogonal a las primeras $i-1$ componentes principales que maximiza la varianza de los datos proyectados. En la figura \ref{fig:pca} se puede ver un ejemplo ilustrativo.  \\
+Estas direcciones constituyen una base ortonormal en la cual las distintas dimensiones individuales están linealmente decorrelacionadas.  Equivalentemente, la $i$-ésima componente principal puede ser definida como la dirección ortogonal a las primeras $i-1$ componentes principales que maximiza la varianza de los datos proyectados. En la figura \ref{fig:pca} se puede ver un ejemplo ilustrativo.  \\
 
 \begin{figure}[h!]
 \centering
@@ -223,10 +223,10 @@ Los algoritmos de clustering jerárquico generalmente se dividen en dos grandes 
 
 \begin{itemize}
 \item \textbf{Aglomerativos} (Bottom-up): Cada elemento del dataset comienza en su propio cluster, y pares de clusters son combinados recursivamente.
-\item \textbf{Divisivos} (Top-down):  Todos los elementos del dataset comienzan en un cluster, y divisiones son realizadas recursivamente.
+\item \textbf{Divisivos} (Top-down):  Todos los elementos del dataset comienzan en un mismo cluster, y divisiones son realizadas recursivamente.
 \end{itemize}
 
-En esta sección nos concentraremos en algoritmos de clustering jerárquico aglomerativos, que interativamente combinan el par de clusters que minimiza una cierta métrica de disimilitud \cite{clustering}. En este experimento se utilizaron las siguientes métricas de disimilitud:
+En esta sección nos concentraremos en algoritmos de clustering jerárquico aglomerativos, que iterativamente combinan el par de clusters que minimiza una cierta métrica de disimilitud \cite{clustering}. En este experimento se utilizaron las siguientes métricas de disimilitud:
 
 \begin{itemize}
 \item \textbf{Single linkage}: La distancia mínima entre pares de puntos, uno en cada cluster \cite{iretrieval}. Esta métrica busca conectividad, no grupos compactos.   

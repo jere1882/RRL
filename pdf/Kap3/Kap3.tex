@@ -27,7 +27,7 @@ El valor óptimo encontrado fue C=0.1. Valores pequeños de C conducen a modelos
 \section{Aproximando SVM Kernel}
 En la sección \ref{trick} se introdujo el truco del kernel, que consiste en mapear puntos desde un espacio de menor dimensionalidad a un espacio de mayor dimensionalidad. Un punto clave es que, en realidad, únicamente se computan los productos internos en el espacio de mayor dimensionalidad, y nunca es necesario mapear los datos realmente a este espacio. \\
 
-Sin embargo, una de las características de los algoritmos que utilizan este tipo de truco, como SVM kernel, es que su complejidad temporal escala con el número de instancias de entrenamiento ($\mathcal{O}(n^3)$), en tanto que la complejidad espacial será cercana a $\mathcal{O}(n^2)$. Esto implica que se vuelve prohibitivo utilizar SVM kernel en los tiles de Carpyncho, que tienen cientos de miles de instancias cada uno. \\
+Sin embargo, una de las características de los algoritmos que utilizan este tipo de truco, como SVM kernel, es que su complejidad temporal escala con el número de instancias de entrenamiento ($\mathcal{O}(n^3)$), en tanto que la complejidad espacial será cercana a $\mathcal{O}(n^2)$. Esto vuelve prohibitivo utilizar SVM kernel en los tiles de Carpyncho, que tienen cientos de miles de instancias cada uno. \\
 
 En resumidas cuentas, SVM kernel funciona muy bien en datos que no son linealmente separables, pero no escala bien a datasets con muchas instancias. Por otro lado, como se mencionó en la sección anterior, existen implementaciones de SVM Lineal que escalan de forma lineal a la cantidad de instancias de entrenamiento. \\
 
@@ -41,11 +41,11 @@ Los detalles del procedimiento recien descripto pueden consultarse en las siguie
 
 \section{Optimización de hiperparámetros para SVM RBF}
 
-En este segundo experimento, se utilizó SVM con un kernel no lineal: Radial Basis Function. La optimización de hiperparámetros se vuelve significativamente más costosa, dado que se deben optimizar los parámetros $C$ y $\gamma$ en simultáneo. Adicionalmente, debido al inmenso tamaño de nuestros tiles (aproximadamente 400000 filas cada uno), resultó computacionalmente prohibitivo utilizar implementaciones puras de kernel SVM, cuya complejidad es $\mathcal{O}(n_{atributos} \times n_{instancias}^2)$ \cite{libsvm}. \\
+En este segundo experimento, se utilizó SVM con un kernel no lineal: Radial Basis Function. La optimización de hiperparámetros se vuelve significativamente más costosa, dado que se deben optimizar los parámetros $C$ y $\gamma$ en simultáneo. Como ya se mencionó, debido al inmenso tamaño de nuestros tiles (aproximadamente 400000 filas cada uno), resultó imposible utilizar implementaciones puras de kernel SVM. \\
 
-Se decidió utilizar un aproximador del kernel RBF, Nystroem, seguido de la eficiente implementación de LinearSVC descripta en la sección anterior. Esto permite aproximar los resultados de kernel SVM, reduciendo dramáticamente la complejidad computacional requerida.\\
+Se decidió utilizar un aproximador del kernel RBF, Nystroem con $m=300$, seguido de la eficiente implementación de LinearSVC descripta en la sección anterior. Esto permite aproximar los resultados de kernel SVM, reduciendo dramáticamente la complejidad computacional requerida.\\
 
-Durante el experimento, se realizó 10-fold Grid Search Cross Validation sobre el tile b278. Se exploró un amplio rango logarítmico de valores para los hiperparámetros $\alpha$ y $C$. Los resultados pueden observarse en \ref{fig:optimisationsvmk}. 
+Durante el experimento, se realizó 10-fold Grid Search Cross Validation sobre el tile b278. Se exploró un amplio rango logarítmico de valores para los hiperparámetros $\alpha$ y $C$. Los resultados pueden observarse en \ref{fig:optimisationsvmk}. \\
 
 \begin{figure}[h!]
 \begin{tabular}{cc}
@@ -57,11 +57,11 @@ Durante el experimento, se realizó 10-fold Grid Search Cross Validation sobre e
 \end{figure}
 
 
-Podemos observar que SVM-RBF es muy sensible a la elección de hiperparámetros, a diferencia de RF que no se ven muy afectados por la elección del número de árboles. Los hiperparámetros óptimos fueron $C=10^5$ y $\gamma=10^{-4}$.
+Podemos observar que SVM-RBF es muy sensible a la elección de hiperparámetros, a diferencia de RF que no se ve muy afectado por la elección del número de árboles. Los hiperparámetros óptimos fueron $C=10^5$ y $\gamma=10^{-4}$.
 
 \section {Análisis de performance de SVM}
 
-Habiendo estimado los hiperparámetros óptimos de SVM con kernel lineal y RBF, se procedió a entrenar y testear clasificadores usando cada par de tiles en \{ b234, b261 , b278, b360 \}. Las curvas de precision-recall de ambos modelos, así como las de random forest, pueden observarse en la figura \ref{fig:testresults}. \\
+Habiendo estimado los hiperparámetros óptimos de SVM con kernel lineal y RBF, se procedió a entrenar y testear clasificadores usando cada par de tiles en \{ b234, b261 , b278, b360 \}. Las curvas de precision-recall de ambos modelos, así como las de RF, pueden observarse en la figura \ref{fig:testresults}. \\
 
 \begin{figure}[h!]
 \begin{center}
@@ -96,7 +96,7 @@ Algunas observaciones:
 
 \begin{itemize}
 
-\item En las 12 combinaciones testeadas la performance de random forest es superior a la de SVM-RBF, la cuál es a su vez superior a SVM Lineal. Esto se condice con los resultados reportados en \cite{jbc}. El hecho de haber utilizado las tiles completas para entrenar y testear nos permite apreciar con exactitud cuán mejores son las curvas generadas por Random Forest, lo cuál no era evidente en trabajos previos.
+\item En las 12 combinaciones testeadas la performance de random forest es superior a la de SVM-RBF, la cuál es a su vez superior a SVM Lineal. Esto se condice con los resultados reportados en \cite{jbc}. El hecho de haber utilizado las tiles completas para entrenar y testear nos permite apreciar con exactitud cuán mejores son las curvas generadas por Random Forest, lo cual no era evidente en trabajos previos.
 
 \item El hecho de que SVM Lineal tenga la menor performance parece indicar que la superficie de decisión no es lineal.
 \item El hecho de que las curvas varíen tanto para cada par de tiles elegido, indica que los clasificadores se ven altamente influenciados por el tile de train y el tile de test elegido. Esto no sucedería si los samples de todos los tiles estuviesen regidos por la misma distribución de probabilidad subyacente. Dado que cada tile tiene cientos de miles de samples, esto indicaría que los datos de cada tile son inherentemente distintos, de otro modo las curvas de cada clasificador deberían ser muy parecidas entre distintos tiles.

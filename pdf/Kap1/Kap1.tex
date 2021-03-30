@@ -20,7 +20,7 @@ La astronomía está atravesando una profunda transformación debido al desarrol
 
 \par Durante este trabajo se hizo uso de una amplia variedad de técnicas de aprendizaje automatizado, incluyendo diversos tipos de preprocesamiento, reducción de dimensionalidad y selección de variables, visualización de los datos y corrección de imbalance de clases. 
 
-\section {Conceptos Astronómicos}
+\section {Conceptos astronómicos}
 
 \subsection{Estrellas RR Lyrae}
 
@@ -44,7 +44,7 @@ La astronomía está atravesando una profunda transformación debido al desarrol
 
 \par El VVV, así como su sucesor el ``VVV Survey eXtended'', i.e. VVVX, persiguen el objetivo de producir un atlas profundo de una gran parte del Bulbo de la Vía Láctea, así como de una fracción del Disco Galáctico interno. Este mapa se produjo mediante un monitoreo sistemático de estas regiones, habiéndose completado 1929 horas de observación durante cinco años, comenzando en 2010. \\
 
-\par Dentro del barrido total del relevamiento, es de interés astronómico la generación de catálogos de cualquier tipo de objeto, esperándose identificar no sólo estrellas variables, sino planetas, asteroides y otros fenómenos. En la figura \ref{fig:vvv_objects} se ilustran el número de fenómenos estimado.
+\par Dentro del barrido total del relevamiento, es de interés astronómico la generación de catálogos de cualquier tipo de objeto, esperándose identificar no sólo estrellas variables, sino planetas, asteroides y otros fenómenos. En la figura \ref{fig:vvv_objects} se ilustra el número de fenómenos estimado.
 
 \begin{figure}[h]
 \begin{center}
@@ -84,7 +84,7 @@ La astronomía está atravesando una profunda transformación debido al desarrol
 \begin{center}
 \includegraphics[width=\textwidth]{Kap1/light_curve.png}
 \end{center}
-\caption[short]{Curva de luz de una de las estrellas relevadas por VVV. Cada punto azul corresponde a una observación en un cierto Pawprint Stack, mientras que las lineas rojas indican el error asociado a cada medición. Imagen tomada de la documentación de Carpyncho, \url{https://carpyncho-py.readthedocs.io/} }
+\caption[short]{Curva de luz de una de las estrellas relevadas por VVV. Cada punto azul corresponde a una observación en un cierto Pawprint Stack, mientras que las líneas rojas indican el error asociado a cada medición. Imagen tomada de la documentación de Carpyncho, \url{https://carpyncho-py.readthedocs.io/} }
 \label{fig:curva_de_luz}
 \end{figure}
 
@@ -129,7 +129,7 @@ b396           & 73              & 486639          & 15           & 486624      
 
 \par En todos los experimentos de clasificación de este trabajo, se consideró como clase positiva a aquellas estrellas etiquetadas como RRL, siendo el resto la clase negativa. Es importante mencionar que nuestras clases positivas y negativas no son completamente certeras, dado que no han sido validadas con una inspección manual de cada fuente. Es posible que ciertas estrellas etiquetadas como RRL en realidad no lo sean y viceversa. Esto es especialmente válido en tiles como \textit{b396}, para las cuales hay pocas RRL previamente clasificadas en relevamientos anteriores. \\
 
-\par Para la mayoría de los experimentos en este trabajo, se utilizó un subconjunto de tiles (\textit{b234}, \textit{b261}, \textit{b278} y \textit{b360} ) correspondiente a áreas del Bulbo resultan de particular interés:
+\par Para la mayoría de los experimentos en este trabajo, se utilizó un subconjunto de tiles (\textit{b234}, \textit{b261}, \textit{b278} y \textit{b360} ) correspondiente a áreas del Bulbo que resultan de particular interés:
 
 \begin{itemize}
 \item Hay una buena densidad de RRL, pues las zonas se superponen bien con relevamientos anteriores. Por lo tanto, es probable que haya menos RRLs etiquetadas como no-RRL.
@@ -138,7 +138,7 @@ b396           & 73              & 486639          & 15           & 486624      
 
 \end{itemize}
 
-\section {Aprendizaje Automatizado}
+\section {Aprendizaje automatizado}
 
 Esta sección introducirá brevemente algunos conceptos básicos de aprendizaje automatizado, y está fuertemente basada en los capítulos introductorios de \cite{mitchell} y \cite{slearning}.
 
