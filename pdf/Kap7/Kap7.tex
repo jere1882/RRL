@@ -209,7 +209,7 @@ Con el objeto de mitigar el impacto del imbalance de clases, en este capítulo s
 
 Continuando con la política establecida en capítulos anteriores, se preferirá aquél preprocesamiento que maximice la ganancia promedio en R-AUPRC sujeto a no empeorar significativamente el R-AUPRC en ningún par de tiles estudiados. Esta última condición busca prevenir métodos con resultados inestables, que son altamente dependientes del par de tiles elegido. \\
 
-Los hiperparámetros que maximizan esta métrica para SVM Lineal se muestran en la tabla \ref{tab:best_hyp_svml}. Por otro lado, en SVM RBF, si bien algunos métodos logran mejorar el R-AUPRC promedio muy ligeramente, la ganancia mínima para algunos pares es demasiado negativa. Los resultados para SVM RBF se encuentran en la tabla \ref{tab:best_hyp_svmk}. 
+Los hiperparámetros que maximizan esta métrica para SVM Lineal se muestran en la tabla \ref{tab:best_hyp_svml}. Por otro lado, en SVM RBF, si bien algunas asignaciones de hiperparámetros para cada método logran mejorar el R-AUPRC promedio muy ligeramente, también ocasionan una pérdida no despreciable en R-AUPRC para ciertos pares (i.e. Ganancia mínima con valores negativos). En otras palabras, algunos pares de tiles tienen una involución muy marcada en R-AUPRC a cambio de una ganancia mínima promedio en todos los tiles. Los resultados para SVM RBF se encuentran en la tabla \ref{tab:best_hyp_svmk}.
 
 
 \begin{table}[ht]

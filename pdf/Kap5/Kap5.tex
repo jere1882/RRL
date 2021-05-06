@@ -65,7 +65,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
   \includegraphics[width=0.49\textwidth]{Kap5/linear_f_classif_ALL_CURVES.png} &   \includegraphics[width=0.49\textwidth]{Kap5/linear_mutual_info_classif_ALL_CURVES.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Aplicación de filtros univariable en SVM-Lineal en distintos pares de tiles. Nótese que las curvas tienden a saturarse para $k << 62$}
+\caption{Aplicación de filtros univariable en SVM-Lineal en distintos pares de tiles. Nótese que las curvas tienden a saturarse al utilizar un número de atributos mucho menor al total de atributos (62), lo cuál indica que a partir de un cierto punto hay muy poco beneficio en agregar más atributos. }
 \label{fig:svml_univariate_unified}
 \end{figure}
 
@@ -116,7 +116,7 @@ En la figura \ref{fig:svmk_univariate} se encuentran los resultados de aplicar f
   \includegraphics[width=0.49\textwidth]{Kap5/rbf_f_classif_ALL_CURVES.png} &   \includegraphics[width=0.49\textwidth]{Kap5/rbf_mutual_info_classif_ALL_CURVES.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Aplicación de filtros univariable en SVM-RBF en distintos pares de tiles. Nótese que las curvas tienden a saturarse para $k << 62$}
+\caption{Aplicación de filtros univariable en SVM-RBF en distintos pares de tiles.  Nótese que las curvas tienden a saturarse al utilizar un número de atributos mucho menor al total de atributos (62), lo cuál indica que a partir de un cierto punto hay muy poco beneficio en agregar más atributos.}
 \label{fig:svmk_univariate_unified}
 \end{figure}
 
@@ -208,7 +208,7 @@ En esta sección se aplicó un último método de extracción de variables no su
 
 Dado un dataset no etiquetado $X$ con $n$ elementos, la tarea de \textbf{clustering} \cite{Jain88} consiste en dividir los $n$ objetos en grupos, de tal forma que todos los objetos en un mismo grupo (\textit{cluster}) son más similares (en algún sentido) a aquellos que están en otros grupos (\textit{clusters}). \\
 
-Aquellas técnicas que construyen una anidación o jerarquía de clusters pertenecen al grupo de técnicas de \textbf{clustering jerárquico} \cite{Jain88} \cite{clustering}. Esto se ilustra en la figura \ref{fig:jerarquico}. \\
+Aquellas técnicas que construyen un anidado o jerarquía de clusters pertenecen al grupo de técnicas de \textbf{clustering jerárquico} \cite{Jain88} \cite{clustering}. Esto se ilustra en la figura \ref{fig:jerarquico}. \\
 
 \begin{figure}[h!]
 \begin{center}

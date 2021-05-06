@@ -111,7 +111,7 @@ $\chi^2$ value &   &    &         &           327.70                \\ \hline
 \end{tabular}
 \end{table}
 
-El valor $\chi^2$ puede ser interpretado para decidir si rechazar o aceptar la hipótesis nula, donde un mayor valor de $\chi^2$ indica evidencia en contra de la hipótesis nula. Equivalentemente, puede calcularse el p-value correspondiente\footnote{La correspondencia entre $\chi^2$ y p-value suele estar tabulada, pues es bastante compleja de calcular.}, que en conjunto con un nivel de significación $\alpha$ deseado puede interpretarse como: 
+El valor $\chi^2$ puede ser interpretado para decidir si rechazar o aceptar la hipótesis nula, donde un mayor valor de $\chi^2$ indica evidencia en contra de la hipótesis nula. La interpretación se realiza calculando el p-value correspondiente al valor de $\chi^2$ obtenido\footnote{La correspondencia entre $\chi^2$ y p-values suele estar tabulada, pues es bastante compleja de calcular.}, que en conjunto con un nivel de significación $\alpha$ deseado puede interpretarse como: 
 
 \begin{itemize}
 \item p-value $\leq \alpha$: Rechazar $H_0$, las variables son dependientes.
@@ -382,6 +382,6 @@ En este capítulo hemos descubierto, mediante el uso de tests estadísticos, cu�
 
 Se determinó que ciertos atributos de nuestros datasets presentan altas correlaciones monotónicas. Sin embargo, la inclusión de estos atributos no tiene un efecto perjudicial en la performance de SVM. \\
 
-Finalmente, se concluyó que las distribuciones de probabilidad subyacentes a los distintos tiles son inherentemente distintas. Esto podría traer mayores problemas para SVM que para RF, tales como dificultad de escoger hiperparámetros que generalicen bien entre distintos tiles. \\
+Finalmente, se concluyó que las distribuciones de probabilidad subyacentes a los distintos tiles son inherentemente distintas. Esto podría traer mayores problemas para SVM que para RF, tales como dificultad de escoger hiperparámetros que generalicen bien entre distintos tiles. Esta última hipótesis se estudiará en mayor profundidad en el capítulo \ref{variabilidad}.\\
 
 
