@@ -34,7 +34,7 @@ La astronomía está atravesando una profunda transformación debido al desarrol
 
 \par  Dentro de las estrellas pulsantes, se encuentran las subclases \textbf{RR Lyrae} y \textbf{Cepheids}, las cuales satisfacen una relación entre sus períodos y sus luminosidades absolutas que las convierte en invaluables herramientas para una de las tareas más complejas en astronomía: estimar distancias \cite{Shapley} \cite{Baade}. \\
 
-\par Las estrellas de tipo \textbf{RR Lyrae} (en adelante, RRL) tienen períodos de entre 0.2 y 1.2 días \cite{smith}, y tienen una edad de aproximadamente 14 Gyr. Son consideradas excelentes candelas estándar, especialmente importantes a la hora de explorar distancias y propiedades de viejas problaciones estelares. Basándose en relevamientos recientes, se estima que hay alrededor de 140000 estrellas RRL en nuestra galaxia \cite{ogle} \cite{gaia} \\
+\par Las estrellas de tipo \textbf{RR Lyrae} (en adelante, RRL) tienen períodos de entre 0.2 y 1.2 días \cite{smith}, y tienen una edad de aproximadamente 14 Gyr\footnote{1 gigayear (Gyr) = $10^9$ años}. Son consideradas excelentes candelas estándar, especialmente importantes a la hora de explorar distancias y propiedades de viejas problaciones estelares. Basándose en relevamientos recientes, se estima que hay alrededor de 140000 estrellas RRL en nuestra galaxia \cite{ogle} \cite{gaia} \\
 
 \par En base a sus curvas de luz, las RRL fueron originalmente separadas en subtipos a, b y c \cite{bailey}, aunque posteriores trabajos unificaron los dos primeros subtipos en uno solo, RRab, dado que son fundamentalmente distintos del tercero, RRc \cite{schwarzschild}. Adicionales subtipos, extremadamente raros, fueron añadidos posteriormente. \\
 
@@ -84,11 +84,11 @@ La astronomía está atravesando una profunda transformación debido al desarrol
 \begin{center}
 \includegraphics[width=\textwidth]{Kap1/light_curve.png}
 \end{center}
-\caption[short]{Curva de luz de una de las estrellas relevadas por VVV. Cada punto azul corresponde a una observación en un cierto Pawprint Stack, mientras que las líneas rojas indican el error asociado a cada medición. Imagen tomada de la documentación de Carpyncho, \url{https://carpyncho-py.readthedocs.io/} }
+\caption[short]{Curva de luz de una de las estrellas relevadas por VVV. El eje $x$ muestra el tiempo expresado en días heliocéntricos medios (HJD), en tanto que el eje $y$ muestra la magnitud aparente observada. Cada punto azul corresponde a una observación en un cierto Pawprint Stack, mientras que las líneas rojas indican el error asociado a cada medición. Imagen tomada de la documentación de Carpyncho, \url{https://carpyncho-py.readthedocs.io/} }
 \label{fig:curva_de_luz}
 \end{figure}
 
-\par Habiéndose obtenido las series temporales de cada estrella, el siguiente paso fue estimar su período utilizando el método Fast Lomb-Scargle \cite{Lomb:1976wy} \cite{scargle} \cite{VanderPlas_2018}, que realiza un ajuste de mínimos cuadrados de sinusoidales a los datos muestreados.\\
+\par Habiéndose obtenido las series temporales de cada estrella, el siguiente paso fue estimar su período. Se utiliza el método de Fast Lomb-Scargle \cite{Lomb:1976wy} \cite{scargle} \cite{VanderPlas_2018} para recuperar cada período, el cual consiste en ajustar una función sinusoidal a los datos muestreados. \\
 
 \par A partir de las curvas de luz y el período estimado, se extrajeron 49 atributos (o características) numéricas utilizando la herramienta \textit{Feets} \cite{cabral2018fats}. Estos atributos se refieren al período, variación de magnitud y morfología de las curvas de luz. Una descripción de cada atributo puede consultarse en el apéndice \ref{AnexoA}. \\
 
@@ -251,7 +251,7 @@ $ Recall =  \frac{TP}{TP + FN}$
 
 \end{itemize}
 
-A menudo, muchos métodos de aprendizaje automatizado para clasificación binaria producen un puntaje en $[0,1]$ para cada instancia a clasificar. Puntajes cercanos a 0 indican que el clasificador tiene mayor certeza de que una cierta entrada pertenece a la clase negativa, en tanto que valores cercanos a 1 indican pertenencia a la clase positiva. \\
+A menudo, muchos métodos de aprendizaje automatizado para clasificación binaria producen un puntaje\footnote{Se utiliza el término puntaje (del inglés \textit{score}), dado que no se utilizará un enfoque probabilístico.} en $[0,1]$ para cada instancia a clasificar. Puntajes cercanos a 0 indican que el clasificador tiene mayor certeza de que una cierta entrada pertenece a la clase negativa, en tanto que valores cercanos a 1 indican pertenencia a la clase positiva. \\
 
 En tal escenario, resulta necesaria la elección de un umbral $t \in [0,1]$, de forma tal que sólo instancias cuyos puntajes son mayores a $t$ sean clasificadas como positivas, siendo las demás negativas. En consecuencia, resulta importante determinar un $t$ adecuado para el dominio de aplicación en estudio, dado que distintos valores de $t$ tendrán un impacto directo en la matriz de confusión producida. \\
 
@@ -265,7 +265,7 @@ Valores altos de $t$ tenderán a producir clasificadores con mayor precisión y 
 \label{fig:prc}
 \end{figure}
 
-Si se está abordando un problema desbalanceado, una forma determinar si un clasificador tiene mejor performance que otro es comparar sus curvas de precision-recall en el dataset de test. Dado que las curvas de precision-recall tienden a ser bastante ruidosas en áreas de bajo recall, en este trabajo se utilizó en repetidas ocasiones el área bajo la curva de precision-recall restringida al dominio [0.35,1] para obtener una medida de performance numérica, a la que llamaremos R-AUCPRC (Robust AUCPRC).\\
+Si se está abordando un problema desbalanceado, una forma determinar si un clasificador tiene mejor performance que otro es comparar sus curvas de precision-recall en el dataset de test. Dado que las curvas de precision-recall tienden a ser bastante ruidosas en áreas de bajo recall, en este trabajo se utilizó en repetidas ocasiones el área bajo la curva de precision-recall restringida al dominio [0.35,1] para obtener una medida de performance numérica, a la que llamaremos R-AUPRC (del inglés Robust Area Under the Precision Recall Curve, área debajo de la curva de precision-recall robusta).\\
 
 
 R-AUCPRC resulta útil cuando se desea comparar decenas o cientos de curvas a la vez, siendo imposible su inspección visual y prefiriéndose aquel modelo que maximiza el R-AUCPRC. Otra métrica alternativa es utilizar la precisión del clasificador a un cierto valor fijo de recall. \\
