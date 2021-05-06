@@ -58,9 +58,9 @@ Se aplicaron los preprocesamientos descriptos en las secciones anteriores a los 
 
 \item Los resultados de aplicar estandarización pueden ser observados en \ref{fig:svml_estandarizacion}. De este experimento se desprende que StandardScaler es la mejor opción, dado que es la única opción que se encuentra consistentemente entre los preprocesamientos con mejor performance.
 
-\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svml_quantiles}. Se exploraron ambas variantes: mapear la distribución de cada feature a una distribución normal, y a una distribución uniforme. Para cada una de estas configuraciones, se analizó el R-AUCPRC en función del número de cuantiles utilizado en el transformador. Podemos observar que todas las combinaciones de parámetros exploradas efectivamente incrementan la performance respecto al baseline; aunque el número de cuantiles óptimo es dependiente de los datos.
+\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svml_quantiles}. Se exploraron ambas variantes: mapear la distribución de cada feature a una distribución normal, y a una distribución uniforme. Para cada una de estas configuraciones, se analizó el R-AUPRC en función del número de cuantiles utilizado en el transformador. Podemos observar que todas las combinaciones de parámetros exploradas efectivamente incrementan la performance respecto al baseline; aunque el número de cuantiles óptimo es dependiente de los datos.
 
-\item Los resultados de aplicar binning, seguido de un escalado estándar, se pueden observar en \ref{fig:svml_binning}. Se exploraron las tres estrategias anteriormente mencionadas (Uniform, Quantile y Kmeans), estudiando la evolución del R-AUCPRC en función del número de cubetas. Se puede apreciar que la estrategia Quantile es consistentemente la mejor opción. Nótese que la estrategia KMeans es computacionalmente impracticable para grandes cantidades de cubetas.
+\item Los resultados de aplicar binning, seguido de un escalado estándar, se pueden observar en \ref{fig:svml_binning}. Se exploraron las tres estrategias anteriormente mencionadas (Uniform, Quantile y Kmeans), estudiando la evolución del R-AUPRC en función del número de cubetas. Se puede apreciar que la estrategia Quantile es consistentemente la mejor opción. Nótese que la estrategia KMeans es computacionalmente impracticable para grandes cantidades de cubetas.
 
 \item Las curvas de precision-recall de los preprocesamientos que tuvieron mejor desempeño en los experimentos anteriores, junto con la correspondiente a PowerTransformer (que no requiere parámetros), son comparadas en la figura \ref{fig:svml_final_comparison}. De esta comparación final se desprende que el preprocesamiento óptimo para SVM Lineal es binning, seguido de un escalado estándar. Al final de este capítulo se especula sobre los motivos por los cuales binning produce tales mejoras.
 \end{itemize}
@@ -184,7 +184,7 @@ Luego de definir el preprocesamiento óptimo de cada método (Quantile 100-Binni
 \item \textbf{SVM-RBF:} $C=10^4$, $\gamma = 10^{-4}$, 100 bins.
 \end{itemize}  
 
-Notemos que el parámetro C ahora es dos órdenes de magnitud mayor en SVM-Lineal, y un orden de magnitud menor en SVM-RBF. El R-AUCPRC en cross-validation obtenido para cada clasificador puede observarse en la figura \ref{fig:reopt_param}. \\
+Notemos que el parámetro C ahora es dos órdenes de magnitud mayor en SVM-Lineal, y un orden de magnitud menor en SVM-RBF. El R-AUPRC en cross-validation obtenido para cada clasificador puede observarse en la figura \ref{fig:reopt_param}. \\
 
 \begin{figure}[h!]
 \begin{tabular}{cc}
@@ -228,7 +228,7 @@ Utilizando estos nuevos parámetros y preprocesamientos, se volvieron a calcular
 
 \section{Conclusiones}
 \label{baseline_preproc}
-Las tablas \ref{tab:linear-gain-preproc} y \ref{tab:rbf-gain-preproc} nos permiten medir numéricamente el incremento en R-AUCPRC obtenido en las curvas al utilizar preprocesamientos, respecto a las presentadas en capítulos anteriores. Tanto SVM lineal como SVM RBF se ven beneficiados al utilizar binning, siendo SVM lineal el método que muestra un mayor incremento en performance.
+Las tablas \ref{tab:linear-gain-preproc} y \ref{tab:rbf-gain-preproc} nos permiten medir numéricamente el incremento en R-AUPRC obtenido en las curvas al utilizar preprocesamientos, respecto a las presentadas en capítulos anteriores. Tanto SVM lineal como SVM RBF se ven beneficiados al utilizar binning, siendo SVM lineal el método que muestra un mayor incremento en performance.
 
 
 
@@ -251,7 +251,7 @@ b360                & b234               & 0.42        & 0.20           & 0.26  
 b360                & b261               & 0.54        & 0.39           & 0.41                   & 0.02                       \\ \hline
 \multicolumn{2}{|c|}{avg}                & .38         & .24            & .29                    & {\color[HTML]{009901} .05} \\ \hline
 \end{tabular}
-\caption{ En esta tabla podemos ver el incremento en R-AUCPRC que se obtiene al utilizar preprocesamientos en SVM lineal. }
+\caption{ En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar preprocesamientos en SVM lineal. }
 \label{tab:linear-gain-preproc}
 \end{table}
 
@@ -277,6 +277,6 @@ b360                & b234               & 0.42        & 0.27             & 0.30
 b360                & b261               & 0.54        & 0.46             & 0.45                     & -0.01                      \\ \hline
 \multicolumn{2}{|c|}{avg}                & .38         & .29              & .31                      & {\color[HTML]{009901} .03} \\ \hline
 \end{tabular}
-\caption{ En esta tabla podemos ver el incremento en R-AUCPRC que se obtiene al utilizar preprocesamientos en SVM-RBF. Si bien el aumento es menor al observado en SVM Lineal, se puede observar una mejoría consistente. }
+\caption{ En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar preprocesamientos en SVM-RBF. Si bien el aumento es menor al observado en SVM Lineal, se puede observar una mejoría consistente. }
 \label{tab:rbf-gain-preproc}
 \end{table}

@@ -287,11 +287,11 @@ En esta sección se analizó si eliminar atributos altamente correlacionados tra
 \item Calcular la matriz de correlaciones de Spearman en el dataset de entrenamiento.
 \item Identificar el par de atributos tal que el valor absoluto de su coeficiente de correlación es máximo.
 \item Seleccionar un atributo del par, y eliminarlo del dataset de entrenamiento y de test
-\item Entrenar SVM utilizando el dataset de training resultante, y calcular el R-AUCPRC en test.
+\item Entrenar SVM utilizando el dataset de training resultante, y calcular el R-AUPRC en test.
 \item Repetir (1) hasta que no queden más atributos.
 \end{enumerate}
 
-En las figuras \ref{fig:svml_correlation_remove} (SVM-L) y \ref{fig:svmk_correlation_remove} (SVM-RBF) podemos ver el efecto R-AUCPRC obtenido cada vez que se elimina el atributo más correlacionado restante, así como el baseline obtenido en la sección \ref{baseline_preproc}.
+En las figuras \ref{fig:svml_correlation_remove} (SVM-L) y \ref{fig:svmk_correlation_remove} (SVM-RBF) podemos ver el efecto R-AUPRC obtenido cada vez que se elimina el atributo más correlacionado restante, así como el baseline obtenido en la sección \ref{baseline_preproc}.
 
 \begin{figure}[h!]
 \begin{tabular}{cccc}
@@ -321,7 +321,7 @@ Para resumir la información de las figuras \ref{fig:svml_correlation_remove} y 
 
 \begin{itemize}
 \item  En SVM Lineal, eliminar atributos altamente correlacionados no nos permite mejorar (en promedio) las curvas de precision-recall respecto al baseline. Esto es válido incluso si nos remitimos a eliminar únicamente aquellos que muestran una correlación muy fuerte.
-\item Si bien no hay mejora en las curvas de precision-recall, en SVM Lineal podemos eliminar los primeros $\sim17$ atributos más correlacionados sin provocar pérdida de R-AUCPRC en promedio. Esto indica que los atributos altamente correlacionados no contienen información vital para SVM-Lineal.
+\item Si bien no hay mejora en las curvas de precision-recall, en SVM Lineal podemos eliminar los primeros $\sim17$ atributos más correlacionados sin provocar pérdida de R-AUPRC en promedio. Esto indica que los atributos altamente correlacionados no contienen información vital para SVM-Lineal.
 \item A diferencia de SVM-Lineal, la performance de SVM-RBF se ve perjudicada al eliminar incluso los atributos con mayor coeficiente de correlación. 
 \end{itemize}
 
@@ -332,7 +332,7 @@ Como conclusión de esta sección, podemos decir que la existencia de atributos 
   \includegraphics[width=0.49\textwidth]{Kap6/pearson_linear_CORRELATIONS_BIG_PICTURE.png} &   \includegraphics[width=0.49\textwidth]{Kap6/pearson_rbf_CORRELATIONS_BIG_PICTURE.png} \\
 (a) SVM-Lineal & (b) SVM-RBF
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUCPRC respecto al baseline, obtenida al realizar utilizar las $k$ features menos correlacionadas. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar utilizar las $k$ features menos correlacionadas. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:svm_correlation_summary}
 \end{figure}
 

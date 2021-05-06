@@ -6,15 +6,15 @@ Una hipótesis que fue sugerida en la sección \ref{analisis_distribuciones} es 
 
 \section{Impacto de la variabilidad de datos en la elección de hiperparámetros }
 \label{impacto}
-Es importante resaltar que la performance de SVM-RBF es extremadamente sensible a la elección de hiperparámetros, como se pudo observar en la figura \ref{fig:optimisationsvmk}. Pequeñas variaciones de $C$ y $\gamma$ pueden ocasionar saltos significativos en el R-AUCPRC obtenido. Por otro lado, una de las virtudes más reconocidas de RF es el hecho de que no requiere una optimización muy cuidadosa de hiperparámetros, siendo un método off-the-shelf \cite{offshelf}. \\
+Es importante resaltar que la performance de SVM-RBF es extremadamente sensible a la elección de hiperparámetros, como se pudo observar en la figura \ref{fig:optimisationsvmk}. Pequeñas variaciones de $C$ y $\gamma$ pueden ocasionar saltos significativos en el R-AUPRC obtenido. Por otro lado, una de las virtudes más reconocidas de RF es el hecho de que no requiere una optimización muy cuidadosa de hiperparámetros, siendo un método off-the-shelf \cite{offshelf}. \\
 
-Es posible que los hiperparámetros $C$ y $\gamma$ que se estimaron en capítulos anteriores realizando cross-validation sobre un único tile ($b278$) no produzcan buenos resultados al utilizarse para entrenar y testear SVM utilizando otros pares de tiles. Para aclarar esto, se condujo un experimento que responderá a la siguiente pregunta:
+Es posible que los hirparámetros $C$ y $\gamma$ que se estimaron en capítulos anteriores realizando cross-validation sobre un único tile ($b278$) no produzcan buenos resultados al utilizarse para entrenar y testear SVM utilizando otros pares de tiles. Para aclarar esto, se condujo un experimento que responderá a la siguiente pregunta:
 
 \begin{quotation}
-Dado un par de tiles arbitrario $t_1$ y $t_2$. ¿Existe una combinación de hiperparámetros $C$ y $\gamma$ tal que SVM-RBF entrenado con $t_1$ tenga igual o mejor R-AUCPRC en test que RF, testeando en $t_2$?
+Dado un par de tiles arbitrario $t_1$ y $t_2$. ¿Existe una combinación de hiperparámetros $C$ y $\gamma$ tal que SVM-RBF entrenado con $t_1$ tenga igual o mejor R-AUPRC en test que RF, testeando en $t_2$?
 \end{quotation}
 
-Se calculó el R-AUCPRC en test para cada combinación de hiperparámetros de una grilla de valores de $\gamma$ y $C$, entrenando y testeando SVM-RBF en cada par de tiles. Los resultados se encuentran en las figuras \ref{fig:poder_predictivo} y \ref{fig:poder_predictivo_curvas}. A partir de estos datos, podemos observar lo siguiente:
+Se calculó el R-AUPRC en test para cada combinación de hiperparámetros de una grilla de valores de $\gamma$ y $C$, entrenando y testeando SVM-RBF en cada par de tiles. Los resultados se encuentran en las figuras \ref{fig:poder_predictivo} y \ref{fig:poder_predictivo_curvas}. A partir de estos datos, podemos observar lo siguiente:
 
 \begin{itemize}
 \item En primer lugar, observando las curvas de la figura \ref{fig:poder_predictivo_curvas}, podemos ver que la performance de RF ya no es marcadamente superior a la de SVM, debido a las mejoras que se introdujeron en los capítulos anteriores. Sin embargo, RF continúa teniendo mejor performance en varios de los pares testeados.
@@ -42,7 +42,7 @@ Se calculó el R-AUCPRC en test para cada combinación de hiperparámetros de un
    \includegraphics[width=0.25\textwidth]{Kap8/heatmap_train=b360_test=b278.png} \\
 
 \end{tabular}
-\caption{Cada grilla muestra el R-AUCPRC en test obtenido utilizando SVM-RBF con distintos hiperparámetros en distintos pares de tiles. En la barra de color se marca, con líneas horizontales, el R-AUCPRC de Random Forest (verde), el valor óptimo de SVM-RBF encontrado en esta grilla (celeste), junto con los mejores resultados obtenidos en el capítulo anterior para SVM-RBF (azul) y SVM-Lineal (blanco). Adicionalmente, se tacharon aquellas celdas individuales cuyo R-AUCPRC está a menos de 0.5 del de RF. }
+\caption{Cada grilla muestra el R-AUPRC en test obtenido utilizando SVM-RBF con distintos hiperparámetros en distintos pares de tiles. En la barra de color se marca, con líneas horizontales, el R-AUPRC de Random Forest (verde), el valor óptimo de SVM-RBF encontrado en esta grilla (celeste), junto con los mejores resultados obtenidos en el capítulo anterior para SVM-RBF (azul) y SVM-Lineal (blanco). Adicionalmente, se tacharon aquellas celdas individuales cuyo R-AUPRC está a menos de 0.5 del de RF. }
 \label{fig:poder_predictivo}
 \end{figure}
 
@@ -326,7 +326,7 @@ Para poder aclarar esta situación, se procedió a entrenar un clasificador por 
 
 Finalmente, una vez identificados los atributos que más contribuyen a la presencia de covariate drift, se procedió a evaluar si eliminarlos conduce a algún beneficio en el problema de clasificación original. Para ello, se entrenó SVM-RBF en b360, testeando en b234 utilizando los preprocesamientos e hiperparámetros óptimos hallados en la sección \ref{mejores_fs}. Antes de entrenar el clasificador, se eliminan los $n$ atributos que más contribuyen a la presencia de covariate drift, omitiendo eliminar aquellos que se encuentran entre los 5 más importantes para distinguir RRLs de noRRLs.  \\
 
-Desafortunadamente, no se observó mejoría alguna en R-AUCPRC. Esto puede deberse a que es necesario eliminar demasiados atributos para reducir el covariate drift significativamente, y la pérdida de información asociada es demasiado grande. 
+Desafortunadamente, no se observó mejoría alguna en R-AUPRC. Esto puede deberse a que es necesario eliminar demasiados atributos para reducir el covariate drift significativamente, y la pérdida de información asociada es demasiado grande. 
 
 
 \section{Conclusiones}

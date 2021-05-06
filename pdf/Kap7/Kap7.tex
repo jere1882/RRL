@@ -26,7 +26,7 @@ Las técnicas de undersampling buscan corregir manualmente el imbalance de clase
 
 En \cite{jbc} se experimentó utilizando undersampling aleatorio en clasificadores RF. Se concluyó que es conveniente el uso de tiles enteros, manteniendo el imbalance original entre las clases, dado que los clasificadores entrenados en tiles balanceados tenían menor performance en test. En esta sección se realizará un experimento similar utilizando SVM. \\
 
-Se evaluó el R-AUCPRC en test obtenido por clasificadores SVM entrenando con tiles artificialmente balancedas usando undersampling aleatorio, explorando distintas proporciones entre el número de no-RRLs y el número de RRLs. Nótese que cada sampleo fue obtenido del precedente, por ejemplo el sampleo con rate $1:1$ fue obtenido del sampleo con rate $1:10$ y así sucesivamente. \\
+Se evaluó el R-AUPRC en test obtenido por clasificadores SVM entrenando con tiles artificialmente balancedas usando undersampling aleatorio, explorando distintas proporciones entre el número de no-RRLs y el número de RRLs. Nótese que cada sampleo fue obtenido del precedente, por ejemplo el sampleo con rate $1:1$ fue obtenido del sampleo con rate $1:10$ y así sucesivamente. \\
 
 Este experimento se repitió tres veces, dado que los resultados obtenidos (especialmente para los datasets más balanceados) son sensibles al sampleo aleatorio utilizado. Los resultados para SVM lineal y SVM RBF se muestran en las figura \ref{fig:svml_undersample} y \ref{fig:svmk_undersample} respectivamente. Es importante remarcar que en todos los experimentos de este capítulo la corrección de imbalance se realiza únicamente en el tile de entrenamiento, en tanto que se usan tiles completos para testear. \\
 
@@ -38,7 +38,7 @@ Este experimento se repitió tres veces, dado que los resultados obtenidos (espe
 \includegraphics[width=0.25\textwidth]{Kap7/train=b278_test=b234_linear_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/train=b278_test=b261_linear_individual_curves.png} 
  \includegraphics[width=0.25\textwidth]{Kap7/train=b360_test=b234_linear_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/train=b360_test=b278_linear_individual_curves.png} 
 \end{tabular}
-\caption{Impacto de undersampling en el R-AUCPRC en test de clasificadores SVM Lineal, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUCPRC obtenido en la sección \protect\ref{mejores_fs}}
+\caption{Impacto de undersampling en el R-AUPRC en test de clasificadores SVM Lineal, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUPRC obtenido en la sección \protect\ref{mejores_fs}}
 \label{fig:svml_undersample}
 \end{figure}
 
@@ -50,25 +50,25 @@ Este experimento se repitió tres veces, dado que los resultados obtenidos (espe
 \includegraphics[width=0.25\textwidth]{Kap7/train=b278_test=b234_rbf_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/train=b278_test=b261_rbf_individual_curves.png} 
  \includegraphics[width=0.25\textwidth]{Kap7/train=b360_test=b234_rbf_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/train=b360_test=b278_rbf_individual_curves.png} 
 \end{tabular}
-\caption{Impacto de undersampling en el R-AUCPRC en test de clasificadores SVM RBF, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUCPRC obtenido en la sección \protect\ref{mejores_fs}}
+\caption{Impacto de undersampling en el R-AUPRC en test de clasificadores SVM RBF, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUPRC obtenido en la sección \protect\ref{mejores_fs}}
 \label{fig:svmk_undersample}
 \end{figure}
 
-Utilizando las curvas de color negro, se calculó la ganancia promedio (entre todos los tiles) en R-AUCPRC respecto al baseline, para cada proporción RRL-noRRL estudiada. Los resultados de estos experimentos se encuentran en la figura \ref{fig:overall_undersampling}, de los cuáles podemos concluir:
+Utilizando las curvas de color negro, se calculó la ganancia promedio (entre todos los tiles) en R-AUPRC respecto al baseline, para cada proporción RRL-noRRL estudiada. Los resultados de estos experimentos se encuentran en la figura \ref{fig:overall_undersampling}, de los cuáles podemos concluir:
 \begin{itemize}
-\item Balancear las clases en exceso es altamente perjudicial, pues reduce el R-AUCPRC drásticamente para todos los tiles (ver las curvas en proporciones 1:1 a 1:250).
+\item Balancear las clases en exceso es altamente perjudicial, pues reduce el R-AUPRC drásticamente para todos los tiles (ver las curvas en proporciones 1:1 a 1:250).
 \item En SVM Lineal, corregir el imbalance de forma moderada, dejando al menos 500 no-RRL por RRL, permite igualar el baseline. Esto implica que se puede obtener al menos la misma performance en test utilizando tan solo un cuarto datos para entrenar. Una consecuencia inmediata es una drástica reducción en la complejidad temporal y espacial necesaria para entrenar clasificadores SVM Lineal.
-\item En SVM-RBF, undersampling incurre en una pérdida de R-AUCPRC promedio para todas las proporciones testeadas.
+\item En SVM-RBF, undersampling incurre en una pérdida de R-AUPRC promedio para todas las proporciones testeadas.
 \end{itemize}
 
-Undersampling resulta, por lo tanto, no útil para mejorar el R-AUCPRC de nuestros clasificadores. Únicamente resulta beneficioso en SVM Lineal, para obtener una reducción importante en tiempos de entrenamiento y consumo de memoria.
+Undersampling resulta, por lo tanto, no útil para mejorar el R-AUPRC de nuestros clasificadores. Únicamente resulta beneficioso en SVM Lineal, para obtener una reducción importante en tiempos de entrenamiento y consumo de memoria.
 
 \begin{figure}[h!]
 \begin{tabular}{cc}
   \includegraphics[width=0.49\textwidth]{Kap7/linearBEST.png} &   \includegraphics[width=0.49\textwidth]{Kap7/rbfBEST.png} \\
 (a) SVM Lineal& (b) SVM RBF
 \end{tabular}
-\caption{ Ganancia promedio en R-AUCPRC respecto al baseline al utilizar undersampling, en función de la proporción entre las clases. Nótese que el dominio de estos gráficos se extiende sólo hasta 1200, pues es la proporción original de algunos de los tiles estudiados. La mayoría de los tiles, sin embargo, presenta un imbalance original de 1:2000. }
+\caption{ Ganancia promedio en R-AUPRC respecto al baseline al utilizar undersampling, en función de la proporción entre las clases. Nótese que el dominio de estos gráficos se extiende sólo hasta 1200, pues es la proporción original de algunos de los tiles estudiados. La mayoría de los tiles, sin embargo, presenta un imbalance original de 1:2000. }
 \label{fig:overall_undersampling}
 \end{figure}
 
@@ -105,7 +105,7 @@ Adicionalmente, se experimentó con una técnica híbrida que combina undersampl
 \end{figure}
 
 
-Se utilizaron las implementaciones provistas por \textbf{imbalanced-learn} (\url{imbalanced-learn.org/}), una librería que extiende scikit-learn con técnicas para abordar imbalance de clases. De forma similar a la sección anterior, se analizó el impacto en R-AUCPRC en función a la proporción de RRLs y no-RRLs para cada método estudiado. Los resultados de este experimento para SVM Lineal y SVM RBF se encuentran en las figuras \ref{fig:svm_oversampling} y \ref{fig:svmk_oversampling} respectivamente.\\
+Se utilizaron las implementaciones provistas por \textbf{imbalanced-learn} (\url{imbalanced-learn.org/}), una librería que extiende scikit-learn con técnicas para abordar imbalance de clases. De forma similar a la sección anterior, se analizó el impacto en R-AUPRC en función a la proporción de RRLs y no-RRLs para cada método estudiado. Los resultados de este experimento para SVM Lineal y SVM RBF se encuentran en las figuras \ref{fig:svm_oversampling} y \ref{fig:svmk_oversampling} respectivamente.\\
 
 \begin{figure}[h!]
 \begin{tabular}{cccc}
@@ -116,7 +116,7 @@ Se utilizaron las implementaciones provistas por \textbf{imbalanced-learn} (\url
 \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b278_test=b234_linear_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b278_test=b261_linear_curves.png} 
  \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b360_test=b234_linear_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b360_test=b278_linear_curves.png} 
 \end{tabular}
-\caption{Impacto de oversampling en el R-AUCPRC en test de clasificadores SVM Lineal, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUCPRC obtenido en la sección \protect\ref{mejores_fs}}
+\caption{Impacto de oversampling en el R-AUPRC en test de clasificadores SVM Lineal, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUPRC obtenido en la sección \protect\ref{mejores_fs}}
 \label{fig:svm_oversampling}
 \end{figure}
 
@@ -129,15 +129,15 @@ Se utilizaron las implementaciones provistas por \textbf{imbalanced-learn} (\url
 \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b278_test=b234_rbf_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b278_test=b261_rbf_curves.png} 
  \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b360_test=b234_rbf_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/UNIFIED_train=b360_test=b278_rbf_curves.png} 
 \end{tabular}
-\caption{Impacto de oversampling en el R-AUCPRC en test de clasificadores SVM RBF, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUCPRC obtenido en la sección \protect\ref{mejores_fs}}
+\caption{Impacto de oversampling en el R-AUPRC en test de clasificadores SVM RBF, en función de la proporción de no-RRLs por RRL. La línea punteada roja indica el R-AUPRC obtenido en la sección \protect\ref{mejores_fs}}
 \label{fig:svmk_oversampling}
 \end{figure}
 
 En primer lugar, podemos descartar el método SMOTEENN como preprocesamiento de nuestros tiles, debido a su pobre performance en todos los casos evaluados. Para los tres métodos restantes, se calcularon las ganancias promedio respecto al baseline, las cuales se encuentran graficadas en la figura \ref{fig:overall_oversampling} . Podemos concluír que:
 \begin{itemize}
-\item En SVM Lineal, únicamente oversampling aleatorio es capaz de mejorar levemente el R-AUCPRC baseline en promedio. No hay beneficio en aplicar ADASYN o SMOTE.
-\item Similarmente, en SVM RBF, ADASYN y SMOTE empeoran el R-AUCPRC respecto al baseline en promedio. Oversampling aleatorio, en el mejor caso, logra igualar o superar el R-AUCPRC promedio pero con una pérdida importante en el peor caso.
-\item Notar que, al igual que en undersampling, corregir el imbalance en exceso (500 o menos no-RRl por RRL) incurre en una reducción notable en R-AUCPRC.
+\item En SVM Lineal, únicamente oversampling aleatorio es capaz de mejorar levemente el R-AUPRC baseline en promedio. No hay beneficio en aplicar ADASYN o SMOTE.
+\item Similarmente, en SVM RBF, ADASYN y SMOTE empeoran el R-AUPRC respecto al baseline en promedio. Oversampling aleatorio, en el mejor caso, logra igualar o superar el R-AUPRC promedio pero con una pérdida importante en el peor caso.
+\item Notar que, al igual que en undersampling, corregir el imbalance en exceso (500 o menos no-RRl por RRL) incurre en una reducción notable en R-AUPRC.
 \item Es importante notar que al hacer oversampling, una corrección moderada del imbalance (con 500 o más no-RRL por RRL) implica un aumento importante en el tamaño de los datasets de entrenamiento. Esto conlleva un mayor consumo de memoria y tiempo de entrenamiento.
 \end{itemize}
 
@@ -148,11 +148,11 @@ En primer lugar, podemos descartar el método SMOTEENN como preprocesamiento de 
     \includegraphics[width=0.49\textwidth]{Kap7/SMOTE_linearBEST.png} & \includegraphics[width=0.49\textwidth]{Kap7/SMOTE_rbfBEST.png} \\
 (a) SVM Lineal& (b) SVM RBF
 \end{tabular}
-\caption{ Ganancia promedio en R-AUCPRC respecto al baseline al utilizar oversampling, en función de la proporción entre las clases }
+\caption{ Ganancia promedio en R-AUPRC respecto al baseline al utilizar oversampling, en función de la proporción entre las clases }
 \label{fig:overall_oversampling}
 \end{figure}
 
-En resumen, los resultados son similares a los vistos para undersampling: Oversampling no es beneficioso en SVM RBF, y es ligeramente beneficioso para SVM-Lineal. Sin embargo, esta mejoría en R-AUCPRC conlleva un mayor costo de procesamiento y memoria. 
+En resumen, los resultados son similares a los vistos para undersampling: Oversampling no es beneficioso en SVM RBF, y es ligeramente beneficioso para SVM-Lineal. Sin embargo, esta mejoría en R-AUPRC conlleva un mayor costo de procesamiento y memoria. 
 
 \section{Class Weight}
 
@@ -160,7 +160,7 @@ Un tercer enfoque orientado a resolver el efecto del imbalance de clases es sesg
 
 La implementación de SVM provista por sklearn permite asignar un peso $\alpha_i$ a cada clase $i$, de forma tal que se penalicen los errores de cada clase con una severidad diferente, ajustando el parámetro de regularización $C$ como $\alpha_i * C$ para cada clase $i$ . En problemas de clasificación binaria, llamaremos $\alpha_+$ y $\alpha_-$ a los pesos de la clase minoritaria (positiva) y mayoritaria (negativa), respectivamente. \\
 
-Se evaluó el impacto en R-AUCPRC en test obtenido al utilizar SVM con distintos valores de $\alpha_{+}$, fijando $\alpha_{-}=1$. Los resultados para SVM Lineal y SVM RBF se encuentran en las figuras \ref{fig:cw_l} y \ref{fig:cw_k} respectivamente. \\
+Se evaluó el impacto en R-AUPRC en test obtenido al utilizar SVM con distintos valores de $\alpha_{+}$, fijando $\alpha_{-}=1$. Los resultados para SVM Lineal y SVM RBF se encuentran en las figuras \ref{fig:cw_l} y \ref{fig:cw_k} respectivamente. \\
 
 \begin{figure}[h!]
 \begin{tabular}{cccc}
@@ -170,7 +170,7 @@ Se evaluó el impacto en R-AUCPRC en test obtenido al utilizar SVM con distintos
 \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b278_test=b234_linear_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b278_test=b261_linear_individual_curves.png} 
  \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b360_test=b234_linear_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b360_test=b278_linear_individual_curves.png} 
 \end{tabular}
-\caption{Impacto de class weight en el R-AUCPRC en test de clasificadores SVM Lineal, en función del multiplicador a la penalidad de la clase positiva. La línea punteada roja indica el R-AUCPRC obtenido en la sección \protect\ref{mejores_fs}}
+\caption{Impacto de class weight en el R-AUPRC en test de clasificadores SVM Lineal, en función del multiplicador a la penalidad de la clase positiva. La línea punteada roja indica el R-AUPRC obtenido en la sección \protect\ref{mejores_fs}}
 \label{fig:cw_l}
 \end{figure}
 
@@ -182,7 +182,7 @@ Se evaluó el impacto en R-AUCPRC en test obtenido al utilizar SVM con distintos
 \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b278_test=b234_rbf_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b278_test=b261_rbf_individual_curves.png} 
  \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b360_test=b234_rbf_individual_curves.png}  \includegraphics[width=0.25\textwidth]{Kap7/cw/train=b360_test=b278_rbf_individual_curves.png} 
 \end{tabular}
-\caption{Impacto de class weight en el R-AUCPRC en test de clasificadores SVM RBF, en función del multiplicador a la penalidad de la clase positiva. La línea punteada roja indica el R-AUCPRC obtenido en la sección \protect\ref{mejores_fs}}
+\caption{Impacto de class weight en el R-AUPRC en test de clasificadores SVM RBF, en función del multiplicador a la penalidad de la clase positiva. La línea punteada roja indica el R-AUPRC obtenido en la sección \protect\ref{mejores_fs}}
 \label{fig:cw_k}
 \end{figure}
 
@@ -190,7 +190,7 @@ Si bien el uso de $class\_weight$ tiene un impacto  positivo en algunos pares de
 
 \begin{itemize}
 \item $class\_weight$ permite obtener una mejora promedio leve en SVM-Lineal para $ 1 < \alpha_+ < 20$, y una mejora promedio casi nula en SVM-RBF para $1 < \alpha_+ < 10$.
-\item La mejoría promedio viene acompañada de reducción marcada en R-AUCPRC para algunos pares de tiles. Esto indica que el uso de $class\_weight$ produce resultados un tanto inestables.
+\item La mejoría promedio viene acompañada de reducción marcada en R-AUPRC para algunos pares de tiles. Esto indica que el uso de $class\_weight$ produce resultados un tanto inestables.
 \end{itemize}
 
 \begin{figure}[h!]
@@ -198,18 +198,18 @@ Si bien el uso de $class\_weight$ tiene un impacto  positivo en algunos pares de
   \includegraphics[width=0.49\textwidth]{Kap7/cw/linearBEST.png} &   \includegraphics[width=0.49\textwidth]{Kap7/cw/rbfBEST.png} \\
 (a) SVM Lineal& (b) SVM RBF
 \end{tabular}
-\caption{ Ganancia promedio en R-AUCPRC respecto al baseline al utilizar class weight, en función del multiplicador a la penalidad de la clase positiva.  }
+\caption{ Ganancia promedio en R-AUPRC respecto al baseline al utilizar class weight, en función del multiplicador a la penalidad de la clase positiva.  }
 \label{fig:overall_cw}
 \end{figure}
 
 \section{Conclusiones}
 \label{conclusion_imb}
 
-Con el objeto de mitigar el impacto del imbalance de clases, en este capítulo se hizo uso de técnicas de oversampling y undersampling. También se intento sesgar los clasificadores SVM para que presten más atención a la clase minoritaria. Ninguna de las técnicas estudiadas logró mejorar significativamente el R-AUCPRC baseline obtenido en capítulos anteriores. \\
+Con el objeto de mitigar el impacto del imbalance de clases, en este capítulo se hizo uso de técnicas de oversampling y undersampling. También se intento sesgar los clasificadores SVM para que presten más atención a la clase minoritaria. Ninguna de las técnicas estudiadas logró mejorar significativamente el R-AUPRC baseline obtenido en capítulos anteriores. \\
 
-Continuando con la política establecida en capítulos anteriores, se preferirá aquél preprocesamiento que maximice la ganancia promedio en R-AUCPRC sujeto a no empeorar significativamente el R-AUCPRC en ningún par de tiles estudiados. Esta última condición busca prevenir métodos con resultados inestables, que son altamente dependientes del par de tiles elegido. \\
+Continuando con la política establecida en capítulos anteriores, se preferirá aquél preprocesamiento que maximice la ganancia promedio en R-AUPRC sujeto a no empeorar significativamente el R-AUPRC en ningún par de tiles estudiados. Esta última condición busca prevenir métodos con resultados inestables, que son altamente dependientes del par de tiles elegido. \\
 
-Los hiperparámetros que maximizan esta métrica para SVM Lineal se muestran en la tabla \ref{tab:best_hyp_svml}. Por otro lado, en SVM RBF, si bien algunos métodos logran mejorar el R-AUCPRC promedio muy ligeramente, la ganancia mínima para algunos pares es demasiado negativa. Los resultados para SVM RBF se encuentran en la tabla \ref{tab:best_hyp_svmk}. 
+Los hiperparámetros que maximizan esta métrica para SVM Lineal se muestran en la tabla \ref{tab:best_hyp_svml}. Por otro lado, en SVM RBF, si bien algunos métodos logran mejorar el R-AUPRC promedio muy ligeramente, la ganancia mínima para algunos pares es demasiado negativa. Los resultados para SVM RBF se encuentran en la tabla \ref{tab:best_hyp_svmk}. 
 
 
 \begin{table}[ht]
@@ -239,7 +239,7 @@ Los hiperparámetros que maximizan esta métrica para SVM Lineal se muestran en 
 \label{tab:best_hyp_svmk}
 \end{table}
 
-Se decidió elegir oversampling aleatorio con proporción 1:500 como preprocesamiento para SVM Lineal en el resto de este trabajo, aunque la mejoría es casi nula. En la tabla \ref{tab:imb_comparison_l} se muestra la mejora obtenida para una selección de tiles. Para SVM-RBF, todos los métodos estudiados empeoran significativamente el R-AUCPRC en alguno de los tiles estudiados, a cambio de una ganancia casi nula en promedio; por lo que se decidió no realizar corrección de imbalance alguna. \\
+Se decidió elegir oversampling aleatorio con proporción 1:500 como preprocesamiento para SVM Lineal en el resto de este trabajo, aunque la mejoría es casi nula. En la tabla \ref{tab:imb_comparison_l} se muestra la mejora obtenida para una selección de tiles. Para SVM-RBF, todos los métodos estudiados empeoran significativamente el R-AUPRC en alguno de los tiles estudiados, a cambio de una ganancia casi nula en promedio; por lo que se decidió no realizar corrección de imbalance alguna. \\
 
 Como conclusión de este capítulo, podemos decir que el imbalance de clases parece no estar teniendo un impacto tan perjudicial en SVM, pues las técnicas de corrección de imbalance no permiten mejorar resultados significativamente.
 
@@ -262,6 +262,6 @@ b360                & b234               & 0.42        & 0.253                  
 b360                & b261               & 0.54        & 0.406                     & 0.414                     & 0.007         \\ \hline
 \multicolumn{2}{|c|}{AVG}                & 0.38        & 0.287                     & 0.293                     & 0.005         \\ \hline
 \end{tabular}
-\caption{En esta tabla podemos ver el incremento en R-AUCPRC que se obtiene al utilizar oversampling 1:500 en SVM-Lineal. }
+\caption{En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar oversampling 1:500 en SVM-Lineal. }
 \label{tab:imb_comparison_l} 
 \end{table}

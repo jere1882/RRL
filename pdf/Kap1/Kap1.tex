@@ -268,7 +268,7 @@ Valores altos de $t$ tenderán a producir clasificadores con mayor precisión y 
 Si se está abordando un problema desbalanceado, una forma determinar si un clasificador tiene mejor performance que otro es comparar sus curvas de precision-recall en el dataset de test. Dado que las curvas de precision-recall tienden a ser bastante ruidosas en áreas de bajo recall, en este trabajo se utilizó en repetidas ocasiones el área bajo la curva de precision-recall restringida al dominio [0.35,1] para obtener una medida de performance numérica, a la que llamaremos R-AUPRC (del inglés Robust Area Under the Precision Recall Curve, área debajo de la curva de precision-recall robusta).\\
 
 
-R-AUCPRC resulta útil cuando se desea comparar decenas o cientos de curvas a la vez, siendo imposible su inspección visual y prefiriéndose aquel modelo que maximiza el R-AUCPRC. Otra métrica alternativa es utilizar la precisión del clasificador a un cierto valor fijo de recall. \\
+R-AUPRC resulta útil cuando se desea comparar decenas o cientos de curvas a la vez, siendo imposible su inspección visual y prefiriéndose aquel modelo que maximiza el R-AUPRC. Otra métrica alternativa es utilizar la precisión del clasificador a un cierto valor fijo de recall. \\
 
 Además de utilizar métricas adecuadas para evaluar el desempeño, otras técnicas para trabajar con datos desbalanceados son:
 
