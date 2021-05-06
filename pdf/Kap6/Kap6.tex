@@ -332,7 +332,7 @@ Como conclusión de esta sección, podemos decir que la existencia de atributos 
   \includegraphics[width=0.49\textwidth]{Kap6/pearson_linear_CORRELATIONS_BIG_PICTURE.png} &   \includegraphics[width=0.49\textwidth]{Kap6/pearson_rbf_CORRELATIONS_BIG_PICTURE.png} \\
 (a) SVM-Lineal & (b) SVM-RBF
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar utilizar las $k$ features menos correlacionadas. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar utilizar los $k$ atributos menos correlacionados. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:svm_correlation_summary}
 \end{figure}
 
@@ -370,7 +370,7 @@ Un punto clave a resaltar es que las distribuciones de probabilidad que rigen al
 Se ha observado que las distribuciones de probabilidad subyacentes a cada tile son diferentes entre sí, dado que la enorme cantidad de instancias de cada tile nos garantiza que las diferencias no son por chance. Esto podría representar un gran problema para SVM por dos motivos:
 
 \begin{itemize}
-\item La performance de SVM es altamente dependiente de la elección de hiperparámetros $C$ y $\gamma$. Dado que hemos seleccionado valores para estos hiperparémtros realizando cross validation en b278, existe la posibilidad de que tales valores no generalicen muy bien al entrenar y testear con otros tiles, cuya distribución de probabilidad puede ser distinta. Lo mismo aplica a otros hiperparámetros que hemos hallado en capítulos anteriores: número de bins, atributos a eliminar en feature selection, etcétera.
+\item La performance de SVM es altamente dependiente de la elección de hiperparámetros $C$ y $\gamma$. Dado que hemos seleccionado valores para estos hiperparémtros realizando cross validation en b278, existe la posibilidad de que tales valores no generalicen muy bien al entrenar y testear con otros tiles, cuya distribución de probabilidad puede ser distinta. Lo mismo aplica a otros hiperparámetros que hemos hallado en capítulos anteriores: número de bins, atributos a eliminar en selección de variables, etcétera.
 \item El hiperplano separador hallado al entrenar SVM con un cierto tile puede no generalizar muy bien al testear con otro tile cuya distribución de probabilidad es distinta.
 \end{itemize}
 

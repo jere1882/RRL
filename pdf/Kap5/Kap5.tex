@@ -56,7 +56,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b278test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b278test=b261} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b360test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b360test=b278} 
 \end{tabular}
-\caption{Aplicación de filtros univariable en SVM-Lineal. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con las $k$ features de mayor puntaje. La línea roja punteada es la performance de SVM sin usar feature selection.}
+\caption{Aplicación de filtros univariable en SVM-Lineal. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con los $k$ atributos de mayor puntaje. La línea roja punteada es la performance de SVM sin usar selección de variables.}
 \label{fig:svml_univariate}
 \end{figure}
 
@@ -69,7 +69,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \label{fig:svml_univariate_unified}
 \end{figure}
 
-Para elegir un valor óptimo de $k$ de forma analítica, se decidió calcular cuánto mejora (o empeora) el R-AUPRC para cada valor de $k$ respecto a no utilizar feature selection. Dado que este análisis se realizó sobre 8 pares de tiles, en la figura \ref{fig:optimal_k_svml} se muestra el promedio de la diferencia entre el R-AUPRC utilizando k atributos y el baseline. Adicionalmente, en color naranja, se muestra la diferencia obtenida por aquel par de tiles que menos se beneficia para cada valor de $k$. \\
+Para elegir un valor óptimo de $k$ de forma analítica, se decidió calcular cuánto mejora (o empeora) el R-AUPRC para cada valor de $k$ respecto a no utilizar selección de variables. Dado que este análisis se realizó sobre 8 pares de tiles, en la figura \ref{fig:optimal_k_svml} se muestra el promedio de la diferencia entre el R-AUPRC utilizando k atributos y el baseline. Adicionalmente, en color naranja, se muestra la diferencia obtenida por aquel par de tiles que menos se beneficia para cada valor de $k$. \\
 
 Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o al menos no incurren en grandes pérdidas de R-AUPRC. Las conclusiones finales son:
 
@@ -84,7 +84,7 @@ Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o 
   \includegraphics[width=0.49\textwidth]{Kap5/linearBEST_K_f_classif.png} &   \includegraphics[width=0.49\textwidth]{Kap5/linearBEST_K_mutual_info_classif.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar seleccionar $k$ features en SVM Lineal. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar seleccionar $k$ atributos en SVM Lineal. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:optimal_k_svml}
 \end{figure}
 
@@ -95,7 +95,7 @@ En la figura \ref{fig:svmk_univariate} se encuentran los resultados de aplicar f
 
 \begin{itemize}
 \item Algunas curvas de SVM-RBF muestran una mejoría respecto al baseline si se eliminan algunos atributos. 
-\item Se puede reducir el tamaño del dataset aproximadamente a la mitad, seleccionando aproximadamente 30-35 features, mejorando o al menos no empeorando todas las curvas. 
+\item Se puede reducir el tamaño del dataset aproximadamente a la mitad, seleccionando aproximadamente 30-35 atributos, mejorando o al menos no empeorando todas las curvas. 
 \item Nótese que las curvas de SVM-Lineal comienzan a aplanarse a partir de $k=40$, en tanto que en las curvas de SVM-RBF (\ref{fig:svmk_univariate_unified}) tienden a aplanarse a partir de $k=30$. Esto sugiere que SVM-RBF genera superficies de decisión no lineales; y que hay relaciones no lineales involucradas en nuestros datos que SVM lineal no es capaz de capturar.
 \end{itemize}
 
@@ -107,7 +107,7 @@ En la figura \ref{fig:svmk_univariate} se encuentran los resultados de aplicar f
 \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b278test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b278test=b261} 
  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b360test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b360test=b278} 
 \end{tabular}
-\caption{Aplicación de filtros univariable en SVM-RBF. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con las $k$ features de mayor puntaje. La línea roja punteada es la performance de SVM sin usar feature selection.}
+\caption{Aplicación de filtros univariable en SVM-RBF. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con los $k$ atributos de mayor puntaje. La línea roja punteada es la performance de SVM sin usar selección de variables.}
 \label{fig:svmk_univariate}
 \end{figure}
 
@@ -132,7 +132,7 @@ Nuevamente, resulta complicado determinar el número óptimo de atributos a sele
   \includegraphics[width=0.49\textwidth]{Kap5/rbfBEST_K_f_classif.png} &   \includegraphics[width=0.49\textwidth]{Kap5/rbfBEST_K_mutual_info_classif.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar seleccionar $k$ features en SVM-RBF. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar seleccionar $k$ atributos en SVM-RBF. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:optimal_k_svmk}
 \end{figure}
 
@@ -143,7 +143,7 @@ Nuevamente, resulta complicado determinar el número óptimo de atributos a sele
 Consideremos un cierto fenómeno gobernado por $L$ variables independientes. En la práctica, este fenómeno probablemente aparentará tener muchos más grados de libertad, debido a la influencia de factores como ruido, imperfección en el sistema de mediciones, adición de atributos irrelevantes, etcétera. Se define la \textbf{dimensión intrínseca} de un fenómeno como el \textit{número de variables independientes que explica satisfactoriamente ese 
 fenómeno}\cite{carreira}. \\
 
-Dado un dataset $X$ con $d$ atributos numéricos, extracción de features consiste en hallar un mapeo $\mathds{R}^d \mapsto \mathds{R}^p$ con $p \leq d$; donde idealmente $p$ será la dimensionalidad intrínseca de X. Este mapeo es utilizado para encontrar una representación más compacta de $X$ sin perder información \cite{fextraction}. Al igual que en selección de variables, se espera obtener un beneficio en términos de desempeño y eficiencia. Adicionalmente, los datos pueden ser más fáciles de visualizar o separar en el nuevo espacio. \\
+Dado un dataset $X$ con $d$ atributos numéricos, extracción de variables consiste en hallar un mapeo $\mathds{R}^d \mapsto \mathds{R}^p$ con $p \leq d$; donde idealmente $p$ será la dimensionalidad intrínseca de X. Este mapeo es utilizado para encontrar una representación más compacta de $X$ sin perder información \cite{fextraction}. Al igual que en selección de variables, se espera obtener un beneficio en términos de desempeño y eficiencia. Adicionalmente, los datos pueden ser más fáciles de visualizar o separar en el nuevo espacio. \\
 
 Los métodos de extracción de variables pueden clasificarse en dos tipos \cite{fextraction}: 
 \begin{itemize}
@@ -184,7 +184,7 @@ Podemos ver que el uso de PCA tiene un efecto muy dispar en distintos pares de t
 \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de PCA a SVM Lineal. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el baseline de SVM, obtenido sin utilizar feature extraction. La línea verde punteada representa la performance de RF.}
+\caption{Aplicación de PCA a SVM Lineal. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el baseline de SVM, obtenido sin utilizar extracción de variables. La línea verde punteada representa la performance de RF.}
 \label{fig:pca_l}
 \end{figure}
 
@@ -198,7 +198,7 @@ Podemos ver que el uso de PCA tiene un efecto muy dispar en distintos pares de t
 \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de PCA a SVM RBF. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el R-AUPRC de SVM-RBF obtenido sin utilizar feature extraction. La línea verde punteada representa la performance de RF.}
+\caption{Aplicación de PCA a SVM RBF. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el R-AUPRC de SVM-RBF obtenido sin utilizar extracción de variables. La línea verde punteada representa la performance de RF.}
 \label{fig:pca_k}
 \end{figure}
 
@@ -250,7 +250,7 @@ En esta sección se aplicó clustering para combinar atributos, en lugar de elem
 
 Los resultados de estos experimentos pueden verse en las figuras \ref{fig:agg_l} y \ref{fig:agg_k} para SVM lineal y SVM RBF respectivamente. Las curvas generadas son notablemente similares a las obtenidas utilizando PCA. \\
 
-La métrica de disimilaridad utilizada para hallar clústers no tiene un gran impacto en las curvas generadas. Al igual que en PCA, utilizar feature agglomeration produce aumentos muy interesantes de R-AUPRC en ciertos pares de tiles y desmejorías notables en otros; es por esto que se decidió no utilizar esta técnica en secciones posteriores.
+La métrica de disimilaridad utilizada para hallar clústers no tiene un gran impacto en las curvas generadas. Al igual que en PCA, utilizar clustering de variables produce aumentos muy interesantes de R-AUPRC en ciertos pares de tiles y desmejorías notables en otros; es por esto que se decidió no utilizar esta técnica en secciones posteriores.
 
 \begin{figure}[h!]
 \begin{tabular}{cccc}
@@ -262,7 +262,7 @@ La métrica de disimilaridad utilizada para hallar clústers no tiene un gran im
 \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de Feature Agglomeration a SVM Lineal}
+\caption{Aplicación de clustering de variables a SVM Lineal}
 \label{fig:agg_l}
 \end{figure}
 
@@ -276,7 +276,7 @@ La métrica de disimilaridad utilizada para hallar clústers no tiene un gran im
 \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de Feature Agglomeration a SVM RBF}
+\caption{Aplicación de clustering de variables a SVM RBF}
 \label{fig:agg_k}
 \end{figure}
 
@@ -312,7 +312,7 @@ b360                & b234               & 0.42        & 0.26                  &
 b360                & b261               & 0.54        & 0.41                  & 0.41                  & -0.01         \\ \hline
 \multicolumn{2}{|c|}{avg}                & 0.38        & 0.29                  & 0.29                  & 0             \\ \hline
 \end{tabular}
-\caption{En esta tabla podemos ver el incremento nulo en R-AUPRC que se obtiene al utilizar feature selection en SVM-Lineal. }
+\caption{En esta tabla podemos ver el incremento nulo en R-AUPRC que se obtiene al utilizar selección de variables en SVM-Lineal. }
 \label{tab:fs_comparison_l} 
 \end{table}
 
@@ -335,6 +335,6 @@ b360                & b234               & 0.42        & 0.30                   
 b360                & b261               & 0.54        & 0.45                    & 0.45                    & 0.00          \\ \hline
 \multicolumn{2}{|c|}{avg}                & 0.38        & 0.31                    & 0.33                   & {\color[HTML]{009901} .02}          \\ \hline
 \end{tabular}
-\caption{En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar feature selection en SVM-RBF. }
+\caption{En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar selección de variables en SVM-RBF. }
 \label{tab:fs_comparison_r} 
 \end{table}

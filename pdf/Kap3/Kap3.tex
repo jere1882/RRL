@@ -4,7 +4,7 @@ En este capítulo se repitieron los experimentos descriptos en el capítulo ante
 
 En trabajos previos se ha reportado que la performance de SVM es inferior a la de métodos basados en ensembles de árboles a la hora de clasificar estrellas variables de tipo RRL \cite{jbc} \cite{elorrieta}. El objetivo de este capítulo es reproducir estos resultados, obteniendo un baseline de performance para SVM que intentaremos mejorar y entender en capítulos posteriores. \\
 
-Nuevamente se utilizaron implementaciones de SVM provistas por SciKit Learn\cite{sklearn_api} \cite{pedregosa2011scikit}. Para todos los experimentos de esta sección, se aplicó un escalado estándar a los tiles de training y testing antes de utilizarla (restando la media en training de cada feature y dividiendo por la varianza en training).
+Nuevamente se utilizaron implementaciones de SVM provistas por SciKit Learn\cite{sklearn_api} \cite{pedregosa2011scikit}. Para todos los experimentos de esta sección, se aplicó un escalado estándar a los tiles de training y testing antes de utilizarlos (restando la media en training de cada atributo y dividiendo por la varianza en training).
 
 \section{Optimización de hiperparámetros para SVM Lineal}
 

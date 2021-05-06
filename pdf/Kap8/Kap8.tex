@@ -216,7 +216,7 @@ Debido a la alta dimensionalidad de los tiles de Carpyncho, se decidió utilizar
 \end{enumerate}
 
 Algunos detalles del experimento:
-
+f
 \begin{itemize}
 \item RF se utiliza con tan solo 50 árboles. Los atributos no se escalan ni se discretizan. Previamente a entrenar el clasificador, se realiza selección de 45 atributos tal y como se explicó en la sección \ref{mejores_fs}.
 \item Regresión logística se realizó con C=1. Se discretizaron los atributos utilizando binning y luego se escalan utilizando un escalado estándar. Previamente a entrenar el clasificador, se realiza selección de 45 atributos tal y como se explicó en la sección \ref{mejores_fs}.
@@ -231,7 +231,7 @@ La figura \ref{fig:covariate_matrix} muestra los resultados obtenidos. En trabaj
 \item La severidad del covariate shift detectado parece ser proporcional a la distancia espacial de los tiles (ver figura \ref{fig:vvv_tiles}). De ser cierto, sería beneficioso entrenar y testear con tiles que se encuentran espacialmente cerca, siempre que sea posible.
 \item Utilizando el umbral de 0.8 AUC empleado en los trabajos previamente citados, ambos clasificadores coinciden en que todos los pares de tiles testeados se ven severamente afectados por covariate shift.
 \item Nótese que se muestra la matriz completa, en vez de mostrar sólo una matriz triangular. Esto es porque se distingue entre el tile de train y entrenamiento. El tile de train define cuáles serán los 45 atributos que se mantendrán en el experimento durante el paso de selección de variables, previo a entrenar los clasificadores. A pesar de esta diferencia, vemos que el covariate shift medido con $t1 \mapsto t2$ es prácticamente el mismo que el medido con $t2 \mapsto t1$.
-\item Obviamente, cuando el tile de entrenamiento y de testeo son el mismo, los clasificadores tienen la misma performance que elegir aleatoriamente (0.5).
+\item Obviamente, cuando el tile de entrenamiento y de testeo son el mismo resulta imposible distinguirlos, y los clasificadores tienen la misma performance que un clasificador aleatorio (accuracy del 50\%, área debajo de la curva ROC 0.5).
 \end{itemize}
 
 \begin{figure}[h!]
@@ -280,7 +280,7 @@ Es factible aplicar los dos métodos recién descriptos a nuestro problema de cl
 
 Se optó por intentar eliminar atributos que causan covariate shift, estudiando puntualmente el par de tiles $b360-b234$, pues muestra la mayor divergencia. En primer lugar, se analizó la importancia de cada variable a la hora de diferenciar entre $b360$ y $b234$. Esta importancia se obtiene a partir de los clasificadores entrenados en la sección anterior; en el caso de RF es la importancia gini y en el caso de LR se obtienede forma transparente a partir de los coeficientes asignados a cada variable \cite{molnar2019}. \\
 
-En la figura \ref{fig:covariate_ranking} se muestra, para cada atributo, la importancia obtenida por RF y LR (normalizada) a la hora de separar ambos tiles. Notar que se aplicó feature selection previamente, por lo tanto sólo 45 atributos fueron evaluados. Los atributos están ordenados en el eje $x$ de acuerdo a su importancia para clasificar RRLs en el tile b360, de acuerdo a mutual information (ver sección \ref{experimentos_test_estadisticos}). Algunas observaciones:
+En la figura \ref{fig:covariate_ranking} se muestra, para cada atributo, la importancia obtenida por RF y LR (normalizada) a la hora de separar ambos tiles. Notar que se aplicó selección de variables previamente, por lo tanto sólo 45 atributos fueron evaluados. Los atributos están ordenados en el eje $x$ de acuerdo a su importancia para clasificar RRLs en el tile b360, de acuerdo a mutual information (ver sección \ref{experimentos_test_estadisticos}). Algunas observaciones:
 
 \begin{itemize}
 \item Tanto RF como LR señalan mayormente a atributos de color entre los más informativos para distinguir entre b360 y b234. Es decir, los atributos de color contribuyen mucho a la presencia de covariate shift. Quizás sea necesario realizar algún tipo de preprocesamiento extra de tal forma que los datos de color sean más homogéneos entre distintos tiles.

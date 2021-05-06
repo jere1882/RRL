@@ -7,39 +7,39 @@ En este capítulo se describirán distintos tipos de preprocesamientos que puede
 En primer lugar, se consideraron distintas técnicas básicas que consisten en modificar la media y escalar la varianza de los datos. \cite{han2012mining}
 
 \begin{itemize}
-\item \textbf{MaxAbsScaler}: Escalar cada feature por separado al rango $[-1,1]$. Para cada columna $c$, se dividen todos los elementos de esa columna por su máximo valor absoluto:
+\item \textbf{MaxAbsScaler}: Escalar cada atributo por separado al rango $[-1,1]$. Para cada columna $c$, se dividen todos los elementos de esa columna por su máximo valor absoluto:
 
 \begin{center}
 $ c := \frac{c}{max(abs(c))} $
 \end{center}
 
-\item \textbf{MinMaxScaler}: Escalar cada feature por separado al rango $[0,1]$. Para cada columna $c$, se aplica la siguiente transformación \cite{han2012mining}:
+\item \textbf{MinMaxScaler}: Escalar cada atributo por separado al rango $[0,1]$. Para cada columna $c$, se aplica la siguiente transformación \cite{han2012mining}:
 
 \begin{center}
 $ c := \frac{ c - min(c) } { max(c) - min(c) }$
 \end{center}
 
-\item \textbf{StandardScaler}: Estandarizar cada feature, restándole su media y escalando a varianza unitaria.
+\item \textbf{StandardScaler}: Estandarizar cada atributo, restándole su media y escalando a varianza unitaria.
 
 \begin{center}
 $ c := \frac{ c - mean(c) } { stdev(c) }$
 \end{center}
 
-\item \textbf{RobustScaler}: Estandarizar cada feature usando métricas robustas a outliers, restando la mediana y escalando los datos de acuerdo al rango intercuartil.
+\item \textbf{RobustScaler}: Estandarizar cada atributo usando métricas robustas a outliers, restando la mediana y escalando los datos de acuerdo al rango intercuartil.
 
 \end{itemize}
 
 \section { Transformaciones no lineales y discretización}
 
-En esta sección se enumeran distintas técnicas que modifican la distribución de probabilidad subyacente de cada feature:
+En esta sección se enumeran distintas técnicas que modifican la distribución de probabilidad subyacente de cada atributo:
 
 \begin{itemize}
 
-\item \textbf{PowerTransformer}: Aplica una transformación paramétrica, monotónica que transforma cada feature para que tenga una distribución de probabilidad más Gaussiana. La transformación utilizada es  Yeo-Johnson \cite{yeo}. Un escalado estándar (StandardScaler) es aplicado previamente a los datos.
+\item \textbf{PowerTransformer}: Aplica una transformación paramétrica, monotónica que transforma cada atributo para que tenga una distribución de probabilidad más Gaussiana. La transformación utilizada es  Yeo-Johnson \cite{yeo}. Un escalado estándar (StandardScaler) es aplicado previamente a los datos.
 
-\item \textbf {QuantileTransformer}: Transformar cada feature por separado, obteniendo valores entre 0 y 1. Una primera opción es mapear los datos a una distribución uniforme, una segunda opción es mapear los datos a una distribución normal \cite{KRZYSZTOFOWICZ1997286}. Un parámetro de esta transformación es el número de cuantiles computado para realizar la transformación.
+\item \textbf {QuantileTransformer}: Transformar cada atributo por separado, obteniendo valores entre 0 y 1. Una primera opción es mapear los datos a una distribución uniforme, una segunda opción es mapear los datos a una distribución normal \cite{KRZYSZTOFOWICZ1997286}. Un parámetro de esta transformación es el número de cuantiles computado para realizar la transformación.
 
-\item \textbf {Binning}: Discretizar cada feature por separado, distribuyendo sus valores en $k$ cubetas (bins) \cite{han2012mining}. Distintos criterios pueden seguirse para decidir cómo se distribuyen los datos en cada cubeta:
+\item \textbf {Binning}: Discretizar cada atributo por separado, distribuyendo sus valores en $k$ cubetas (bins) \cite{han2012mining}. Distintos criterios pueden seguirse para decidir cómo se distribuyen los datos en cada cubeta:
 \begin{itemize}
 \item \textbf{Uniforme}: Usar cubetas de tamaño constante. Es decir, dividir el rango de valores del atributo en $k$ intervalos del mismo tamaño; y reemplazar cada valor por el índice de su intervalo.
 \item \textbf{Quantile}: Colocar la misma cantidad de elementos en cada cubeta.
@@ -58,7 +58,7 @@ Se aplicaron los preprocesamientos descriptos en las secciones anteriores a los 
 
 \item Los resultados de aplicar estandarización pueden ser observados en \ref{fig:svml_estandarizacion}. De este experimento se desprende que StandardScaler es la mejor opción, dado que es la única opción que se encuentra consistentemente entre los preprocesamientos con mejor performance.
 
-\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svml_quantiles}. Se exploraron ambas variantes: mapear la distribución de cada feature a una distribución normal, y a una distribución uniforme. Para cada una de estas configuraciones, se analizó el R-AUPRC en función del número de cuantiles utilizado en el transformador. Podemos observar que todas las combinaciones de parámetros exploradas efectivamente incrementan la performance respecto al baseline; aunque el número de cuantiles óptimo es dependiente de los datos.
+\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svml_quantiles}. Se exploraron ambas variantes: mapear la distribución de cada atributo a una distribución normal, y a una distribución uniforme. Para cada una de estas configuraciones, se analizó el R-AUPRC en función del número de cuantiles utilizado en el transformador. Podemos observar que todas las combinaciones de parámetros exploradas efectivamente incrementan la performance respecto al baseline; aunque el número de cuantiles óptimo es dependiente de los datos.
 
 \item Los resultados de aplicar binning, seguido de un escalado estándar, se pueden observar en \ref{fig:svml_binning}. Se exploraron las tres estrategias anteriormente mencionadas (Uniform, Quantile y Kmeans), estudiando la evolución del R-AUPRC en función del número de cubetas. Se puede apreciar que la estrategia Quantile es consistentemente la mejor opción. Nótese que la estrategia KMeans es computacionalmente impracticable para grandes cantidades de cubetas.
 
@@ -162,7 +162,7 @@ Se procedió a realizar los mismos experimentos utilizando SVM con kernel RBF:
 
 \section{Análisis de resultados}
 
-Se exploró una amplia variedad de preprocesamientos a ser aplicados a los datos. Aquellas técnicas que transforman la distribución de probabilidad de cada feature a una normal o uniforme fueron las que mostraron un mayor beneficio, siendo Binning el preprocesamiento escogido para el resto de este trabajo. \\
+Se exploró una amplia variedad de preprocesamientos a ser aplicados a los datos. Aquellas técnicas que transforman la distribución de probabilidad de cada atributo a una normal o uniforme fueron las que mostraron un mayor beneficio, siendo Binning el preprocesamiento escogido para el resto de este trabajo. \\
 
 Hay distintos motivos por los cuales binning quantile puede estar mejorando consistentemente la performance de SVM:
 
@@ -170,7 +170,7 @@ Hay distintos motivos por los cuales binning quantile puede estar mejorando cons
 \item Errores de medición: Se reduce el efecto de errores menores de observación. Es decir, se aplica un efecto de suavizado local (local smoothing) sobre los datos. Esto es razonable para datasets astronómicos, donde los instrumentos de medición que generan los datos siempre tendrán un error inherente.
 \item Manejo de outliers: Valores extremos son asignados a las cubetas de los extremos, evitando que tengan un efecto significativo sobre los parámetros del modelo.
 \item Binning tiene una cierta similitud a la forma en que los árboles de decisión funcionan: dividir una variable continua en subintervalos, eligiendo ciertos puntos de corte; y tomar decisiones dependiendo de en qué subintervalo un cierto valor está. Es posible que para nuestros datos, ciertas variables tengan un efecto particular sobre la clase objetivo a un threshold específico; y binning ayude a SVM a \textit{entender} esto con mayor facilidad, concentrándose en interacciones de alto orden entre las variables.
-\item La distribución de probabilidad subyacente de cada feature será convertida a una distribución uniforme.
+\item La distribución de probabilidad subyacente de cada atributo será convertida a una distribución uniforme.
 \end{itemize} 
 
 Claramente, la potencial pérdida de información asociada a discretizar los datos no perjudica a nuestro modelo. Nótese que se aplica un escalado estándar luego de Binning, dado que Binning en su forma pura mapearía cada valor a $[0,NBINS)$; y SVM funciona mejor con valores pequeños alrededor de cero. \\
