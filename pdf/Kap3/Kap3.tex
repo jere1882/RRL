@@ -2,7 +2,7 @@
 
 En este capítulo se repitieron los experimentos descriptos en el capítulo anterior, utilizando SVM en vez de RF. Esto permitirá realizar una primera comparación entre el desempeño de ambos métodos. \\
 
-En trabajos previos se ha reportado que la performance de SVM es inferior a la de métodos basados en ensembles de árboles a la hora de clasificar estrellas variables de tipo RRL \cite{jbc} \cite{elorrieta}. El objetivo de este capítulo es reproducir estos resultados, obteniendo un baseline de performance para SVM que intentaremos mejorar y entender en capítulos posteriores. \\
+En trabajos previos se ha reportado que la performance de SVM es inferior a la de métodos basados en ensembles de árboles a la hora de clasificar estrellas variables de tipo RRL \cite{jbc} \cite{elorrieta}. El objetivo de este capítulo es reproducir estos resultados, obteniendo una base de referencia de performance (baseline) para SVM que intentaremos mejorar y entender en capítulos posteriores. \\
 
 Nuevamente se utilizaron implementaciones de SVM provistas por SciKit Learn\cite{sklearn_api} \cite{pedregosa2011scikit}. Para todos los experimentos de esta sección, se aplicó un escalado estándar a los tiles de training y testing antes de utilizarlos (restando la media en training de cada atributo y dividiendo por la varianza en training).
 

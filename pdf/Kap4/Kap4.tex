@@ -52,13 +52,13 @@ Es importante remarcar que para todos los preprocesamientos discutidos hasta el 
 
 \section { Preprocesamientos en SVM Lineal }
 
-Se aplicaron los preprocesamientos descriptos en las secciones anteriores a los datos, antes de utilizar SVM Lineal. En los siguientes experimentos, se considera como baseline la performance reportada en la última sección del capítulo anterior, obtenida aplicando únicamente StandardScaler antes de entrenar y testear. 
+Se aplicaron los preprocesamientos descriptos en las secciones anteriores a los datos, antes de utilizar SVM Lineal. En los siguientes experimentos, se considera como base de referencia la performance reportada en la última sección del capítulo anterior, obtenida aplicando únicamente StandardScaler antes de entrenar y testear. 
 
 \begin{itemize}
 
 \item Los resultados de aplicar estandarización pueden ser observados en \ref{fig:svml_estandarizacion}. De este experimento se desprende que StandardScaler es la mejor opción, dado que es la única opción que se encuentra consistentemente entre los preprocesamientos con mejor performance.
 
-\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svml_quantiles}. Se exploraron ambas variantes: mapear la distribución de cada atributo a una distribución normal, y a una distribución uniforme. Para cada una de estas configuraciones, se analizó el R-AUPRC en función del número de cuantiles utilizado en el transformador. Podemos observar que todas las combinaciones de parámetros exploradas efectivamente incrementan la performance respecto al baseline; aunque el número de cuantiles óptimo es dependiente de los datos.
+\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svml_quantiles}. Se exploraron ambas variantes: mapear la distribución de cada atributo a una distribución normal, y a una distribución uniforme. Para cada una de estas configuraciones, se analizó el R-AUPRC en función del número de cuantiles utilizado en el transformador. Podemos observar que todas las combinaciones de parámetros exploradas efectivamente incrementan la performance respecto a la base de referencia; aunque el número de cuantiles óptimo es dependiente de los datos.
 
 \item Los resultados de aplicar binning, seguido de un escalado estándar, se pueden observar en \ref{fig:svml_binning}. Se exploraron las tres estrategias anteriormente mencionadas (Uniform, Quantile y Kmeans), estudiando la evolución del R-AUPRC en función del número de cubetas. Se puede apreciar que la estrategia Quantile es consistentemente la mejor opción. Nótese que la estrategia KMeans es computacionalmente impracticable para grandes cantidades de cubetas.
 
@@ -114,9 +114,9 @@ Se procedió a realizar los mismos experimentos utilizando SVM con kernel RBF:
 \begin{itemize}
 \item Los resultados de aplicar estandarización pueden ser observados en \ref{fig:svmk_estandarizacion}. Nuevamente, StandardScaler parece ser la mejor opción, estando consistentemente entre los que mejor funcionan. El escalado robusto, si bien produce mejores resultados en ciertos tiles, ocasiona una pérdida significativa de performance en otros.
 
-\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svmk_quantiles}. A diferencia de en SVM-Lineal, la performance oscila considerablemente dependiendo del número de cuantiles, y es difícil encontrar una asignación de parámetros para este método que sea óptima para todos los tiles. Más aún, aplicar este preprocesamiento implica una pérdida de performance respecto al baseline algunas de las combinaciones testeadas, por lo cuál se descarta su aplicación en el resto de este trabajo.
+\item Los resultados de aplicar QuantileTransformer se pueden observar en \ref{fig:svmk_quantiles}. A diferencia de en SVM-Lineal, la performance oscila considerablemente dependiendo del número de cuantiles, y es difícil encontrar una asignación de parámetros para este método que sea óptima para todos los tiles. Más aún, aplicar este preprocesamiento implica una pérdida de performance respecto a la base de referencia en algunas de las combinaciones testeadas, por lo cuál se descarta su aplicación en el resto de este trabajo.
 
-\item Los resultados de aplicar binning, seguido de un escalado estándar, se pueden observar en \ref{fig:svmk_binning}. Los resultados son consistentes a los observados en SVM Lineal: La estrategia Quantile es consistentemente superior a las otras estrategias, y dependiendo del número de bins escogido mejora la performance respecto al baseline. 
+\item Los resultados de aplicar binning, seguido de un escalado estándar, se pueden observar en \ref{fig:svmk_binning}. Los resultados son consistentes a los observados en SVM Lineal: La estrategia Quantile es consistentemente superior a las otras estrategias, y dependiendo del número de bins escogido mejora la performance respecto a la base de referencia. 
 
 \item Las curvas de precision-recall de los preprocesamientos que tuvieron mejor desempeño en los experimentos anteriores, junto con la correspondiente a PowerTransformer (que no requiere parámetros), son comparadas en la figura \ref{fig:svmk_final_comparison}. De esta comparación final se desprende que el preprocesamiento óptimo para SVM RBF es Binning, aunque la mejora es mucho más modesta que la obtenida en SVM Lineal.
 \end{itemize}

@@ -54,10 +54,10 @@ Este experimento se repitió tres veces, dado que los resultados obtenidos (espe
 \label{fig:svmk_undersample}
 \end{figure}
 
-Utilizando las curvas de color negro, se calculó la ganancia promedio (entre todos los tiles) en R-AUPRC respecto al baseline, para cada proporción RRL-noRRL estudiada. Los resultados de estos experimentos se encuentran en la figura \ref{fig:overall_undersampling}, de los cuáles podemos concluir:
+Utilizando las curvas de color negro, se calculó la ganancia promedio (entre todos los tiles) en R-AUPRC respecto a la base de referencia, para cada proporción RRL-noRRL estudiada. Los resultados de estos experimentos se encuentran en la figura \ref{fig:overall_undersampling}, de los cuáles podemos concluir:
 \begin{itemize}
 \item Balancear las clases en exceso es altamente perjudicial, pues reduce el R-AUPRC drásticamente para todos los tiles (ver las curvas en proporciones 1:1 a 1:250).
-\item En SVM Lineal, corregir el imbalance de forma moderada, dejando al menos 500 no-RRL por RRL, permite igualar el baseline. Esto implica que se puede obtener al menos la misma performance en test utilizando tan solo un cuarto datos para entrenar. Una consecuencia inmediata es una drástica reducción en la complejidad temporal y espacial necesaria para entrenar clasificadores SVM Lineal.
+\item En SVM Lineal, corregir el imbalance de forma moderada, dejando al menos 500 no-RRL por RRL, permite igualar la base de referencia. Esto implica que se puede obtener al menos la misma performance en test utilizando tan solo un cuarto datos para entrenar. Una consecuencia inmediata es una drástica reducción en la complejidad temporal y espacial necesaria para entrenar clasificadores SVM Lineal.
 \item En SVM-RBF, undersampling incurre en una pérdida de R-AUPRC promedio para todas las proporciones testeadas.
 \end{itemize}
 
@@ -68,7 +68,7 @@ Undersampling resulta, por lo tanto, no útil para mejorar el R-AUPRC de nuestro
   \includegraphics[width=0.49\textwidth]{Kap7/linearBEST.png} &   \includegraphics[width=0.49\textwidth]{Kap7/rbfBEST.png} \\
 (a) SVM Lineal& (b) SVM RBF
 \end{tabular}
-\caption{ Ganancia promedio en R-AUPRC respecto al baseline al utilizar undersampling, en función de la proporción entre las clases. Nótese que el dominio de estos gráficos se extiende sólo hasta 1200, pues es la proporción original de algunos de los tiles estudiados. La mayoría de los tiles, sin embargo, presenta un imbalance original de 1:2000. }
+\caption{ Ganancia promedio en R-AUPRC respecto a la base de referencia al utilizar undersampling, en función de la proporción entre las clases. Nótese que el dominio de estos gráficos se extiende sólo hasta 1200, pues es la proporción original de algunos de los tiles estudiados. La mayoría de los tiles, sin embargo, presenta un imbalance original de 1:2000. }
 \label{fig:overall_undersampling}
 \end{figure}
 
@@ -133,10 +133,10 @@ Se utilizaron las implementaciones provistas por \textbf{imbalanced-learn} (\url
 \label{fig:svmk_oversampling}
 \end{figure}
 
-En primer lugar, podemos descartar el método SMOTEENN como preprocesamiento de nuestros tiles, debido a su pobre performance en todos los casos evaluados. Para los tres métodos restantes, se calcularon las ganancias promedio respecto al baseline, las cuales se encuentran graficadas en la figura \ref{fig:overall_oversampling} . Podemos concluír que:
+En primer lugar, podemos descartar el método SMOTEENN como preprocesamiento de nuestros tiles, debido a su pobre performance en todos los casos evaluados. Para los tres métodos restantes, se calcularon las ganancias promedio respecto a la base de referencia, las cuales se encuentran graficadas en la figura \ref{fig:overall_oversampling} . Podemos concluír que:
 \begin{itemize}
-\item En SVM Lineal, únicamente oversampling aleatorio es capaz de mejorar levemente el R-AUPRC baseline en promedio. No hay beneficio en aplicar ADASYN o SMOTE.
-\item Similarmente, en SVM RBF, ADASYN y SMOTE empeoran el R-AUPRC respecto al baseline en promedio. Oversampling aleatorio, en el mejor caso, logra igualar o superar el R-AUPRC promedio pero con una pérdida importante en el peor caso.
+\item En SVM Lineal, únicamente oversampling aleatorio es capaz de mejorar levemente el R-AUPRC respecto a la base de referencia en promedio. No hay beneficio en aplicar ADASYN o SMOTE.
+\item Similarmente, en SVM RBF, ADASYN y SMOTE empeoran el R-AUPRC respecto a la base de referencia en promedio. Oversampling aleatorio, en el mejor caso, logra igualar o superar el R-AUPRC promedio pero con una pérdida importante en el peor caso.
 \item Notar que, al igual que en undersampling, corregir el imbalance en exceso (500 o menos no-RRl por RRL) incurre en una reducción notable en R-AUPRC.
 \item Es importante notar que al hacer oversampling, una corrección moderada del imbalance (con 500 o más no-RRL por RRL) implica un aumento importante en el tamaño de los datasets de entrenamiento. Esto conlleva un mayor consumo de memoria y tiempo de entrenamiento.
 \end{itemize}
@@ -148,7 +148,7 @@ En primer lugar, podemos descartar el método SMOTEENN como preprocesamiento de 
     \includegraphics[width=0.49\textwidth]{Kap7/SMOTE_linearBEST.png} & \includegraphics[width=0.49\textwidth]{Kap7/SMOTE_rbfBEST.png} \\
 (a) SVM Lineal& (b) SVM RBF
 \end{tabular}
-\caption{ Ganancia promedio en R-AUPRC respecto al baseline al utilizar oversampling, en función de la proporción entre las clases }
+\caption{ Ganancia promedio en R-AUPRC respecto a la base de referencia al utilizar oversampling, en función de la proporción entre las clases }
 \label{fig:overall_oversampling}
 \end{figure}
 
@@ -198,14 +198,14 @@ Si bien el uso de $class\_weight$ tiene un impacto  positivo en algunos pares de
   \includegraphics[width=0.49\textwidth]{Kap7/cw/linearBEST.png} &   \includegraphics[width=0.49\textwidth]{Kap7/cw/rbfBEST.png} \\
 (a) SVM Lineal& (b) SVM RBF
 \end{tabular}
-\caption{ Ganancia promedio en R-AUPRC respecto al baseline al utilizar class weight, en función del multiplicador a la penalidad de la clase positiva.  }
+\caption{ Ganancia promedio en R-AUPRC respecto a la base de referencia al utilizar class weight, en función del multiplicador a la penalidad de la clase positiva.  }
 \label{fig:overall_cw}
 \end{figure}
 
 \section{Conclusiones}
 \label{conclusion_imb}
 
-Con el objeto de mitigar el impacto del imbalance de clases, en este capítulo se hizo uso de técnicas de oversampling y undersampling. También se intento sesgar los clasificadores SVM para que presten más atención a la clase minoritaria. Ninguna de las técnicas estudiadas logró mejorar significativamente el R-AUPRC baseline obtenido en capítulos anteriores. \\
+Con el objeto de mitigar el impacto del imbalance de clases, en este capítulo se hizo uso de técnicas de oversampling y undersampling. También se intento sesgar los clasificadores SVM para que presten más atención a la clase minoritaria. Ninguna de las técnicas estudiadas logró mejorar significativamente la base de referencia obtenida en capítulos anteriores. \\
 
 Continuando con la política establecida en capítulos anteriores, se preferirá aquél preprocesamiento que maximice la ganancia promedio en R-AUPRC sujeto a no empeorar significativamente el R-AUPRC en ningún par de tiles estudiados. Esta última condición busca prevenir métodos con resultados inestables, que son altamente dependientes del par de tiles elegido. \\
 
@@ -221,7 +221,7 @@ Los hiperparámetros que maximizan esta métrica para SVM Lineal se muestran en 
 \multicolumn{1}{|c|}{\textbf{Oversampling aleatorio}} & Proporción: 1:500        & 0.007             & -0.001            \\ \hline
 \multicolumn{1}{|c|}{\textbf{Class weight}}           & $\alpha_+$ = 2           & 0.005             & 0            \\ \hline
 \end{tabular}
-\caption{Hiperparámetros óptimos para los mejores métodos estudiados en esta sección, SVM-L. El criterio de optimalidad es: maximizar la ganancia promedio respecto al baseline, sujeto a no empeorar la performance en ningún par de tiles significativamente.}
+\caption{Hiperparámetros óptimos para los mejores métodos estudiados en esta sección, SVM-L. El criterio de optimalidad es: maximizar la ganancia promedio respecto a la base de referencia, sujeto a no empeorar la performance en ningún par de tiles significativamente.}
 \label{tab:best_hyp_svml}
 \end{table}
 

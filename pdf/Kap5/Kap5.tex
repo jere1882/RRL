@@ -45,7 +45,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \begin{itemize}
 \item El aumento en R-AUPRC es muy modesto o nulo. Los filtros utilizados no tienen un impacto positivo significativo en el desempeño de nuestro clasificador.
 \item Hay aproximadamente 20 atributos que no contribuyen a mejorar el desempeño en clasificación usando SVM-L, pues eliminarlos no empeora las curvas de precision-recall significativamente. Se puede obtener una reducción importante en tiempo de entrenamiento y memoria eliminándolos. En la figura \ref{fig:svml_univariate_unified} se puede apreciar, al ver todas las curvas juntas, que el R-AUPRC deja de mejorar para $k\geq40$ (i.e., las curvas tienden a aplanarse).
-\item Los ranking de variables provistos por $f\_classif$ y $mutual\_info$ producen curvas consistentes. Ninguno de los dos filtros parece ser notablemente superior al otro. Nótese, sin embargo, que si se decide seleccionar un número muy pequeño de atributos ($k\leq5$), $mutual\_info$ produce mejores resultados. Esto es irrelevante para nuestra aplicación, dado que los valores de R-AUPRC para $k$ tan pequeños son muy inferiores al baseline.
+\item Los ranking de variables provistos por $f\_classif$ y $mutual\_info$ producen curvas consistentes. Ninguno de los dos filtros parece ser notablemente superior al otro. Nótese, sin embargo, que si se decide seleccionar un número muy pequeño de atributos ($k\leq5$), $mutual\_info$ produce mejores resultados. Esto es irrelevante para nuestra aplicación, dado que los valores de R-AUPRC para $k$ tan pequeños son muy inferiores a la base de referencia.
 \end{itemize}
 
 \begin{figure}[h!]
@@ -69,12 +69,12 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \label{fig:svml_univariate_unified}
 \end{figure}
 
-Para elegir un valor óptimo de $k$ de forma analítica, se decidió calcular cuánto mejora (o empeora) el R-AUPRC para cada valor de $k$ respecto a no utilizar selección de variables. Dado que este análisis se realizó sobre 8 pares de tiles, en la figura \ref{fig:optimal_k_svml} se muestra el promedio de la diferencia entre el R-AUPRC utilizando k atributos y el baseline. Adicionalmente, en color naranja, se muestra la diferencia obtenida por aquel par de tiles que menos se beneficia para cada valor de $k$. \\
+Para elegir un valor óptimo de $k$ de forma analítica, se decidió calcular cuánto mejora (o empeora) el R-AUPRC para cada valor de $k$ respecto a no utilizar selección de variables. Dado que este análisis se realizó sobre 8 pares de tiles, en la figura \ref{fig:optimal_k_svml} se muestra el promedio de la diferencia entre el R-AUPRC utilizando k atributos y la base de referencia. Adicionalmente, en color naranja, se muestra la diferencia obtenida por aquel par de tiles que menos se beneficia para cada valor de $k$. \\
 
 Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o al menos no incurren en grandes pérdidas de R-AUPRC. Las conclusiones finales son:
 
 \begin{itemize}
-\item Ningún valor del hiperparámetro $k$ permite, en promedio, mejorar el R-AUPRC en todos los tiles. Por otro lado, es perfectamente posible mantener la performance del baseline eliminando varios atributos.
+\item Ningún valor del hiperparámetro $k$ permite, en promedio, mejorar el R-AUPRC en todos los tiles. Por otro lado, es perfectamente posible igualar la performance de la base de referencia eliminando varios atributos.
 \item Utilizando $f\_classif$, seleccionar 30 atributos no disminuye el R-AUPRC en promedio. Sin embargo, algunos tiles se ven altamente perjudicados, pues el mínimo toma valores negativos no despreciables. Seleccionar aproximadamente 50 atributos permitiría reducir esta variabilidad, obteniendo resultados más estables entre distintos pares de tiles.
 \item Utilizando $mutual\_info$ podemos permitirnos seleccionar una cantidad menor de atributos ($k \geq 40$), garantizando que ningún par de tiles tendrá una pérdida significativa de R-AUPRC.
 \end{itemize} 
@@ -84,7 +84,7 @@ Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o 
   \includegraphics[width=0.49\textwidth]{Kap5/linearBEST_K_f_classif.png} &   \includegraphics[width=0.49\textwidth]{Kap5/linearBEST_K_mutual_info_classif.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar seleccionar $k$ atributos en SVM Lineal. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto a la base de referencia, obtenida al realizar seleccionar $k$ atributos en SVM Lineal. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:optimal_k_svml}
 \end{figure}
 
@@ -94,7 +94,7 @@ Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o 
 En la figura \ref{fig:svmk_univariate} se encuentran los resultados de aplicar filtros univariable como paso previo a SVM-RBF. Las curvas muestran el impacto que tiene utilizar únicamente los $k$ atributos con mayor puntaje en el R-AUPRC. Podemos concluir que:
 
 \begin{itemize}
-\item Algunas curvas de SVM-RBF muestran una mejoría respecto al baseline si se eliminan algunos atributos. 
+\item Algunas curvas de SVM-RBF muestran una mejoría respecto a la base de referencia si se eliminan algunos atributos. 
 \item Se puede reducir el tamaño del dataset aproximadamente a la mitad, seleccionando aproximadamente 30-35 atributos, mejorando o al menos no empeorando todas las curvas. 
 \item Nótese que las curvas de SVM-Lineal comienzan a aplanarse a partir de $k=40$, en tanto que en las curvas de SVM-RBF (\ref{fig:svmk_univariate_unified}) tienden a aplanarse a partir de $k=30$. Esto sugiere que SVM-RBF genera superficies de decisión no lineales; y que hay relaciones no lineales involucradas en nuestros datos que SVM lineal no es capaz de capturar.
 \end{itemize}
@@ -123,7 +123,7 @@ En la figura \ref{fig:svmk_univariate} se encuentran los resultados de aplicar f
 Nuevamente, resulta complicado determinar el número óptimo de atributos a seleccionar a simple vista. Se procedió a resumir la información de las 8 curvas en la figura \ref{fig:optimal_k_svmk}, que analiza la ganancia promedio en R-AUPRC para cada $k$. Las conclusiones finales son:
 
 \begin{itemize}
-\item Seleccionar $35 \leq k \leq 55$ atributos de acuerdo al ranking de $mutual\_info$ permite mejorar el R-AUPRC respecto al baseline en \textit{todos} los pares testeados. En particular, $k=45$ maximiza la mínima diferencia y el promedio.
+\item Seleccionar $35 \leq k \leq 55$ atributos de acuerdo al ranking de $mutual\_info$ permite mejorar el R-AUPRC respecto a la base de referencia en \textit{todos} los pares testeados. En particular, $k=45$ maximiza la mínima diferencia y el promedio.
 \item Seleccionar variables de acuerdo al criterio $f\_classif$ es menos beneficioso, pues existen pocos valores de $k$ para los cuales el R-AUPRC no empeora en ningún par de tiles testeado; y la mejora es un poco más modesta que la observada utilizando $mutual\_info$. Esto puede deberse a que $f\_classif$ es incapaz de detectar correlaciones no lineales, y puede estar causando el descarte prematuro de variables que resultan útiles a SVM-RBF para detectar RRLs.
 \end{itemize}
 
@@ -132,7 +132,7 @@ Nuevamente, resulta complicado determinar el número óptimo de atributos a sele
   \includegraphics[width=0.49\textwidth]{Kap5/rbfBEST_K_f_classif.png} &   \includegraphics[width=0.49\textwidth]{Kap5/rbfBEST_K_mutual_info_classif.png} \\
 (a) Filtro: $f\_classif$ & (b) Filtro: $mutual\_info$
 \end{tabular}
-\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto al baseline, obtenida al realizar seleccionar $k$ atributos en SVM-RBF. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
+\caption{Estas gráficas permiten apreciar la diferencia en R-AUPRC respecto a la base de referencia, obtenida al realizar seleccionar $k$ atributos en SVM-RBF. Dado que esta diferencia se computó sobre 8 pares de tiles, para cada $k$ se muestra la media, la desviación estándar y el mínimo valor de entre todos los pares testeados. }
 \label{fig:optimal_k_svmk}
 \end{figure}
 
@@ -184,7 +184,7 @@ Podemos ver que el uso de PCA tiene un efecto muy dispar en distintos pares de t
 \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de PCA a SVM Lineal. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el baseline de SVM, obtenido sin utilizar extracción de variables. La línea verde punteada representa la performance de RF.}
+\caption{Aplicación de PCA a SVM Lineal. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa la base de referencia de SVM, obtenido sin utilizar extracción de variables. La línea verde punteada representa la performance de RF.}
 \label{fig:pca_l}
 \end{figure}
 
