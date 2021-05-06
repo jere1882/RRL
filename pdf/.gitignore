@@ -1,0 +1,10 @@
+*.aux
+*.bbl
+*.log
+*.blg
+*.tmp
+*.dvi
+*.out
+*.ps
+*.sty
+*.gz
