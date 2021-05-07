@@ -1,5 +1,6 @@
 \chapter{Conclusión y trabajo futuro}
 
+\section{Conclusión}
 En esta tesina se abordó la problemática de clasificar estrellas variables de tipo RRL utilizando SVM, intentando igualar la performance obtenida por RF en trabajos previos, así como entender por qué los ensambles de árboles parecen funcionar mejor. \\
 
 En primer lugar se exploró escalar y discretizar los datos de distintas formas, seleccionándose binning quantile junto con un escalado estándar como la elección óptima. Esto permitió mitigar el efecto de distintas escalas, outliers y ruido en los atributos. Posteriormente se hallaron hiperparámetros $C$ y $\gamma$ óptimos utilizando cross validation, de forma tal que no se sobreajusten los datos de entrenamiento. \\
@@ -16,10 +17,36 @@ Finalmente, se profundiza sobre el hecho de que el problema de clasificación es
 
 Se propuso que la marcada diferencia entre las distribuciones de probabilidad subyacentes a cada tile es la causa por la cual la performance en test varía tanto entre distintos tiles. Basándose en resultados de trabajos previos, se conjetura que RF se ve menos afectado que SVM por la presencia de dataset shift, lo cuál explicaría por qué SVM es incapaz de superar a RF en pares de tiles espacialmente distantes. \\
 
-Finalmente se intentó corregir, sin éxito, la divergencia entre las distribuciones; eliminando atributos que contribuyen marcadamente a distinguir tiles. Considerando que prácticamente todos los atributos contribuyen a la divergencia, parece ser necesario recurrir a métodos más sofisticados para mitigar los efectos del dataset shift presente. \\
 
-Como trabajo futuro, se propone utilizar importance reweighting en los datos de entrenamiento antes de entrenar clasificadores SVM y RF, para mitigar el efecto de covariate shift. Debido a la alta dimensionalidad de los datos, se deberá buscar métodos aproximados dado que la complejidad computacional y espacial involucrada puede ser prohibitiva. \\
+Como experimento final se intentó corregir, sin éxito, la divergencia entre las distribuciones; eliminando atributos que contribuyen marcadamente a distinguir tiles. Considerando que prácticamente todos los atributos contribuyen a la divergencia, parece ser necesario recurrir a métodos más sofisticados para mitigar los efectos del dataset shift presente. \\
 
-Una alternativa es combinar datos de distintos tiles a la hora de entrenar, en vez de utilizar datos de un único tile. Esto permitirá que los clasificadores no estén tan sesgados hacia un área particular de la vía láctea. \\
+\section{Trabajo futuro}
 
-Finalmente, se sugiere modificar el conjunto de atributos utilizado para describir cada estrella, tratando de codificar la misma información de alguna forma que sirva para caracterizar estrellas independientemente del tile al que pertenece.
+Con el objeto de mantener la longitud de este trabajo acotada, se optó por no realizar ciertos experimentos: 
+
+\begin{itemize}
+\item Resultaría interesante evaluar si varias de las técnicas aplicadas en este trabajo, tales como corrección del imbalance de clases, logran mejorar la performance de RF. En esta tesina los esfuerzos se concentraron únicamente en mejorar SVM.
+\item Puede ser beneficioso utilizar otros algoritmos de aprendizaje automatizado para abordar este problema. En particular, Gradient Boosting \cite{friedman2000greedy} \cite{friedman2} es una opción muy interesante teniendo en cuenta el alto desempeño obtenido por Adaboost a la hora de clasificar RRLs \cite{elorrieta}.
+\item La mayoría de los experimentos de este trabajo se concentraron en agregar preprocesamientos y modificaciones a SVM. Sin embargo, para comprender por qué RF funciona mejor que SVM, puede ser interesante diseñar otro conjunto de experimentos enfocados en RF, intentando entender qué es lo que ocasiona que funcione tan bien.
+\item Sería interesante realizar un análisis de aquellas estrellas que están siendo clasificadas incorrectamente por SVM, intentando determinar si hay algún patrón en ellas que SVM no es capaz de aprender. También sería de interés evaluar si las estrellas incorrectamente clasificadas por RF son un subconjunto de aquellas incorrectamente clasificadas por SVM.
+\end{itemize}
+
+Respecto a la presencia de dataset shift en nuestros datos, se propone como trabajo futuro:
+
+\begin{itemize}
+\item Uilizar importance reweighting (\cite{kouw2019introduction}, \cite{non-stationary} , \cite{GeetaDharani2019CovariateSA}) para mitigar el efecto de covariate shift. Esto tiene el potencial de mejorar la performance de los clasificadores. Debido a la alta dimensionalidad de los datos, se deberá buscar métodos aproximados para hallar los coeficientes asociados a cada instancia de entrenamiento.
+\item Explorar las múltiples técnicas para abordar la presencia de covariate shift que han sido propuestas en trabajos recientes \cite{GeetaDharani2019CovariateSA}, incluyendo mapeo de subespacios \cite{kouw2019introduction} y reducción de dimensionalidad extrema \cite{wang2018extreme}.
+\item Realizar experimentos para verificar si, efectivamente, RF es más robusto que SVM ante datos que presentan covariate shift.
+\item Una alternativa es combinar datos de distintos tiles a la hora de entrenar, en vez de utilizar datos de un único tile. Esto permitirá que los clasificadores no estén tan sesgados hacia un área particular de la vía láctea. 
+\item Finalmente, se sugiere modificar el conjunto de atributos utilizado para describir cada estrella, tratando de codificar la misma información de alguna forma que sirva para caracterizar estrellas independientemente del tile al que pertenece.
+\end{itemize}
+
+Otras avenidas de trabajo futuro incluyen:
+
+\begin{itemize}
+\item Extender los datos recolectados en Carpyncho, agregando más tiles de la VVV y etiquetando RRLs identificadas en otros trabajos.
+\item Realizar experimentos similares para tratar de clasificar otro tipo de estrellas variables en la VVV.
+\end{itemize}
+
+
+
