@@ -161,26 +161,29 @@ Tradicionalmente, las distintas tareas a llevar a cabo por algoritmos de aprendi
 \item \textbf{Aprendizaje por refuerzo (Reinforcement learning)}: Consiste en aprender a tomar decisiones en un ambiente dinámico, con el objeto de maximizar una cierta noción de recompensa acumulada. 
 \end{itemize}
 
+Sin importar el tipo de supervisión, todo aprendizaje automático tiene una fase de entrenamiento y una fase de predicción. La \textbf{fase de entrenamiento} se basa en suministrar datos a los modelos para ajustar sus parámetros internos. Asimismo, hay varios modelos que poseen hiperparámetros que suelen ser configurados previamente a la fase de entrenamiento.  Luego, en la \textbf{fase de predicción}, los modelos pueden usarse para predecir alguna información de datos desconocidos. \\
+
 En este trabajo nos enfocaremos en técnicas de aprendizaje automatizado supervisado, dado que se desea abordar la tarea de clasificar estrellas variables en RRL o no-RRL. 
 
 \subsection{Medidas de performance}
 \label{ml_intro_test}
-Como se mencionó anteriormente, el aprendizaje supervisado consiste en aproximar una función $f : I \mapsto O$. Durante una primera fase de \textbf{entrenamiento}, un conjunto de $n$ ejemplos $x_i \in I, \ i=1,\ldots,n$ junto con sus salidas asociadas $y_i \in O$ es utilizado para enseñar al modelo cómo estimar $f$. \\
 
-Para evaluar el desempeño de un método, se necesita alguna forma de medir cuán bien el valor predicho por el método para una dada observación, se condice con la verdadera respuesta para esa observación. Sea $\hat{f}$ la estimación de $f$ obtenida por el método de aprendizaje supervisado en estudio:
+Como se mencionó anteriormente, el aprendizaje supervisado consiste en aproximar una función $f : I \mapsto O$, donde usualmente $I =\mathds{R}^n$ y $O \subseteq \mathds{R}$. Durante una primera fase de entrenamiento, un conjunto de $m$ ejemplos $x_i \in I, \ i=1,\ldots,m$ junto con sus salidas asociadas $y_i \in O$ es utilizado por un cierto algoritmo de aprendizaje automatizado supervisado para producir una estimación de $f$, a la que llamaremos $\hat{f}$. \\
+
+Para evaluar el desempeño de tal algoritmo de aprendizaje automatizado, se necesita alguna forma de medir cuán bien $\hat{f}$ aproxima a $f$. Dado un conjunto de pares etiquetado $ S = \{ (a_i,b_i) \ | \ a_i \in I, \ b_i=f(x), \ i=1,\ldots,k \}$, las siguientes métricas son de interés:
 
 \begin{itemize}
 
 \item  En problemas de regresión, la métrica más comúnmente utilizada es el \textit{error cuadrático medio}:
 
 \begin{center}
-$MSE = \sum_{i=1}^{n} ( y_i - \hat{f}(x_i) )^2 $
+$MSE = \sum_{i=1}^{k} ( b_i - \hat{f}(a_i) )^2 $
 \end{center}
 
 \item En problemas de clasificación, podemos calcular la proporción de errores realizados:
 
 \begin{center}
-$Error \ Rate = \frac{1}{n} \sum_{i=1}^{n} I( y_i , \hat{f}(x_i) ) $
+$Error \ Rate = \frac{1}{k} \sum_{i=1}^{k} I( b_i , \hat{f}(a_i) ) $
 \end{center}
 
 Donde:
@@ -198,11 +201,27 @@ $
 
 \end{itemize}
 
-Ambas métricas fueron definidas sobre los datos de entrenamiento. Sin embargo, en general, no nos importa cuán bien el método funciona en los datos de entrenamiento. Estamos interesados en las métricas obtenidas al aplicar nuestro modelo ya entrenado a un conjunto de datos de test, que no hayan sido previamente utilizados en la fase de entrenamiento. \\
+Si $S$ es exactamente el conjunto de entrenamiento, entonces ambas métricas se llaman \textit{training MSE} y \textit{training Error Rate} respectivamente; y nos indican cuán bien $\hat{f}$ aproxima a $f$ para los elementos de entrenamiento. Sin embargo, en general, estamos interesados en evaluar el desempeño del clasificador en elementos nuevos que no pertenecen al conjunto de entrenamiento.  \\
 
-Esto nos lleva a la distinción entre \textit{training MSE} y \textit{training Error Rate}, en contraposición a \textit{test MSE} y \textit{test Error Rate}. Usualmente, se reserva una porción de los datos disponibles para ser utilizada como \textbf{conjunto de test}. Estos datos no son utilizados en la fase de entrenamiento, y son utilizados para calcular métricas como \textit{test Error Rate} una vez terminada la fase de entrenamiento. Tales métricas proveen una noción de cuán bien el clasificador funcionará en datos no antes vistos. Una alternativa para obtener tales métricas sin necesidad de tener un conjunto separado de test es utilizar \textbf{cross validation} \cite{cross_validation}. \\
+Usualmente, se reserva una porción de los datos disponibles para ser utilizada como \textbf{conjunto de test}. Estos datos no son utilizados en la fase de entrenamiento, sino que son utilizados para calcular métricas como \textit{test Error Rate} una vez terminada la fase de entrenamiento. Tales métricas proveen una noción de cuán bien el clasificador funcionará en datos no antes vistos. \\
 
-En este trabajo estamos particularmente interesados en problemas de \textbf{clasificación binaria}, es decir, problemas de aprendizaje automatizado supervisado en los cuales el conjunto de etiquetas contiene solo dos elementos, o clases, a menudo llamados clase positiva y negativa. En problemas de clasificación binaria, cada elemento se puede clasificar en una de las siguientes cuatro categorías: \\
+Una alternativa para medir cuán bien $\hat{f}$ aproxima a $f$ sin necesidad de tener que separar los datos etiquetados disponibles en un conjunto de entrenamiento y uno de testeo es utilizar \textbf{cross validation} \cite{cross_validation}. Dado un dataset de elementos del dominio etiquetados $D$, cross validation consiste en:
+\label{cross_validation}
+\begin{enumerate}
+\item Permutar los elementos de $D$ de forma aleatoria.
+\item Particionar $D$ en $k$ grupos
+\item Para cada partición $p$:
+\begin{itemize}
+\item Entrenar el algoritmo de aprendizaje automatizado utilizando todas las particiones excepto $p$
+\item Utilizar el modelo entrenado para realizar predicciones sobre los elementos de $p$, calculando la métrica de performance deseada (por ejemplo, $Error \ rate$).
+\item Guardar la métrica obtenida, y descartar el modelo entrenado.
+\end{itemize}
+\item Combinar las $k$ métricas obtenidas, por ejemplo calculando su promedio. El valor obtenido representa la performance del algoritmo de aprendizaje automatizado sobre la totalidad de los datos.
+\end{enumerate}
+
+\subsection{Medidas de performance en clasificación binaria}
+
+En este trabajo estamos particularmente interesados en problemas de \textbf{clasificación binaria}, es decir, problemas de aprendizaje automatizado supervisado en los cuales el conjunto de etiquetas contiene solo dos elementos, o clases, a menudo llamados clase positiva y negativa. En el contexto de clasificación binaria, dado un modelo entrenado, cada elemento se puede clasificar en una de las siguientes cuatro categorías: \\
 
 \begin{table}[h!]
 \begin{tabular}{l|l|l|}
@@ -213,7 +232,7 @@ En este trabajo estamos particularmente interesados en problemas de \textbf{clas
 \end{tabular}
 \end{table}
 
-Los falsos positivos son aquellos elementos de clase negativa, clasificados incorrectamente con etiqueta positiva. Similarmente, los falsos negativos son aquellos elementos con etiqueta positiva, clasificados como negativos. Los verdaderos positivos (negativos), son aquellos elementos positivos (negativos), que fueron clasificados correctamente. \\
+Los falsos positivos son aquellos elementos de clase negativa, clasificados incorrectamente por el modelo con etiqueta positiva. Similarmente, los falsos negativos son aquellos elementos con etiqueta positiva, clasificados como negativos. Los verdaderos positivos (negativos), son aquellos elementos positivos (negativos), que fueron clasificados correctamente. \\
 
 Dado un cierto conjunto de datos etiquetados, la performance de un clasificador binario puede visualizarse al calcular una \textbf{matriz de confusión}. La matriz de confusión mostrará la suma de elementos de cada una de las cuatro categorías explicadas. En particular, podemos reescribir la métrica Error Rate como: \\
 
@@ -227,14 +246,7 @@ Equivalentemente, es usual analizar la \textbf{tasa de aciertos}:
 $ Acc = \frac{TP + TN}{FP + FN + TP + TN} $
 \end{center}
 
-\subsection{Problemas desbalanceados}
-\label{imbalance}
-
-A la hora de estudiar problemas de clasificación, es importante tener en cuenta la proporción de datos de cada clase. Un \textbf{problema de clasificación desbalanceado} es aquel en el cual la cantidad de elementos de cada clase no es proporcional. Ciertas aplicaciones como diagnóstico médico o detección de transacciones fraudulentas con tarjeta de crédito presentan datasets con un número muy pequeño de instancias positivas\footnote{En problemas de clasificación binaria, usualmente se considera clase positiva a la clase minoritaria, en tanto que la clase mayoritaria es la negativa}, que son sin embargo cruciales de clasificar correctamente \cite{imbalanced_svm}. \\
-
-Si se utilizan datasets imbalanceados para entrenar y testear, es inadecuado utilizar métricas de desempeño basadas en clasificar la \textit{mayor cantidad} de elementos de forma correcta, como $Acc$. La hipótesis mas sencilla, clasificar todas las instancias como pertenecientes a la clase mayoritaria, a menudo maximiza tales métricas. \\
-
-Un primer paso a la hora de trabajar con datos desbalanceados es, entonces, utilizar métricas que no son sensitivas al imbalance de clases. En clasificación binaria, las siguientes métricas son de interés:
+Otras métricas de interés son:
 
 \begin{itemize}
 \item \textbf{Precisión}: La proporción de instancias clasificadas como positivas, que realmente lo son:
@@ -248,6 +260,65 @@ $ Recall =  \frac{TP}{TP + FN}$
 \end{center}
 
 \end{itemize}
+
+\subsection{El dilema sesgo-varianza}
+
+En esta sección, se discutirá brevemente el dilema sesgo-varianza en aprendizaje automatizado \cite{statisticallearning}. Supongamos que la variable que estamos intentando predecir es $Y$, basándonos en un conjunto de atributos $X$. Asumimos que hay una relación subyacente entre ambos:
+
+\begin{center}
+$Y = f(X) + \epsilon$
+\end{center}
+
+Donde $\epsilon$ se distribuye de forma normal, con media cero y varianza $\sigma^2$, y representa ruido en los datos. Utilizando algún algoritmo de aprendizaje automatizado, y a partir de un dataset de entrenamiento $D$, se obtiene un modelo $\bar{f}$ que intenta aproximar $f$. El error cuadrático de predicción para un input $x$ es:\\
+
+\begin{center}
+$Err(x) = E[(Y-\bar{f}(x))^2]$
+\end{center}
+
+Lo cual puede reescribirse como\footnote{Nótese que las esperanzas se calculan sobre las diferentes elecciones de dataset de entrenamiento $D$}:
+
+\begin{center}
+$Err(x) = (E[\bar{f}(x)]-f(x))^2 + E[(\bar{f}(x)-E[\bar{f}(x)])^2] + \sigma^2$ 
+\end{center}
+
+Donde podemos darle un nombre a cada término de esa suma:
+
+\begin{center}
+$Err(x) =  Sesgo^2 + Varianza + Error Irreducible$
+\end{center}
+
+
+
+El \textbf{error irreducible}, que es la varianza de la función objetivo, está fuera de nuestro control. No puede ser reducido creando buenos modelos, y es una medida de la cantidad de ruido en nuestros datos. Los otros dos términos, en cambio, están bajo nuestro control.\\
+
+El \textbf{sesgo} es la diferencia entre la predicción promedio de nuestro modelo, y el valor correcto que intentamos predecir. Este error puede ser pensado como el error causado por asunciones simplistas del modelo, como por ejemplo asumir que la distribución de los datos es lineal. Un modelo con alto sesgo presta muy poca atención a los datos de entrenamiento. \\
+
+La \textbf{varianza} es la variabilidad de la predicción de un modelo, es decir, cuánto varía $\bar{f}(x)$ alrededor de su media. Modelos con alta varianza prestan mucha atención a los datos de entrenamiento, pero no generalizan tan bien en datos no vistos anteriormente. \\
+
+De forma general, cuando la complejidad de nuestro modelo crece, la varianza tiende a aumentar en tanto que el sesgo disminuye. Lo opuesto sucede cuando la complejidad del modelo disminuye. \\
+
+La figura \ref{fig:tradeoff} muestra el comportamiento típico de la varianza y el sesgo en función de la complejidad del modelo. El error de entrenamiento tiende a decrecer cuando incrementamos la complejidad del modelo, es decir, cuando ajustamos los datos con mayor precisión. Sin embargo, un exceso de ajuste (\textbf{overfitting}) conduce a un modelo que se adapta demasiado a los datos de entrenamientos, y no generaliza bien en test. En este caso, las predicciones tendrán gran varianza. En contraste, si el modelo no es muy complejo, no se ajusta lo suficiente a los datos de entrenamiento (\textbf{underfitting}) y tendrá un alto sesgo, resultando nuevamente en alto error de generalización.\\ 
+
+\begin{figure}[h!]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{Kap1/tradeoff.png} 
+  \end{center}
+ \caption{ Error de test y de entrenamiento en función de la complejidad del modelo. Créditos: \protect\cite{statisticallearning} }
+\label{fig:tradeoff}
+\end{figure}
+
+Como se puede ver en la figura \ref{fig:tradeoff}, el error de entrenamiento será muy bajo en modelos complejos. Sin embargo, sería inadecuado utilizar el error de entrenamiento como una medida de cuán bien el modelo funciona, pues el modelo puede no funcionar tan bien en un conjunto de testeo no antes visto. Por este motivo es que se deben utilizar métricas calculadas sobre los datos de testeo para realizar afirmaciones sobre la performance de un modelo. \\
+
+Utilizar métricas obtenidas a través de cross-validation también es correcto, pues debe notarse que en el procedimiento descripto en la sección \ref{cross_validation} las métricas de cada partición siempre se calculan sobre datos que no han sido utilizados para entrenar los modelos.s
+
+\subsection{Problemas desbalanceados}
+\label{imbalance}
+
+A la hora de estudiar problemas de clasificación, es importante tener en cuenta la proporción de datos de cada clase. Un \textbf{problema de clasificación desbalanceado} es aquel en el cual la cantidad de elementos de cada clase no es proporcional. Ciertas aplicaciones como diagnóstico médico o detección de transacciones fraudulentas con tarjeta de crédito presentan datasets con un número muy pequeño de instancias positivas\footnote{En problemas de clasificación binaria, usualmente se considera clase positiva a la clase minoritaria, en tanto que la clase mayoritaria es la negativa}, que son sin embargo cruciales de clasificar correctamente \cite{imbalanced_svm}. \\
+
+Si se utilizan datasets imbalanceados para entrenar y testear, es inadecuado utilizar métricas de desempeño basadas en clasificar la \textit{mayor cantidad} de elementos de forma correcta, como $Acc$. La hipótesis mas sencilla, clasificar todas las instancias como pertenecientes a la clase mayoritaria, a menudo maximiza tales métricas. \\
+
+Un primer paso a la hora de trabajar con datos desbalanceados es, entonces, utilizar métricas que no son sensitivas al imbalance de clases. En clasificación binaria precision y recall son métricas adecuadas.
 
 A menudo, muchos métodos de aprendizaje automatizado para clasificación binaria producen un puntaje\footnote{Se utiliza el término puntaje (del inglés \textit{score}), dado que no se utilizará un enfoque probabilístico.} en $[0,1]$ para cada instancia a clasificar. Puntajes cercanos a 0 indican que el clasificador tiene mayor certeza de que una cierta entrada pertenece a la clase negativa, en tanto que valores cercanos a 1 indican pertenencia a la clase positiva. \\
 
@@ -296,7 +367,7 @@ Ahora que ya se ha discutido cómo utilizar un árbol de decisión existente, ve
 
 Distintas métricas pueden utilizarse para decidir cuál es el mejor split, intentando incentivar la homogeneidad de la variable objetivo en los subconjuntos producidos. Dos métricas muy populares son \textit{Gini Impurity} e \textit{Information Gain} \cite{ginigain}.\\
 
-Un aspecto a considerar es cuándo detener este proceso de crecimiento. Es posible que árboles extremadamente complejos conduzcan a \textbf{sobreajuste} (overfitting en inglés), un fenómeno en el cual un método de aprendizaje automatizado se ajusta demasiado bien a los datos de entrenamiento, aprendiendo detalles y ruido presentes; y por lo tanto perdiendo desempeño al clasificar instancias nuevas. Por lo tanto, puede ser valioso detener el crecimiento del árbol prematuramente.%, o bien \textit{podarlo} (eliminar algunos nodos) posteriormente. 
+Un aspecto a considerar es cuándo detener este proceso de crecimiento. Es posible que árboles extremadamente complejos conduzcan a \textbf{sobreajuste} (overfitting en inglés), un fenómeno en el cual un método de aprendizaje automatizado se ajusta demasiado bien a los datos de entrenamiento, aprendiendo detalles y ruido presentes; y por lo tanto perdiendo desempeño al clasificar instancias nuevas. Por lo tanto, puede ser valioso detener el crecimiento del árbol prematuramente, o bien \textit{podarlo} (eliminar algunos nodos) posteriormente. 
 
 \subsection{Random Forests}
 
@@ -385,58 +456,13 @@ $K(x_i,x_j) = \phi(x_i)^T \phi(x_j)$ es llamada \textbf{función kernel}. Alguna
 \begin{itemize}
 \item \textbf{Lineal}: $K(x_i,x_j) = x_i^T x_j$
 \item \textbf{Polinomial}: $K(x_i,x_j)= (\gamma x_i^T x_j + r)^d , \ \gamma > 0$
-\item \textbf{Radial Basis Function (RBF)}: $K(x_i,x_j)= exp (-\gamma\left\| x_i - x_j \right\|^2  ), \ \gamma>0.$
-
+\item \textbf{Radial Basis Function} (RBF)\footnote{El kernel RBF, también llamado Gaussiano, puede reescribirse como $K(x_i,x_j)=\sum_{n=0}^{+\infty}\frac{(x_i.x_j)^n}{\sigma^n.n!}$. Es decir, el kernel RBF es una combinación de todos los kernels polinomiales de grado $n\geq0$. Dado que n puede ser arbitrariamente grande, decimos que el kernel Gaussiano trabaja con vectores en infinitas dimensiones.}: $K(x_i,x_j)= exp (-\gamma\left\| x_i - x_j \right\|^2  ), \ \gamma>0.$
 \end{itemize}
 
 Donde $\gamma$ y $d$ son parámetros del kernel. Una vez que se han escogido los hiperparámetros necesarios, y se ha hallado el hiperplano separador óptimo, es muy sencillo realizar predicciones para nuevas instancias: se asignará una clase de acuerdo al lado del hiperplano separador en que la nueva instancia se encuentra.  \\
 
 SVM es uno de los métodos de predicción con mayor sustento teórico, dado que se basa en aprendizaje estadístico o teoría VC (Vapnik-Chervonenkis). \cite{vapnik71uniform} \cite{vapnik74theory}.
 
-\subsection{El dilema sesgo-varianza}
-
-En esta sección, se discutirá brevemente el dilema sesgo-varianza en aprendizaje automatizado \cite{statisticallearning}. Supongamos que la variable que estamos intentando predecir es $Y$, basándonos en un conjunto de atributos $X$. Asumimos que hay una relación subyacente entre ambos:
-\begin{center}
-$Y = f(X) + \epsilon$
-\end{center}
-
-Donde $\epsilon$ se distribuye de forma normal, con media cero y varianza $\sigma^2$. Utilizando algún algoritmo de aprendizaje automatizado, y a partir de un dataset de entrenamiento $D$, se obtiene un modelo $\bar{f}$ que intenta aproximar $f$. El error cuadrático de predicción para un input $x$ es:\\
-
-\begin{center}
-$Err(x) = E[(Y-\bar{f}(x))^2]$
-\end{center}
-
-Lo cual puede reescribirse como:
-
-\begin{center}
-$Err(x) = (E[\bar{f}(x)]-f(x))^2 + E[(\bar{f}(x)-E[\bar{f}(x)])^2] + \sigma^2$ 
-\end{center}
-
-Donde podemos darle un nombre a cada término de esa suma:
-
-\begin{center}
-$Err(x) =  Sesgo^2 + Varianza + Error Irreducible$
-\end{center}
-
-Nótese que las esperanzas se calculan sobre las diferentes elecciones de dataset de entrenamiento $D$. \\
-
-El \textbf{error irreducible}, que es la varianza de la función objetivo, está fuera de nuestro control. No puede ser reducido creando buenos modelos, y es una medida de la cantidad de ruido en nuestros datos. Los otros dos términos, en cambio, están bajo nuestro control.\\
-
-El \textbf{sesgo} es la diferencia entre la predicción promedio de nuestro modelo, y el valor correcto que intentamos predecir. Este error puede ser pensado como el error causado por asunciones simplistas del modelo, como por ejemplo asumir que la distribución de los datos es lineal. Un modelo con alto sesgo presta muy poca atención a los datos de entrenamiento. \\
-
-La \textbf{varianza} es la variabilidad de la predicción de un modelo, es decir, cuánto varía $\bar{f}(x)$ alrededor de su media. Modelos con alta varianza prestan mucha atención a los datos de entrenamiento, pero no generalizan tan bien en datos no vistos anteriormente. \\
-
-De forma general, cuando la complejidad de nuestro modelo crece, la varianza tiende a aumentar en tanto que el sesgo disminuye. Lo opuesto sucede cuando la complejidad del modelo disminuye. \\
-
-La figura \ref{fig:tradeoff} muestra el comportamiento típico de la varianza y el sesgo en función de la complejidad del modelo. El error de entrenamiento tiende a decrecer cuando incrementamos la complejidad del modelo, es decir, cuando ajustamos los datos con mayor precisión. Sin embargo, un exceso de ajuste (\textbf{overfitting}) conduce a un modelo que se adapta demasiado a los datos de entrenamientos, y no generaliza bien en test. En este caso, las predicciones tendrán gran varianza. En contraste, si el modelo no es muy complejo, no se ajusta lo suficiente a los datos de entrenamiento (\textbf{underfitting}) y tendrá un alto sesgo, resultando nuevamente en alto error de generalización.\\ 
-
-\begin{figure}[h!]
-\begin{center}
-  \includegraphics[width=0.7\textwidth]{Kap1/tradeoff.png} 
-  \end{center}
- \caption{ Error de test y de entrenamiento en función de la complejidad del modelo. Créditos: \protect\cite{statisticallearning} }
-\label{fig:tradeoff}
-\end{figure}
 
 \section{Antecedentes relevantes a esta tesina}
 

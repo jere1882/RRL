@@ -216,7 +216,7 @@ En la práctica, la forma de utilizar estos puntajes muchas veces consiste en se
 
 \subsection{Importancia de atributos basada en clasificadores}
 
-Los clasificadores RF pueden proveer un puntaje (importancia) a cada atributo del dataset de entrenamiento, llamado importancia Gini (o reducción media en impuridad, MDI) \cite{statisticallearning}. Para cada atributo, este valor se calcula como la cantidad de veces que ese atributo se utiliza como criterio de división en un nodo (en todos los árboles), ponderado por la cantidad de instancias que ese nodo divide. \\
+Los clasificadores RF pueden proveer un puntaje (importancia) a cada atributo del dataset de entrenamiento, llamado importancia Gini (o reducción media en impuridad, MDI) \cite{statisticallearning}. Para cada atributo, este valor se calcula como la cantidad de veces que ese atributo se utiliza como criterio de división en un nodo (en todos los árboles), ponderado por la cantidad de instancias que ese nodo divide. Nótese que se utilizan instancias 'out of the bag' para evitar realizar sobreajuste.\\
 
 Por otro lado, luego de entrenar SVM con kernel lineal, podemos inspeccionar el valor absoluto del vector de pesos $w$ para comprender cuánta importancia SVM le asigna a cada atributo \cite{svm_importance}. Esto no es posible para SVM RBF pues los datos son transformados a otro espacio, por lo tanto el plano separador existe en otro espacio y los coeficientes no tienen una relación trivial con los atributos del espacio original. \\
 
