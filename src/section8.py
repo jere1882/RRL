@@ -336,33 +336,43 @@ def analyse_correlations(method="pearson",kernel="linear"):
             fig, ax = plt.subplots()
             domain = list(aucs.keys())[::-1]
             codomain = list(aucs.values())
-            ax.plot(domain, codomain) 
             horiz_line_data = np.array([get_baseline_preprocessing_stage(train,test,kernel) for i in domain])
             if (kernel=="linear"):
-                label = "SVM Lineal Baseline"
+                label = "SVM Lineal"
             elif (kernel=="rbf"):
-                label = "SVM RBF Baseline"
-            ax.plot(domain, horiz_line_data, 'r--',label=label) 
+                label = "SVM RBF"
+            ax.plot(domain, codomain,label=label+" + Eliminar correlaciones") 
+            ax.plot(domain, horiz_line_data, 'r--',label=label+"  baseline") 
             plt.xlabel('Número de atributos utilizados')
-            plt.ylabel('Robust AUC-PRC')
+            plt.ylabel('R-AUPRC')
             plt.title('Train '+train+' - Test '+test)
             ax.set_ylim([0,.55])
+            
+            if train=="b234" and test=="b261":
+                leg = ax.legend(loc='upper left')
+                
             plt.savefig(results_folder_inspection+"Correlations/"+method+"_"+kernel+"_INDIVIDUAL_CURVES_"+"train="+train+"test="+test+".png",bbox_inches='tight')
             plt.close(fig)
 
 
             fig, ax = plt.subplots()
             domain = list(correlations.values())
-            ax.plot(domain, list(aucs.values())) 
             horiz_line_data = np.array([get_baseline_preprocessing_stage(train,test,kernel) for i in domain])
             if (kernel=="linear"):
-                label = "SVM Lineal Baseline"
+                label = "SVM Lineal"
             elif (kernel=="rbf"):
-                label = "SVM RBF Baseline"
+                label = "SVM RBF"
+            ax.plot(domain, list(aucs.values()),label=label+" + Eliminar correlaciones") 
+
+
+
             ax.set_ylim([0,.55])
             ax.plot(domain, horiz_line_data, 'r--',label=label) 
+            
+            if train=="b234" and test=="b261":
+                leg = ax.legend(loc='upper left')
             plt.xlabel('Correlation threshold')
-            plt.ylabel('Robust AUC-PRC')
+            plt.ylabel('R-AUPRC')
             plt.title('Train '+train+' - Test '+test)
             plt.savefig(results_folder_inspection+"Correlations/"+method+"_"+kernel+"_INDIVIDUAL_CURVES_CORR_"+"train="+train+"test="+test+".png",bbox_inches='tight')
             plt.close(fig)
@@ -403,8 +413,9 @@ def analyse_correlations(method="pearson",kernel="linear"):
     ax.plot(list(min_diffs.keys())[::-1], list(min_diffs.values()),label="Min difference")
 
     plt.xlabel('Número de atributos utilizados')
-    plt.ylabel('Ganancia en R-AUC-PRC respecto al baseline')
-    leg = ax.legend()
+    plt.ylabel('Ganancia en R-AUPRC respecto al baseline')
+    if (kernel=="linear"):
+        leg = ax.legend(loc='lower right')
     
     plt.savefig(results_folder_inspection+"Correlations/"+method+"_"+kernel+"_CORRELATIONS_BIG_PICTURE.png",bbox_inches='tight')
          
@@ -468,3 +479,91 @@ def compare_all_features():
     for i in range(62):
         compare_same_feature_different_tiles(f_index=i)
 
+from sklearn.inspection import permutation_importance
+
+
+def calculate_permutation_importance(train="b234", test="b261", method="svmk"):
+    X,y = retrieve_tile(train,"full") 
+    Xt,yt = retrieve_tile(test,"full")
+    
+    if method=="rf":
+        clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
+        clf.fit(X,y)
+
+    if method=="linear":
+        clf = Pipeline([
+            ('disc',KBinsDiscretizer(n_bins=get_optimal_parameters_p("svml")["n_bins"], encode='ordinal', strategy='quantile')),
+            ('scaler', StandardScaler()),
+            ('clf', LinearSVC(verbose=3, max_iter=100000, C=get_optimal_parameters_p("svml")["C"], dual=False)) ])
+        clf.fit(X,y)
+
+    #SVM-K
+    if method=="svmk":
+        clf = Pipeline( 
+            [('disc',KBinsDiscretizer(n_bins=get_optimal_parameters_p("svmk")["n_bins"], encode='ordinal', strategy='quantile')),
+             ("scaler",StandardScaler()), 
+             ("feature_map", Nystroem(n_components=300,gamma=get_optimal_parameters_p("svmk")["gamma"],)), 
+             ("svm", LinearSVC(dual=False,max_iter=100000,C=get_optimal_parameters_p("svmk")["C"],))])
+
+        clf.fit(X,y)    
+
+    result = permutation_importance(clf, Xt, yt, scoring="average_precision",n_repeats=1)
+        
+    with open(results_folder_inspection+"Permutation_importance/"+method+"_RESULT_train="+train+"test="+test+".pkl", 'wb') as output:
+        pickle.dump(result,output, pickle.HIGHEST_PROTOCOL)   
+
+
+def calculate_all_permutation_data():
+    for method in ["rf","linear","svmk"]:
+        #calculate_permutation_importance("b234","b261",method)
+        calculate_permutation_importance("b261","b278",method)
+        calculate_permutation_importance("b278","b360",method)
+        calculate_permutation_importance("b360","b234",method)
+
+def plot_permutation_importance(train="b234",test="b261"):
+    
+    result = {}
+    
+    for method in ["rf","linear","svmk"]:
+        with open(results_folder_inspection+"Permutation_importance/"+method+"_RESULT_train="+train+"test="+test+".pkl", 'rb') as output:
+            result[method] = pickle.load(output)   
+    
+    X,y=retrieve_tile(train)
+
+    fig, ax = plt.subplots(figsize=(19,3))
+
+    X_indices = np.arange(X.shape[-1])
+    
+    plt.bar(X_indices , result["rf"]["importances_mean"], width=.2,label="RF")
+    plt.xlabel('Feature number')
+    plt.ylabel(' Importance')
+    plt.axis('tight')
+    plt.title("Permutation imporance - Random forest - Train " + train + " Test " + test)
+    plt.xticks(X_indices,X_indices)
+    plt.savefig(results_folder_inspection+"VariableImportance/test="+train+"RF_permutation_variable_importance_scores.png",bbox_inches='tight')
+
+    fig, ax = plt.subplots(figsize=(19,3))
+    plt.bar(X_indices , result["linear"]["importances_mean"], width=.2,label="SVM L")
+    plt.xlabel('Feature number')
+    plt.ylabel(' Importance')
+    plt.axis('tight')
+    plt.title("Permutation imporance - Linear SVM - Train " + train + " Test " + test)
+    plt.xticks(X_indices,X_indices)
+    plt.savefig(results_folder_inspection+"VariableImportance/test="+train+"L_permutation_variable_importance_scores.png",bbox_inches='tight')
+
+    
+    fig, ax = plt.subplots(figsize=(19,3))    
+    plt.bar(X_indices , result["svmk"]["importances_mean"], width=.2,label="SVM RBF")
+    plt.xlabel('Feature number')
+    plt.ylabel('Importance')
+    plt.axis('tight')
+    plt.title("Permutation imporance - SVM RBF - Train " + train + " Test " + test)
+    plt.xticks(X_indices,X_indices)
+    plt.savefig(results_folder_inspection+"VariableImportance/test="+train+"RBF_permutation_variable_importance_scores.png",bbox_inches='tight')
+        
+def plot_all_permutation():
+    for method in ["rf","linear","svmk"]:
+        plot_permutation_importance("b234","b261")
+        plot_permutation_importance("b261","b278")
+        plot_permutation_importance("b278","b360")
+        plot_permutation_importance("b360","b234")

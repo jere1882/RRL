@@ -124,7 +124,7 @@ def plot_undersampling_performance(train="b278",test="b234",kernel="linear",rand
     ax.set_xlim([-50,2500])
 
     plt.xlabel('Número de no-RRLs por cada RRL') 
-    plt.ylabel('R-AUC-PRC')
+    plt.ylabel('R-AUPRC')
     
     if (train=="b234" and test=="b261"):
         leg = ax.legend(loc="lower right")
@@ -202,7 +202,7 @@ def undersampling_analyse_gain(kernel="linear"):
     #plt.xticks(xticks,xticks)
 
     plt.xlabel('Número de no-RRLs por cada RRL')
-    plt.ylabel('Ganancia en R-AUCPRC respecto al baseline')
+    plt.ylabel('Ganancia en R-AUPRC respecto al baseline')
     
     if (kernel=="linear"):
         leg = ax.legend(loc="lower right")
@@ -324,7 +324,7 @@ def plot_oversampling_performance(train="b278",test="b234",method="naive",kernel
     ax.set_xlim([0,2500])
 
     plt.xlabel('Number of no-RRL per RRL') 
-    plt.ylabel('Robust AUC-PRC')
+    plt.ylabel('Robust AUPRC')
     #plt.xticks(ticks,ticks)
     plt.title('Train '+train+' - Test '+test)
     plt.savefig(results_folder_imbalance+"oversampling/"+method+"train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
@@ -355,9 +355,9 @@ def plot_balancing_unified_performance(train="b278",test="b234",kernel="linear")
     ticks = [0,250,500,750,1000,1250,1500,1750,2000,3000]
     horiz_line_data = np.array([get_baseline_fs_stage(train,test,kernel) for i in ticks])
     if (kernel=="linear"):
-        label = "SVM Lineal Baseline"
+        label = "SVM Lineal"
     elif (kernel=="rbf"):
-        label = "SVM RBF Baseline"
+        label = "SVM RBF"
     ax.plot(ticks, horiz_line_data, 'r--',label=label) 
     horiz_line_data = np.array([get_baseline_fs_stage(train,test,"rf") for i in ticks])
     ax.plot(ticks, horiz_line_data, 'r--',label="Random Forest",color='g') 
@@ -374,7 +374,7 @@ def plot_balancing_unified_performance(train="b278",test="b234",kernel="linear")
     ax.set_xlim([-10,2500])
 
     plt.xlabel('Número de no-RRLs por cada RRL') 
-    plt.ylabel('Robust AUC-PRC')
+    plt.ylabel('Robust AUPRC')
     #plt.xticks(ticks,ticks)
     plt.title('Train '+train+' - Test '+test)
     if (train=="b234" and test=="b261"):
@@ -448,7 +448,7 @@ def calculate_oversampling_gain(kernel="linear",method="naive"):
     #plt.xticks(xticks,xticks)
 
     plt.xlabel('Número de no-RRL por cada RRL')
-    plt.ylabel('Ganancia en R-AUCPRC respecto al baseline')
+    plt.ylabel('Ganancia en R-AUPRC respecto al baseline')
     if (method=="naive" and kernel=="linear"):
         leg = ax.legend(loc="lower right")
     
@@ -536,23 +536,25 @@ def plot_class_weight(train="b278",test="b234",kernel="linear"):
     fig, ax = plt.subplots()
 
     domain = list(aucs.keys())
-    ax.plot(domain, list(aucs.values()),marker='.') 
    
     # GET THE BASELINE
     horiz_line_data = np.array([get_baseline_fs_stage(train,test,kernel) for i in domain])
     if (kernel=="linear"):
-        label = "SVM Lineal Baseline"
+        label = "SVM Lineal"
     elif (kernel=="rbf"):
-        label = "SVM RBF Baseline"
+        label = "SVM RBF"
+    ax.plot(domain, list(aucs.values()),marker='.',label=label+" + class weight") 
     ax.plot(domain, horiz_line_data, 'r--',label=label) 
 
     horiz_line_data = np.array([get_baseline_fs_stage(train,test,"rf") for i in domain])
     ax.plot(domain, horiz_line_data, 'r--',label="Random Forest",color='g') 
     
     ax.set_ylim([0,.55])
-
-    plt.xlabel('Weight multiplier for RRL class') 
-    plt.ylabel('Robust AUC-PRC')
+    if (train=="b234" and test=="b261"):
+        leg = ax.legend(loc="lower right")
+        
+    plt.xlabel('Multiplicador de importancia para clase RRL') 
+    plt.ylabel('Robust AUPRC')
     #plt.xticks(ticks,ticks)
     plt.title('Train '+train+' - Test '+test)
     plt.savefig(results_folder_imbalance+"cw/train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
@@ -624,10 +626,11 @@ def class_weight_analyse_gain(kernel="linear"):
     ax.plot(domain, list(scores_min.values()),label="Ganancia mínima",marker=".")
     #plt.xticks(xticks,xticks)
 
-    plt.xlabel('Weight multiplier for RRL class')
-    plt.ylabel('Ganancia en R-AUCPRC respecto al baseline')
+    plt.xlabel('Multiplicador de importancia para clase RRL')
+    plt.ylabel('Ganancia en R-AUPRC respecto al baseline')
     
-    leg = ax.legend(loc="lower right")
+    if kernel=="linear":
+        leg = ax.legend(loc="lower right")
 
     plt.savefig(results_folder_imbalance+"cw/"+kernel+"BEST.png",bbox_inches='tight')
    

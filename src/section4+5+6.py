@@ -235,7 +235,7 @@ def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
     ax.plot(kmeans_bins_range,aucs,label="KMeans",marker='.')
 
     plt.xlabel('Number of bins')
-    plt.ylabel('Robust AUC-PRC')
+    plt.ylabel('Robust AUPRC')
     if (train=="b360" and test=="b278"):
         leg = ax.legend();
     #plt.show()
@@ -344,7 +344,7 @@ def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
 
 
     plt.xlabel('Number of quantiles')
-    plt.ylabel('Robust AUC-PRC')
+    plt.ylabel('Robust AUPRC')
     if (train=="b360" and test=="b278"):
         leg = ax.legend();
     
@@ -598,7 +598,7 @@ def plot_heatmaps_preproc(train_tile="b278"):
         plt.xlabel('C')
         plt.ylabel('gamma')
         # title
-        title = 'Average Robust AUCPRC'.upper()
+        title = 'Average Robust AUPRC'.upper()
         plt.title(title, loc='left')
 
         if cmap==None:
@@ -622,7 +622,7 @@ def plot_heatmaps_preproc(train_tile="b278"):
         plt.ylabel('C')
         plt.xlabel('nbins')
         # title
-        title = 'Average Robust AUCPRC'.upper()
+        title = 'Average Robust AUPRC'.upper()
         plt.title(title, loc='left')
 
         if cmap==None:

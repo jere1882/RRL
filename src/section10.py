@@ -184,7 +184,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         #    cbar.set_ticklabels(['0', '0.6'])
                       
         # title
-        title = ('Robust AUCPRC in test. Train: '+ train +' Test: ' + test).upper()
+        title = ('Robust AUPRC in test. Train: '+ train +' Test: ' + test).upper()
         plt.title(title, loc='left')
 
         plt.savefig(results_folder_potential+"heatmap_train="+train+"_test="+test+".png",bbox_inches='tight')
@@ -197,7 +197,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         with open(results_folder_preproces+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
             rf_curves = pickle.load(input_file)
         p,r = rf_curves["rf"]
-        ax.plot(r,p, label="Random Forest",color="lawngreen")
+        ax.plot(r,p, label="Random Forest",color='#1f77b4')
 
         # NOW, PLOT THE BEST P-R CURVES OBTAINED IN THIS SECTION
         best_key = max(scores,key=scores.get)
@@ -210,7 +210,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         print("SVM-OPT-AUC", auc(recall_interpolated, precision_interpolated))
 
-        ax.plot(r,p, label="optimal SVM RBF",color="cyan")
+       # ax.plot(r,p, label="optimal SVM RBF",color="cyan")
         
         # GET SVM-K DATA FROM FEATURE SELECTION STAGE
         with open(results_folder_dimensionality_reduction+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
@@ -220,7 +220,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         print("SVM-NO-OPT-AUC", auc(recall_interpolated, precision_interpolated))
-        ax.plot(r,p, label="RBF SVM",color="dodgerblue")
+        ax.plot(r,p, label="RBF SVM",color='#2ca02c' )
 
         plt.title('Train ' + train + "- Test" + test)
         plt.xlabel('Recall')
@@ -231,7 +231,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
             curves = pickle.load(input_file)
             
         p,r = curves["svml"]
-        ax.plot(r,p, label="Linear SVM",color="black")
+        ax.plot(r,p, label="Linear SVM",color= '#ff7f0e')
         if (train=="b234" and test=="b261"):
             leg = ax.legend();
 
@@ -385,7 +385,7 @@ def print_covariate_shift_matrix(method="rf",metric="accuracy"):
     if (method=="rf"):
         method="Random Forest"
     else:
-        method="Linear Regression"
+        method="Logistic Regression"
         
     plt.title("Presencia de covariate shift. Clasificador "+method)
     

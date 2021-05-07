@@ -168,8 +168,8 @@ def generate_univariate_selection_individual_subplot(train="b234",test="b278",me
     ax.plot(range(1,len(X.columns)), horiz_line_data, 'r--',label="No feature selection") 
 
 
-    plt.xlabel('Number of selected features')
-    plt.ylabel('Robust AUC-PRC')
+    plt.xlabel('Número de atributos seleccionado')
+    plt.ylabel('Robust AUPRC')
     if (test=="b261" and train=="b234"):
         leg = ax.legend()
     plt.title('Test '+test+' - Train '+train)
@@ -199,8 +199,8 @@ def generate_univariate_selection_unified_method_subplot(method="f_classif",kern
     ax.plot(list(scores8.keys()), list(scores8.values()),label="b360->b234") 
 
 
-    plt.xlabel('Number of selected features')
-    plt.ylabel('Robust AUC-PRC')
+    plt.xlabel('Número de atributos seleccionados')
+    plt.ylabel('Robust AUPRC')
     if  (method=="f_classif"):
         leg = ax.legend()
     #plt.title('FS: SelectKBest. Kernel='+kernel+' Method=' +method+' All tiles')
@@ -236,8 +236,8 @@ def generate_univariate_selection_unified_tile_subplot(train="b278",test="b234",
     horiz_line_data = np.array([get_baseline_preprocessing_stage(train,test,"rf") for i in range(1,len(X.columns))])
     ax.plot(range(1,len(X.columns)), horiz_line_data, 'r--',label="Random Forest",color='g') 
 
-    plt.xlabel('Number of selected features')
-    plt.ylabel('Robust AUC-PRC')
+    plt.xlabel('Número de atributos seleccionados')
+    plt.ylabel('Robust AUPRC')
     if (test=="b261" and train=="b234"):
         leg = ax.legend()
     plt.title('Train '+train+' - Test '+test)
@@ -298,13 +298,14 @@ def univariate_selection_analyse_k_gain(kernel="linear",method="f_classif"):
     ax.set_ylim([-0.5,0.1])
     horiz_line_data = np.array([0 for i in scores_min.keys()])
     ax.plot(scores_min.keys(), horiz_line_data, 'r--',color='r') 
-    ax.plot(list(scores_avg.keys()), list(scores_avg.values()),label="Mean difference")
+    ax.plot(list(scores_avg.keys()), list(scores_avg.values()),label="Ganancia promedio")
     ax.fill_between(list(scores_avg.keys()), avgs-sdevs, avgs+sdevs,color="lightgrey")
-    ax.plot(list(scores_min.keys()), list(scores_min.values()),label="Min difference")
+    ax.plot(list(scores_min.keys()), list(scores_min.values()),label="Ganancia mínima")
 
-    plt.xlabel('Number of selected features')
-    plt.ylabel('Robust AUC-PRC improvement compared to baseline')
-    leg = ax.legend()
+    plt.xlabel('Número de atributos seleccionado')
+    plt.ylabel('Ganancia en R-AUPRC respecto al baseline')
+    if method=="f_classif":
+        leg = ax.legend(loc="lower right")
 
     # [ print(k,"{:.3f}".format(scores_min[k]),"{:.3f}".format(scores_avg[k])) for k in scores_avg.keys() if scores_min[k]>0 and scores_avg[k]>0.015] Kernel
     # [ print(k,"{:.3f}".format(scores_min[k]),"{:.3f}".format(scores_avg[k])) for k in scores_avg.keys() if scores_min[k]>=-0.003]
@@ -379,23 +380,27 @@ def generate_pca_plots(train="b278",test="b234",kernel="linear"):
     fig, ax = plt.subplots()
     ax.set_ylim([0,.55])
 
-    ax.plot(list(scores.keys()), list(scores.values())) 
 
 
     # GET THE BASELINE
     horiz_line_data = np.array([get_baseline_preprocessing_stage(train,test,kernel) for i in range(1,len(X.columns))])
     if (kernel=="linear"):
-        label = "SVM Lineal Baseline"
+        label = "SVM Lineal"
     elif (kernel=="rbf"):
-        label = "SVM RBF Baseline"
-    ax.plot(range(1,len(X.columns)), horiz_line_data, 'r--',label=label) 
+        label = "SVM RBF"
+    ax.plot(list(scores.keys()), list(scores.values()),label="PCA +"+label) 
+    ax.plot(range(1,len(X.columns)), horiz_line_data, 'r--',label=label+" Baseline") 
 
     horiz_line_data = np.array([get_baseline_preprocessing_stage(train,test,"rf") for i in range(1,len(X.columns))])
     ax.plot(range(1,len(X.columns)), horiz_line_data, 'r--',label="Random Forest",color='g') 
 
-    plt.xlabel('Number of principal components used')
-    plt.ylabel('Robust AUC-PRC')
+    plt.xlabel('Número de componentes principales utilizadas')
+    plt.ylabel('R-AUPRC')
     plt.title('Train '+train+' - Test '+test)
+    
+    if train=="b234" and test=="b261":
+        leg = ax.legend()
+        
     plt.savefig(results_folder_dimensionality_reduction+"PCA/"+kernel+"_INDIVIDUAL_CURVES_"+"train="+train+"test="+test+".png",bbox_inches='tight')
     plt.close(fig)
     
@@ -421,8 +426,8 @@ def generate_pca_all_subplots(kernel="linear"):
     ax.plot(list(scores7.keys()), list(scores7.values()),label="b360->b278") 
     ax.plot(list(scores8.keys()), list(scores8.values()),label="b360->b234") 
 
-    plt.xlabel('Number of principal components used')
-    plt.ylabel('Robust AUC-PRC')
+    plt.xlabel('Número de componentes principales utilizadas')
+    plt.ylabel('Robust AUPRC')
     if (kernel=="linear"):
         leg = ax.legend()
     #plt.title('PCA. Kernel='+kernel+' All tiles')
@@ -518,7 +523,7 @@ def generate_feature_agglomeration_individual_subplot(train="b278",test="b234",l
     
     # Fill the metadata
     plt.xlabel('Number of features extracted')
-    plt.ylabel('Robust AUC-PRC')
+    plt.ylabel('Robust AUPRC')
     if (test=="b261" and train=="b234"):
         leg = ax.legend()
     plt.title('Train '+train+' - Test '+test)
@@ -568,8 +573,8 @@ def generate_feature_agglomeration_unified_tile_subplot(train="b278",test="b234"
     horiz_line_data = np.array([get_baseline_preprocessing_stage(train,test,"rf") for i in range(1,len(X.columns))])
     ax.plot(range(1,len(X.columns)), horiz_line_data, 'r--',label="Random Forest",color='g') 
     
-    plt.xlabel('Number of extracted features')
-    plt.ylabel('Robust AUC-PRC')
+    plt.xlabel('Número de atributos extraído')
+    plt.ylabel('Robust AUPRC')
     if (test=="b261" and train=="b234"):
         leg = ax.legend()
     plt.title('Train '+train+ '- Test '+test)
@@ -729,3 +734,8 @@ def get_baseline_fs_stage(train,test,method):
             method = "svmk"
         
         return scores[(method,train,test)]
+
+
+  
+        
+        
