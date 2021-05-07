@@ -12,7 +12,7 @@ En esta sección se intentó determinar qué variables son más relevantes a la 
 
 Contemplaremos todos los atributos en esta sección, es decir, se omitirá el paso de selección de variables.
 
-\subsection{Tests estadísticos}
+\subsection{Importancia de atributos basada en tests estadísticos}
 Se aplicaron nuevamente tests estadísticos a cada uno de los 62 atributos de los datasets, esta vez con la intención de entender qué variables son más importantes para predecir RRLs.\\
 
 Sea $x_i$ la variable aleatoria que rige el $i-$ésimo atributo de nuestro dataset ($0 \leq i < 62$), discretizado utilizando 100 bins quantile. Por lo tanto, $x_i$ es una variable aleatoria discreta para $0 \leq i < 62$. Sea $y$ la variable aleatoria discreta a predecir, que indica si una dada estrella es RRL o no. \\
@@ -214,7 +214,7 @@ En la práctica, la forma de utilizar estos puntajes muchas veces consiste en se
 \label{fig:ranking_b278}
 \end{figure}
 
-\subsection{Importancia basada en clasificadores}
+\subsection{Importancia de atributos basada en clasificadores}
 
 Los clasificadores RF pueden proveer un puntaje (importancia) a cada atributo del dataset de entrenamiento, llamado importancia Gini (o reducción media en impuridad, MDI) \cite{statisticallearning}. Para cada atributo, este valor se calcula como la cantidad de veces que ese atributo se utiliza como criterio de división en un nodo (en todos los árboles), ponderado por la cantidad de instancias que ese nodo divide. \\
 
@@ -237,6 +237,34 @@ Los rankings de variables generados por Random Forest son muy consistentes entre
 \end{itemize}
 
 Por otro lado, luego de analizar a qué variables SVM-Lineal está ponderando, podemos observar que se está prestando alta atención a las variables de color (48 a 60). Se puede también observar que SVM ignora atributos clave como PeriodFit y Psi\_eta que, como ya hemos validado a través de tests estadísticos e importancia gini, son altamente informativos para detectar RRLs. \\
+
+\subsection{Importancia de atributos basada en permutaciones}
+Una tercer forma de estimar la importancia de cada atributo a la hora de identificar estrellas de tipo RRL es conocida como \textit{importancia de atributos basada en permutaciones} (del inglés, permutation feature importance), y fue introducida en \cite{rf}, y posteriormente extendida en \cite{fsiher}. Esta técnica de inspección de modelos puede ser utilizada con cualquier clasificador de aprendizaje automatizado, y es especialmente útil para estimar la importancia de cada atributo al utilizar modelos no lineales u opacos (como SVM RBF). \\
+
+El concepto es muy sencillo: Medimos la importancia de cada atributo calculando el incremento en el error de predicción luego de permutar (aleatoriamente) todos los valores de dicho atributo \cite{molnar2019}. Esta permutación destruye la relación entre el atributo y la variable a predecir.  \\
+
+Un atributo se considera importante si permutar sus valores incrementa el error del modelo, pues en ese caso el modelo estaba utilizando dicho atributo para la predicción. Por otro lado, un atributo es poco importante si al permutar sus valores el error del modelo no incrementa \cite{molnar2019}. \\
+
+En la figura \ref{fig:importance_permutation_b278} podemos ver la importancia basada en permutaciones de cada atributo para modelos Random Forest, SVM lineal y SVM RBF en b278. Las gráficas correspondientes a b234, b261 y b360 se encuentran en el anexo \ref{anexo_permutations} 
+
+\begin{figure}[h!]
+\centering
+  \includegraphics[width=1\textwidth]{Kap6/test=b278RF_permutation_variable_importance_scores.png} \\
+  \includegraphics[width=1\textwidth]{Kap6/test=b278L_permutation_variable_importance_scores.png} \\
+  \includegraphics[width=1\textwidth]{Kap6/test=b278RBF_permutation_variable_importance_scores.png}
+  
+\caption{ Importancia de atributos basada en permutaciones para cada atributo del tile b278. La importancia de un atributo se define como la reducción en performance al permutar sus valores. En el anexo \protect\ref{indice_atributos} puede consultarse la lista completa de atributos. }
+\label{fig:importance_permutation_b278}
+\end{figure}
+
+Podemos observar que:
+
+\begin{itemize}
+\item La estimación de importancia de RF destaca los atributos 41, 40, 46, 31, 43, 61 y 10, y no se condice completamente con la obtenida utilizando la importancia Gini.
+\item La estimación de importancia de SVM Lineal se condice con la obtenida en la sección anterior utilizando el vector de coeficientes $w$. Nuevamente podemos ver que SVM Lineal considera muy importantes a los atributos de color (48-60), en tanto que considera irrelevantes a mayoría de los atributos que RF considera importantes.
+\item La estimación de importancia de SVM RBF tiene una cierta similitud a la de SVM Lineal, con la notable diferencia de que las variables de color dejan de tener importancia mayor. El hecho de no dar tanta importancia a las variables de color puede ser el motivo pro el que SVM RBF funciona mejor que SVM Lineal, dado que la importancia basada en RF y en tests estadísticos indica que los atributos de color son de importancia menor.
+\item Es interesante resaltar que algunas variables clave para SVM (10 y 39) son muy poco informativas para RF. Recíprocamente, variables clave para RF (40 y 41) no son particularmente importantes para SVM. Esto parece indicar que ambos clasificadores están haciendo uso de atributos completamente distintos para producir su decisión.
+\end{itemize}
 
 \section{ Análisis de correlaciones }
 
