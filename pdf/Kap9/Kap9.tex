@@ -21,7 +21,7 @@ Se propuso que la marcada diferencia entre las distribuciones de probabilidad su
 Como experimento final se intentó corregir, sin éxito, la divergencia entre las distribuciones; eliminando atributos que contribuyen marcadamente a distinguir tiles. Considerando que prácticamente todos los atributos contribuyen a la divergencia, parece ser necesario recurrir a métodos más sofisticados para mitigar los efectos del dataset shift presente. \\
 
 \section{Trabajo futuro}
-
+\label{tfuturo}
 Con el objeto de mantener la longitud de este trabajo acotada, se optó por no realizar ciertos experimentos: 
 
 \begin{itemize}
@@ -29,6 +29,7 @@ Con el objeto de mantener la longitud de este trabajo acotada, se optó por no r
 \item Puede ser beneficioso utilizar otros algoritmos de aprendizaje automatizado para abordar este problema. En particular, Gradient Boosting \cite{friedman2000greedy} \cite{friedman2} es una opción muy interesante teniendo en cuenta el alto desempeño obtenido por Adaboost a la hora de clasificar RRLs \cite{elorrieta}.
 \item La mayoría de los experimentos de este trabajo se concentraron en agregar preprocesamientos y modificaciones a SVM. Sin embargo, para comprender por qué RF funciona mejor que SVM, puede ser interesante diseñar otro conjunto de experimentos enfocados en RF, intentando entender qué es lo que ocasiona que funcione tan bien.
 \item Sería interesante realizar un análisis de aquellas estrellas que están siendo clasificadas incorrectamente por SVM, intentando determinar si hay algún patrón en ellas que SVM no es capaz de aprender. También sería de interés evaluar si las estrellas incorrectamente clasificadas por RF son un subconjunto de aquellas incorrectamente clasificadas por SVM.
+\item Experimentar con distintos tipos de regularización y funciones de pérdida en SVM (ver sección \ref{regper})
 \end{itemize}
 
 Respecto a la presencia de dataset shift en nuestros datos, se propone como trabajo futuro:

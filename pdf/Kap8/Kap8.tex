@@ -184,7 +184,7 @@ Distintos trabajos han estudiado el efecto que covariate drift tiene sobre clasi
 Sorpresivamente, C4.5 tiene muy buena performance en presencia de covariate drift. Esto podría ser explicado por el hecho de que, a pesar de que la elección de las divisiones en cada nodo (splits) está sesgada, las clases escogidas en las hojas no lo están.
 \end{quotation}
 
-En este mismo estudio, SVM muestra una mayor degradación en performance ante la presencia de covariate drift. Esto podría explicar por qué RF parece verse menos afectado que SVM por la presencia de covariate drift en los tiles de Carpyncho. \\
+En este mismo estudio, SVM muestra una mayor degradación en performance ante la presencia de covariate drift. Esto podría explicar por qué RF\footnote{Si bien la implementación de RF utilizada en este trabajo utiliza el algoritmo CART (ver sección \protect\ref{cart}) en vez de C4.5, ambas implementaciones son muy similares. En la sección de trabajo futuro (\protect\ref{tfuturo}) se propone extender la investigación realizada por \protect\cite{selectionbias}.} parece verse menos afectado que SVM por la presencia de covariate drift en los tiles de Carpyncho. \\
 
 Dataset shift es especialmente perjudicial en problemas de clasificación imbalanceados, dado que la clase positiva es muy sensible a errores de clasificación individuales debido la poca densidad de ejemplos \cite{LOPEZ20141}.
 

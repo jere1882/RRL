@@ -140,14 +140,14 @@ b396           & 73              & 486639          & 15           & 486624      
 
 \section {Aprendizaje automatizado}
 
-Esta sección introducirá brevemente algunos conceptos básicos de aprendizaje automatizado, y está fuertemente basada en los capítulos introductorios de \cite{mitchell} y \cite{slearning}.
+Esta sección introducirá brevemente algunos conceptos básicos de aprendizaje automatizado, y está fuertemente basada en los capítulos introductorios de \cite{mitchell} y \cite{statisticallearning}.
 
 \subsection{Definición y tipos de aprendizaje}
 
 El campo del \textbf{aprendizaje automatizado} consiste en el estudio de algoritmos que mejoran automáticamente su rendimiento gracias a la experiencia. Formalmente, Tom Mitchell en su libro \textit{ ``Machine Learning''} \cite{mitchell} define aprendizaje automatizado como sigue:
 
 \begin{quotation}
-Se dice que un programa de computadora aprende de la experiencia $E$ respecto a una tarea $T$ y una medida de desempeño $P$ , si el desempeño medido con $P$ en una tarea $T$ , mejora con la experiencia $E$.
+Se dice que un programa de computadora aprende de la experiencia $E$ respecto a una tarea $T$ y una medida de desempeño $P$, si el desempeño medido con $P$ en una tarea $T$ , mejora con la experiencia $E$.
 \end{quotation}
 
 Dada una muestra de datos, los algoritmos de aprendizaje automatizado construyen un modelo con el objeto de realizar predicciones o tomar decisiones \textit{sin haber sido expresamente programados para hacerlo}. Tales algoritmos pueden ser aplicados a un amplio rango de tareas, tales como aprender a conducir un vehículo autónomo \cite{Pomerleau-1989-15721}, aprender a jugar backgammon a nivel profesional \cite{Tesauro1995} o clasificar estructuras astronómicas \cite{clasify_astronomy}.  \\
@@ -161,7 +161,7 @@ Tradicionalmente, las distintas tareas a llevar a cabo por algoritmos de aprendi
 \item \textbf{Aprendizaje por refuerzo (Reinforcement learning)}: Consiste en aprender a tomar decisiones en un ambiente dinámico, con el objeto de maximizar una cierta noción de recompensa acumulada. 
 \end{itemize}
 
-Sin importar el tipo de supervisión, todo aprendizaje automático tiene una fase de entrenamiento y una fase de predicción. La \textbf{fase de entrenamiento} se basa en suministrar datos a los modelos para ajustar sus parámetros internos. Asimismo, hay varios modelos que poseen hiperparámetros que suelen ser configurados previamente a la fase de entrenamiento.  Luego, en la \textbf{fase de predicción}, los modelos pueden usarse para predecir alguna información de datos desconocidos. \\
+Sin importar el tipo de supervisión, todo aprendizaje automático tiene una fase de entrenamiento y una fase de predicción. La \textbf{fase de entrenamiento} se basa en suministrar datos a los modelos para ajustar sus parámetros internos. Asimismo, hay varios modelos que poseen hiperparámetros que suelen ser configurados previamente a la fase de entrenamiento.  Luego, en la \textbf{fase de predicción}, los modelos pueden usarse para predecir alguna información acerca de datos desconocidos. \\
 
 En este trabajo nos enfocaremos en técnicas de aprendizaje automatizado supervisado, dado que se desea abordar la tarea de clasificar estrellas variables en RRL o no-RRL. 
 
@@ -170,20 +170,20 @@ En este trabajo nos enfocaremos en técnicas de aprendizaje automatizado supervi
 
 Como se mencionó anteriormente, el aprendizaje supervisado consiste en aproximar una función $f : I \mapsto O$, donde usualmente $I =\mathds{R}^n$ y $O \subseteq \mathds{R}$. Durante una primera fase de entrenamiento, un conjunto de $m$ ejemplos $x_i \in I, \ i=1,\ldots,m$ junto con sus salidas asociadas $y_i \in O$ es utilizado por un cierto algoritmo de aprendizaje automatizado supervisado para producir una estimación de $f$, a la que llamaremos $\hat{f}$. \\
 
-Para evaluar el desempeño de tal algoritmo de aprendizaje automatizado, se necesita alguna forma de medir cuán bien $\hat{f}$ aproxima a $f$. Dado un conjunto de pares etiquetado $ S = \{ (a_i,b_i) \ | \ a_i \in I, \ b_i=f(x), \ i=1,\ldots,k \}$, las siguientes métricas son de interés:
+Para evaluar el desempeño de tal algoritmo de aprendizaje automatizado, se necesita alguna forma de medir cuán bien $\hat{f}$ aproxima a $f$. Dado un conjunto de pares etiquetado $ S = \{ (a_i,b_i) \ | \ a_i \in I, \ b_i \in O, \ i=1,\ldots,k \}$, las siguientes métricas son de interés:
 
 \begin{itemize}
 
 \item  En problemas de regresión, la métrica más comúnmente utilizada es el \textit{error cuadrático medio}:
 
 \begin{center}
-$MSE = \sum_{i=1}^{k} ( b_i - \hat{f}(a_i) )^2 $
+$MSE = \sum\limits_{i=1}^{k} ( b_i - \hat{f}(a_i) )^2 $
 \end{center}
 
 \item En problemas de clasificación, podemos calcular la proporción de errores realizados:
 
 \begin{center}
-$Error \ Rate = \frac{1}{k} \sum_{i=1}^{k} I( b_i , \hat{f}(a_i) ) $
+$Error \ Rate = \frac{1}{k} \sum\limits_{i=1}^{k} I( b_i , \hat{f}(a_i) ) $
 \end{center}
 
 Donde:
@@ -203,7 +203,7 @@ $
 
 Si $S$ es exactamente el conjunto de entrenamiento, entonces ambas métricas se llaman \textit{training MSE} y \textit{training Error Rate} respectivamente; y nos indican cuán bien $\hat{f}$ aproxima a $f$ para los elementos de entrenamiento. Sin embargo, en general, estamos interesados en evaluar el desempeño del clasificador en elementos nuevos que no pertenecen al conjunto de entrenamiento.  \\
 
-Usualmente, se reserva una porción de los datos disponibles para ser utilizada como \textbf{conjunto de test}. Estos datos no son utilizados en la fase de entrenamiento, sino que son utilizados para calcular métricas como \textit{test Error Rate} una vez terminada la fase de entrenamiento. Tales métricas proveen una noción de cuán bien el clasificador funcionará en datos no antes vistos. \\
+Usualmente, se reserva una porción de los datos disponibles para ser utilizada como \textbf{conjunto de test}. Estos datos no son utilizados en la fase de entrenamiento, sino que son utilizados para calcular métricas como \textit{test Error Rate} una vez terminada la fase de entrenamiento. Métricas calculadas sobre un conjunto de test proveen una noción de cuán bien el clasificador funcionará en datos no antes vistos. \\
 
 Una alternativa para medir cuán bien $\hat{f}$ aproxima a $f$ sin necesidad de tener que separar los datos etiquetados disponibles en un conjunto de entrenamiento y uno de testeo es utilizar \textbf{cross validation} \cite{cross_validation}. Dado un dataset de elementos del dominio etiquetados $D$, cross validation consiste en:
 \label{cross_validation}
@@ -234,7 +234,7 @@ En este trabajo estamos particularmente interesados en problemas de \textbf{clas
 
 Los falsos positivos son aquellos elementos de clase negativa, clasificados incorrectamente por el modelo con etiqueta positiva. Similarmente, los falsos negativos son aquellos elementos con etiqueta positiva, clasificados como negativos. Los verdaderos positivos (negativos), son aquellos elementos positivos (negativos), que fueron clasificados correctamente. \\
 
-Dado un cierto conjunto de datos etiquetados, la performance de un clasificador binario puede visualizarse al calcular una \textbf{matriz de confusión}. La matriz de confusión mostrará la suma de elementos de cada una de las cuatro categorías explicadas. En particular, podemos reescribir la métrica Error Rate como: \\
+Dado un conjunto de testeo, la performance de un clasificador binario puede visualizarse al calcular una \textbf{matriz de confusión}. La matriz de confusión mostrará la suma de elementos de cada una de las cuatro categorías explicadas. En particular, podemos reescribir la métrica Error Rate como: \\
 
 \begin{center}
 $ Error Rate = \frac{FP + FN}{FP + FN + TP + TN} $
@@ -269,13 +269,13 @@ En esta sección, se discutirá brevemente el dilema sesgo-varianza en aprendiza
 $Y = f(X) + \epsilon$
 \end{center}
 
-Donde $\epsilon$ se distribuye de forma normal, con media cero y varianza $\sigma^2$, y representa ruido en los datos. Utilizando algún algoritmo de aprendizaje automatizado, y a partir de un dataset de entrenamiento $D$, se obtiene un modelo $\bar{f}$ que intenta aproximar $f$. El error cuadrático de predicción para un input $x$ es:\\
+Donde $\epsilon$ se distribuye de forma normal, con media cero y varianza $\sigma^2$, y representa ruido en los datos. Utilizando algún algoritmo de aprendizaje automatizado, y a partir de un dataset de entrenamiento $D$, se obtiene un modelo $\bar{f}$ que intenta aproximar $f$. El error cuadrático de predicción para un input $x$ es\footnote{Nótese que las esperanzas se calculan sobre las diferentes elecciones de dataset de entrenamiento $D$.}:
 
 \begin{center}
 $Err(x) = E[(Y-\bar{f}(x))^2]$
 \end{center}
 
-Lo cual puede reescribirse como\footnote{Nótese que las esperanzas se calculan sobre las diferentes elecciones de dataset de entrenamiento $D$}:
+Lo cual puede reescribirse como:
 
 \begin{center}
 $Err(x) = (E[\bar{f}(x)]-f(x))^2 + E[(\bar{f}(x)-E[\bar{f}(x)])^2] + \sigma^2$ 
@@ -307,9 +307,9 @@ La figura \ref{fig:tradeoff} muestra el comportamiento típico de la varianza y 
 \label{fig:tradeoff}
 \end{figure}
 
-Como se puede ver en la figura \ref{fig:tradeoff}, el error de entrenamiento será muy bajo en modelos complejos. Sin embargo, sería inadecuado utilizar el error de entrenamiento como una medida de cuán bien el modelo funciona, pues el modelo puede no funcionar tan bien en un conjunto de testeo no antes visto. Por este motivo es que se deben utilizar métricas calculadas sobre los datos de testeo para realizar afirmaciones sobre la performance de un modelo. \\
+Como se puede ver en la figura \ref{fig:tradeoff}, el error de entrenamiento será muy bajo en modelos complejos. Sin embargo, sería inadecuado utilizar el error de entrenamiento como una medida de cuán bien el modelo funciona, pues puede no funcionar tan bien en un conjunto de testeo no antes visto. Por este motivo es que se deben utilizar métricas calculadas sobre los datos de testeo para realizar afirmaciones sobre la performance de un modelo. \\
 
-Utilizar métricas obtenidas a través de cross-validation también es correcto, pues debe notarse que en el procedimiento descripto en la sección \ref{cross_validation} las métricas de cada partición siempre se calculan sobre datos que no han sido utilizados para entrenar los modelos.s
+Utilizar métricas obtenidas a través de cross-validation también es correcto, pues debe notarse que en el procedimiento descripto en la sección \ref{cross_validation} las métricas de cada partición siempre se calculan sobre datos que no han sido utilizados para entrenar los modelos.
 
 \subsection{Problemas desbalanceados}
 \label{imbalance}
@@ -318,7 +318,7 @@ A la hora de estudiar problemas de clasificación, es importante tener en cuenta
 
 Si se utilizan datasets imbalanceados para entrenar y testear, es inadecuado utilizar métricas de desempeño basadas en clasificar la \textit{mayor cantidad} de elementos de forma correcta, como $Acc$. La hipótesis mas sencilla, clasificar todas las instancias como pertenecientes a la clase mayoritaria, a menudo maximiza tales métricas. \\
 
-Un primer paso a la hora de trabajar con datos desbalanceados es, entonces, utilizar métricas que no son sensitivas al imbalance de clases. En clasificación binaria precision y recall son métricas adecuadas.
+Un primer paso a la hora de trabajar con datos desbalanceados es, entonces, utilizar métricas que no son sensitivas al imbalance de clases. En clasificación binaria precision y recall son métricas adecuadas. \\
 
 A menudo, muchos métodos de aprendizaje automatizado para clasificación binaria producen un puntaje\footnote{Se utiliza el término puntaje (del inglés \textit{score}), dado que no se utilizará un enfoque probabilístico.} en $[0,1]$ para cada instancia a clasificar. Puntajes cercanos a 0 indican que el clasificador tiene mayor certeza de que una cierta entrada pertenece a la clase negativa, en tanto que valores cercanos a 1 indican pertenencia a la clase positiva. \\
 
@@ -347,48 +347,163 @@ Además de utilizar métricas adecuadas para evaluar el desempeño, otras técni
 \end{itemize}
 
 \subsection{Árboles de decisión}
-En esta sección se presentará brevemente uno de los métodos de aprendizaje automatizado supervisado para clasificación más ampliamente utilizado: Árboles de Decisión\cite{mitchell}. \\
+Esta sección está enteramente basada en \cite{statisticallearning}, y presentará uno de los métodos de aprendizaje automatizado supervisado para clasificación más ampliamente utilizados: Árboles de Decisión. \\
 
-Los árboles de decisión están formados por dos tipos de elementos: nodos y ramas. En primer lugar, veamos cómo se usa un árbol de decisión ya construido. En la figura \ref{fig:tree} podemos ver un ejemplo de un árbol de decisión que intenta predecir si un pasajero sobreviviría o no al hundimiento del Titanic.  \\
+Los métodos basados en árboles particionan el dominio de los atributos en un conjunto de rectángulos, y luego ajustan un modelo sencillo a cada uno. Son conceptualmente simples, pero poderosos.\\
 
-Supongamos que cada persona está descripta por tres atributos numéricos: edad, género y número de familiares en el barco (sibsp). Para clasificar una nueva instancia, se desciende por el árbol comenzando por la raíz. En cada nodo, se realiza una comparación sobre un atributo de la instancia a clasificar, y se desciende por una de las dos ramas del árbol de acuerdo al resultado. \\
+Consideremos un problema de regresión donde se intenta predecir una variable continua Y, basándose en dos atributos $X_1$ y $X_2$, ambos tomando valores en el intervalo $[0,1]$. \\
+
+La figura \ref{fig:arboles_hastie_1}(a) muestra una partición del espacio de atributos. Se utilizó una partición simple, restringiéndose a particiones recursivas binarias. En primer lugar se dividió el espacio en dos regiones, y se modeló la respuesta de la media de Y en cada región. Se escogió el atributo y el punto de división (split) para encontrar el mejor ajuste. Recursivamente, cada una de las dos regiones obtenidas se divide en otras dos regiones, hasta alcanzar algún criterio de terminación. \\
 
 \begin{figure}[h!]
-\begin{center}
-\includegraphics[width=.44\textwidth]{Kap1/tree.png}
-\end{center}
-\caption[short]{Árbol de decisión construido sobre el dataset \textit{Titanic}. Los árboles de decisión se dibujan invertidos, con la raíz en la parte superior. Créditos: Wikipedia. }
-\label{fig:tree}
+\begin{tabular}{ccc}
+  \includegraphics[width=0.32\textwidth]{Kap1/cart1.png} &     \includegraphics[width=0.32\textwidth]{Kap1/cart2.png} &
+    \includegraphics[width=0.32\textwidth]{Kap1/cart3.png}
+    \\
+(a)  & (b) & (c) 
+\end{tabular}
+\caption{Ejemplo de un árbol de decisión sencillo. Fuente: \protect\cite{statisticallearning} }
+\label{fig:arboles_hastie_1}
 \end{figure}
 
-El proceso continúa hasta llegar a un nodo que no posee más subdivisiones, tales nodos son llamados \textbf{hojas} e indicarán la clase final que con la cual el clasificador etiquetará la nueva instancia. \\
+En el ejemplo de la figura  \ref{fig:arboles_hastie_1}(a), primero se dividió el espacio de atributos en $X_1 = t_1$. Luego, la región $X_1 \leq t_1$ se dividió en $X_2 = t_2$ y la región $X_1 > t_1$ se dividió en $X_1 = t_3$. Finalmente, la región $X_1 > t_3$ se dividió en $X_2 = t_4$. El resultado de este proceso es una partición en cinco regiones $R_1, R_2, \ldots, R_5$. El modelo de regresión producirá predicciones constantes $c_1, \ldots, c_5$ de $Y$ para una nueva instancia de acuerdo a la partición en que sus atributos se encuentren:
 
-Ahora que ya se ha discutido cómo utilizar un árbol de decisión existente, veamos cómo se crea un nuevo árbol a partir de un conjunto de entrenamiento. Un algoritmo greedy para crecer un árbol de decisión consiste en crear cada nodo recursivamente, comenzando desde la raíz. Naturalmente, se debe decidir qué atributo utilizar en cada nodo no hoja para realizar la división; así como el valor de corte que se utilizará (\textit{split} en inglés). A la hora de crear un nodo, se considerará para cada atributo un cierto número de valores de corte, y se elegirá aquel que minimice una cierta métrica de costo sobre los datos de entrenamiento. \\
+\begin{center}
+$\hat{f}(X) = \sum\limits_{m=1}^5 ( c_m I\{(X_1,X_2) \in R_m\} )$
+\end{center}
 
-Distintas métricas pueden utilizarse para decidir cuál es el mejor split, intentando incentivar la homogeneidad de la variable objetivo en los subconjuntos producidos. Dos métricas muy populares son \textit{Gini Impurity} e \textit{Information Gain} \cite{ginigain}.\\
+Este mismo modelo puede ser representado por el árbol de decisión binario de la figura \ref{fig:arboles_hastie_1}(b). El dataset completo se encuentra en la raíz, en la parte superior del árbol. Instancias que satisfacen la condición en cada nodo son asignadas a la rama izquierda, en tanto que las otras son asignadas a la rama derecha. Los nodos terminales del árbol (también llamados hojas) corresponden a las regiones $R_1, \ldots, R_5$. La superficie de decisión obtenida para $c_1=-5, c_2=-7, c_3=0, c_4=2, c_5=4$ puede ser observada en la figura \ref{fig:arboles_hastie_1}(c). \\
 
-Un aspecto a considerar es cuándo detener este proceso de crecimiento. Es posible que árboles extremadamente complejos conduzcan a \textbf{sobreajuste} (overfitting en inglés), un fenómeno en el cual un método de aprendizaje automatizado se ajusta demasiado bien a los datos de entrenamiento, aprendiendo detalles y ruido presentes; y por lo tanto perdiendo desempeño al clasificar instancias nuevas. Por lo tanto, puede ser valioso detener el crecimiento del árbol prematuramente, o bien \textit{podarlo} (eliminar algunos nodos) posteriormente. 
+Una de las ventajas clave de los árboles de decisión binarios es su interpretabilidad, incluso cuando hay más de dos atributos.
+
+\subsubsection{Cassification And Regression Tree (CART)}
+\label{cart}
+Veamos a continuación cómo se construye un árbol de decisión utilizando el algoritmo CART. Supongamos que el problema consta de $p$ atributos de entrada y una variable de salida, y se cuenta con $N$ observaciones $(x_i,y_i)$ para $i=1,\ldots,n$, donde $x_i=(x_{i1},\ldots, x_{ip})$. El algoritmo necesita automáticamente decidir qué variables y qué valores de tales variables utilizará en cada nodo (split), así como la topología (forma) del árbol. \\
+
+Supongamos que tenemos una partición del dominio en M regiones $R_1, \ldots, R_M$, y modelamos la respuesta con una constante $c_m$ en cada región:
+
+\begin{center}
+$f(X) = \sum\limits_{m=1}^M c_m I\{(X_1,X_2) \in R_m\}$
+\end{center}
+
+Si el problema es de regresión, adoptando como criterio de minimización la suma de los errores cuadráticos $\sum\limits(y_i - f(x_i))^2$, es sencillo ver que el mejor $\hat{c}_m$ es el promedio de $y_i$ en la región $R_m$:
+
+\begin{center}
+$\hat{c}_m = avg(y_i \ | \ x_i \in R_m)$
+\end{center}
+
+En problemas de clasificación, puede usarse la etiqueta más frecuente (moda) de $y_i$ en la región $R_m$. \\
+
+Para encontrar la mejor partición binaria se utiliza un algoritmo greedy, buscando la variable $j$ y el valor de división $s$ que resuelve:
+
+\begin{center}
+$ \min\limits_{j,s}[ \min\limits_{c_1} \sum\limits_{x_i \in R_1(j,s)} (y_i - c_1)^2 + 	\min\limits_{c_2} \sum\limits_{x_i \in R_2(j,s)} (y_i - c_2)^2  ]$
+\end{center}
+
+Donde $R_1(j,s) = \{ X | X_j \leq s \}$ y $R_2(j,s) = \{ X | X_j > s \}$. \\
+
+En problemas de clasificación, se utilizan otras métricas para decidir cuál es el mejor valor de corte (split), intentando incentivar la homogeneidad de la variable objetivo en los subconjuntos producidos. Dos métricas muy populares son \textit{Gini Impurity} e \textit{Information Gain} \cite{ginigain}.\\
+
+Para cada variable, determinar el mejor punto de división $s$ puede hacerse muy rápidamente y por lo tanto, escaneando todos los atributos, se puede hallar el mejor par $(j,s)$. \\
+
+Habiendo encontrado la mejor división, se particionan los datos en las dos regiones resultantes y se repite recursivamente el proceso de división en cada una de las dos regiones. Una cuestión a considerar es cuándo detener este proceso, pues árboles muy grandes pueden sobreajustar los datos, en tanto que árboles muy pequeños pueden no capturar la estructura del problema. La estrategia preferida es construir un árbol grande, deteniendo el proceso de división cuando una cantidad mínima de de nodos es alcanzada. Posteriormente, este árbol es \textit{podado}, reduciendo su tamaño. 
+
+
+\subsubsection{Otras consideraciones sobre árboles de decisión}
+
+\begin{itemize}
+\item El algoritmo previamente descripto, CART, es uno de los métodos más populares para construir árboles de decisión. Otras opciones ampliamente utilizadas incluyen ID3 \cite{id3}, C4.5 \cite{c45} y C5.0 \cite{noauthororeditor2013applied}.
+\item Los árboles de decisión son un ejemplo de un modelo que tiene bajo sesgo, pues no hacen casi ninguna asunción acerca de la función objetivo. Sin embargo, los árboles de decisión complicados (profundos) son modelos con alta varianza, pues son altamente susceptibles a variaciones en los datos de entrenamiento y tienden a sobreajustar. Técnicas de podado (prunning) pueden ser utilizadas para reducir la complejidad de los árboles y evitar sobreajustar los datos de entrenamiento.
+\end{itemize}
+
 
 \subsection{Random Forests}
 
-En esta sección se introducirá brevemente uno de los dos métodos de clasificación utilizados en este trabajo: Random Forests \cite{rf}. Random Forest es un método \textbf{ensamble}, más específicamente de tipo \textbf{bagging}. \\
+En esta sección se introducirá uno de los dos métodos de clasificación utilizados en este trabajo: Random Forests \cite{rf}, y está basada enteramente en \cite{statisticallearning}.
 
-Los métodos ensamble consisten en utilizar \textit{múltiples} algoritmos de aprendizaje para mejorar el desempeño que cada uno de ellos tiene individualmente. En concreto, los métodos de bagging \cite{bagging} se basan en generar múltiples versiones de un mismo predictor, perturbando los datos de entrenamiento que se le suministran a cada uno, y combinando sus resultados para formar un clasificador más potente. \\
+\subsubsection{Métodos bootstrap}
 
-En particular, Random Forest es un ensamble donde los predictores individuales son árboles de decisión. Un Random Forest formado por $n$ árboles de decisión, se construye de la siguiente forma:
+Bootstrap es una técnica general para analizar estadísticas sobre una población. Supongamos que tenemos un modelo de aprendizaje automatizado, entrenado con un cierto conjunto de datos $Z=(z_1, \ldots, z_N)$ donde $z_i=(x_i,y_i)$. La idea básica es muestrear datasets aleatoriamente con reemplazo a partir de $Z$, cada uno con el mismo tamaño que $Z$. \\
+
+Este procedimiento se repite $B$ veces, produciendo $B$ datasets bootstrap. Cada dataset bootstrap construido se utilizará como conjunto de entrenamiento para entrenar un nuevo modelo de aprendizaje automatizado. Finalmente, se examina el comportamiento de los distintos modelos entrenados sobre las B réplicas, tal y como se muestra en la figura \ref{fig:bootstrap}. \\
+
+
+\begin{figure}[h!]
+\begin{center}
+  \includegraphics[width=0.56\textwidth]{Kap1/bootstrap.png} 
+\end{center}
+\caption{ Semántica del proceso bootstrap. Se desea estimar la precisión estadística de una métrica $S(Z)$ computada sobre un dataset $Z$. $B$ datasets de entrenamiento $Z^{*b}$, cada uno con tamaño $N$, son muestreados con reemplazo a partir del dataset original $Z$. La métrica de interés $S(Z)$ se computa sobre cada dataset bootstrap, y los valores $S(Z^{*1}), \ldots, S(Z^{*N})$ pueden usarse para estimar la precisión estadística de $S(Z)$.  Fuente: \protect\cite{statisticallearning} }
+\label{fig:bootstrap}
+\end{figure}
+
+
+En la figura, $S(Z)$ es algún tipo de métrica computada a partir de los datos $Z$. Una posibilidad sería que $S(Z)$ fuese el error de predicción sobre Z. Sin embargo, esto sería metodológicamente incorrecto pues muchos de los elementos del conjunto de entrenamiento estarían actuando como elementos del conjunto de testeo. Esta superposición puede hacer que los resultados sean incorrectamente optimistas.  \\
+
+Emulando la idea aplicada en Cross Validation (\ref{cross_validation}), una mejor estimación sería únicamente considerar predicciones obtenidas con bootstraps que no contienen esa observación.  Las métricas obtenida nos permiten estimar el error en test de un cierto clasificador.
+
+\subsubsection{Bagging}
+
+Se presentó boostrap como una forma de estimar el error en test de un modelo. En esta subsección, se mostrará cómo utilizar bootstrap para mejorar las predicciones en sí mismas. \\
+
+Consideremos en primera instancia un problema de regresion. Supongamos que se cuenta con un conjunto de entrenamiento $Z=(z_1, \ldots, z_N)$ donde $z_i=(x_i,y_i)$, y se calculan  $B$ boostrap datasets a partir de él. \\
+
+Bootstrap aggregation o \textbf{bagging} \cite{breiman96} consiste en entrenar un modelo con cada bootstrap dataset $Z^{*b}$, cada uno de los cuales produce una predicción $\hat{f}^{*b}(x)$ para un dado input $x$. Posteriormente, se utiliza el promedio de todas las predicciones como predicción final, por lo tanto reduciendo la varianza del resultado:
+
+\begin{center}
+$\hat{f}_{bag} = \frac{1}{B} \sum\limits_{b=1}^B \hat{f}^{*b}(x)$
+\end{center}
+
+Por otro lado, en un problema de clasificación, puede utilizarse la moda de las predicciones asociadas a cada bootstrap como predicción final. \\
+
+Bagging tiene la capacidad de reducir dramáticamente la varianza de predictores inestables como árboles sin introducir sesgo, lo cual conduce a mejores resultados. Cada árbol entrenado con un bootstrap dataset diferente tenderá a involucrar diferentes atributos, y a tener una topología diferente, tal y como se puede ver en la figura \ref{fig:bootstrap_trees}. 
+
+\begin{figure}[h!]
+\begin{center}
+  \includegraphics[width=0.56\textwidth]{Kap1/bootstrap_trees.png} 
+\end{center}
+\caption{ En esta imagen puede verse un árbol de decisión, en color naranja, construido a partir de un cierto dataset. Los restantes 11 árboles fueron construidos a partir de distintos bootstraps del dataset en cuestión. Nótese que la topología de los árboles y las variables utilizadas en cada nodo son notablemente distintas para cada $b$. Fuente: \protect\cite{statisticallearning} }
+\label{fig:bootstrap_trees}
+\end{figure}
+
+
+\subsubsection{Random Forest}
+
+La idea esencial de bagging es promediar muchos modelos ruidosos que tienen bajo sesgo, reduciendo la varianza. Los árboles de decisión son candidatos ideales para bagging, dado que pueden capturar interacciones de estructuras complejas en los datos, y tienen un sesgo relativamente bajo si se les permite tener profundidad suficiente. 
+
+\begin{itemize}
+\item Dado que cada árbol generado en bagging está idénticamente distribuido, la esperanza del promedio de $B$ árboles es igual a la esperanza de cualquiera de ellos. Esto implica que el sesgo de bagging con árboles de decisión es el mismo que el de árboles de decisión individuales.
+\item Dadas $B$ variables aleatorias idénticamente distribuidas, no necesariamente independientes y con correlación a pares positiva $\rho$, la varianza del promedio es:
+
+\begin{center}
+$\rho \sigma^2 + \frac{1-\rho}{B} \sigma^2$
+\end{center}
+
+Para $B$ suficientemente grande, el segundo término desaparece, y sigue que el tamaño de la correlación a pares de los árboles calculados sobre cada bootstrap limita los beneficios del promedio.
+\end{itemize}
+
+\textbf{Random forest} \cite{rf}, en adelante RF, es una modificación sustancial de bagging que intenta mejorar la reducción de varianza obtenida por bagging reduciendo la correlación entre los árboles. Un RF formado por $B$ árboles de decisión, se construye de la siguiente forma:
 
 \begin{enumerate}
-\item \textbf{Crear un bootstrap del dataset de entrenamiento por cada árbol a construir}: En lugar de utilizar el dataset de entrenamiento completo para entrenar cada árbol de decisión, se calculará un bootstrap (sampleo aleatorio con reemplazo) por cada árbol de decisión a entrenar. 
-\item \textbf{Entrenar cada árbol de decisión}: Se entrena cada árbol de decisión utilizando uno de los bootstraps generados en el paso anterior. Para añadir aún más aleatoriedad, se considera únicamente un subconjunto aleatorio de atributos en cada nodo a la hora de elegir el mejor split.
+\item Para b=1 hasta B:
+\begin{enumerate}
+\item Muestrear un bootstrap $Z^{*b}$ de tamaño $|Z|$ a partir de los datos de entrenamiento $Z$.
+\item Entrenar un árbol de decisión $T_b$ utilizando $Z^{*b}$ como dataset de entrenamiento, repitiendo los siguientes pasos para cada nodo terminal del árbol, hasta que una cantidad mínima de nodos $n_{min}$ se haya alcanzado:
+\begin{enumerate}
+\item Seleccionar $m$ atributos aleatoriamente de entre los $p$ atributos.
+\item Elegir el mejor atributo y el mejor punto de corte (split) de entre los $m$ atributos seleccionados.
+\item Dividir el nodo en dos nodos hijos.
+\end{enumerate}
+\end{enumerate}
+\item Retornar el ensamble de arboles $\{ T_b \}^B_1$
 \end{enumerate}
 
-Una de las principales desventajas de los árboles de decisión es que tienen tendencia a sobreajustar los datos de entrenamiento. La aleatoriedad involucrada en el primer paso, implica que si bien cada árbol puede sobreajustar sus datos de entrenamiento; el Random Forest completo no sobreajustará ningún subconjunto de datos en especial. \\
+Para realizar una predicción de un nuevo punto, utilizamos el promedio de la predicción de todos los árboles (regresión) o la moda de las predicciones (clasificación). \\
 
-Los métodos ensamble funcionan mejor si hay una cierta decorrelación, o variedad, en los modelos individuales. La aleatoriedad involucrada en el segundo paso también contribuye a esta decorrelación, evitando que ciertos atributos con alto poder predictivo sean incluidos en todos los árboles. \\
+La reducción de correlación entre los árboles sucede en la fase de entrenamiento, al seleccionar $m \leq p$ de los atributos aleatoriamente como candidatos para cada nodo. Intuitivamente, valores pequeños de $m$ reducirán la correlación entre cada par de árboles del ensamble, y por lo tanto, reducirán la varianza en promedio. \\
 
-Una vez que el random forest ha sido construido, realizar predicciones para nuevas instancias es muy sencillo. Se evalúa la entrada en cuestión en cada uno de los árboles, obteniendo $n$ predicciones que se combinan para formar la predicción final del random forest. En problemas de clasificación, cada predicción puede considerarse un voto, y la predicción más votada será la predicción del random forest.\\
+Una característica importante de RF es el potencial uso de elementos OOB (out-of-bag). Para cada observación $z_i \in Z$, es posible construir una predicción RF promediando sólo las predicciones de aquellos árboles correspondientes a bootstraps $Z^{*b}$ en los cuales $z_i$ no fue muestreado. Esto implica que podemos calcular una estimación de cuán bien el predictor funcionará en instancias no antes vistas, con un razonamiento similar al utilizado en Cross Validation. \\
 
-Random Forest es un método muy flexible y poderoso, y es cotidianamente utilizado en aplicaciones industriales. Una de sus principales ventajas es su facilidad de uso, dado que no se requiere la optimización de hiperparámetros complejos y brinda generalmente buenos resultados.
+RF es un método muy flexible y poderoso, y es cotidianamente utilizado en aplicaciones industriales. Una de sus principales ventajas es su facilidad de uso, dado que no se requiere una optimización de hiperparámetros muy compleja y brinda generalmente buenos resultados en datasets arbitrarios.
 
 \subsection{Support Vector Machines}
 
@@ -398,6 +513,7 @@ En esta sección se presentará el segundo método de aprendizaje automatizado s
 
 Una tarea de clasificación binaria puede ser vista como la tarea de separar las clases en el espacio de atributos. En la figura \ref{fig:sv1} podemos ver un ejemplo en el cual se decide utilizar un hiperplano para realizar dicha separación. Como se puede ver hay infinitos separadores lineales para este ejemplo. \\
 
+
 \begin{figure}[h!]
 \begin{center}
   \includegraphics[width=0.56\textwidth]{Kap1/svm1.png} 
@@ -406,7 +522,19 @@ Una tarea de clasificación binaria puede ser vista como la tarea de separar las
 \label{fig:sv1}
 \end{figure}
 
-Las SVM buscan elegir el hiperplano que separe ambas clases maximizando el margen entre ambas clases, donde el margen se define como la mínima distancia entre un punto de training y el hiperplano separador. Esta situación se ilustra en la figura \ref{fig:svm_3}. \\
+Dado un conjunto de entrenamiento $\{ (x_i,y_i), \ i=1,\ldots,N, \ x_i \in \mathds{R}^p , y_i \in \{1,-1\} \}$, un hiperplano se define como:
+
+\begin{center}
+$\{ x : f(x) =  x^T\beta + \beta_0 = 0 \}$
+\end{center}
+
+Donde $\beta$ es un vector unitario. Una regla de clasificación inducida por $f(x)$ es:
+
+\begin{center}
+$G(x) = sign[x^T\beta + \beta_0]$
+\end{center}
+
+La función $f(x_0)$ es la distancia de un punto $x_0$ al hiperplano $x^T\beta + \beta_0 = 0$. Si las clases son separables, es posible encontrar $\beta$ y $\beta_0$ tal que $y_i f(x_i) > 0$ $\forall i$. Las SVM buscan elegir el hiperplano que separe ambas clases maximizando el margen entre ambas clases, donde el margen se define como la mínima distancia entre un punto de training y el hiperplano separador. Esta situación se ilustra en la figura \ref{fig:svm_3}. \\
 
 \begin{figure}[h!]
 \begin{center}
@@ -416,31 +544,26 @@ Las SVM buscan elegir el hiperplano que separe ambas clases maximizando el marge
 \label{fig:svm_3}
 \end{figure}
 
+El siguiente problema de optimización captura este concepto \cite{statisticallearning}:
 
-Un problema inmediato a considerar es que la frontera que separa las clases puede estar determinada por una superficie no lineal. Esto puede solucionarse mediante el uso de una función kernel, que mapea los datos a algún espacio de mayor dimensionalidad donde la frontera que separa las clases será, potencialmente, lineal. Esta situación es ilustrada en la figura \ref{fig:svm_4}\\
-
-\begin{figure}[h!]
 \begin{center}
-  \includegraphics[width=0.7\textwidth]{Kap1/svm5.png} 
-  \end{center}
- \caption{ Utilización de una función kernel para mapear puntos que no son linealmente separables a un espacio de mayor dimensionalidad, donde pueden ser separados por un hiperplano. Créditos: Drew Wilimitis, \url{towardsdatascience.com} }
-\label{fig:svm_4}
-\end{figure}
+$\min\limits_{\beta, \beta_0}   \| \beta \|$\\
+$\textrm{sujeto a} \quad  y_{i}(x_i^T \beta + \beta_0)
+  \geq 1, \ i=1,\ldots,N$    \\
+\end{center}
 
-Matemáticamente, dado un conjunto de entrenamiento $\{ (x_i,y_i), \ i=1 \ldots l, \ x_i \in R^n \ , y_i \in \{1,-1\} \}$, SVM requiere solucionar el siguiente problema de optimización:
+Un primer problema a considerar es que las clases pueden estar superpuestas en el espacio de atributos. Una forma de lidiar con esta superposición consiste en maximizar el margen, pero permitir que algunos puntos estén en el lado equivocado, como se ilustra en la figura \ref{fig:svm_5}. Con este propósito, se definen variables slack $\xi=(\xi_1, \ldots, \xi_N)$, y se modifica el problema de optimización como sigue:
 
 \begin{center}
 $\begin{aligned}
-\min_{w,b,\xi} \quad & \frac{1}{2}w^{t}w+C\sum_{i=1}^{l}{\xi_{i}}\\
-\textrm{s.t.} \quad & y_{i}(w^T\phi(x_{i})+b) \geq 1 - \xi_{i}\\
-  &\xi\geq0    \\
+\min\limits_{\beta, \beta_0}  & \| \beta \| \\
+\textrm{sujeto a} \quad  y_{i}(x_i^T \beta + \beta_0) 
+  \geq& 1 - \xi_i, \ \  i=1,\ldots,N    \\
+  \xi_i \geq& 0  \ \  i=1,\ldots,N    \\
+  \sum\limits_{i=0}^N \xi_i \leq& \ constant.
 \end{aligned}
 $
 \end{center}
-
-Nótese que los vectores de entrenamiento $x_i$ son mapeados a un espacio de mayor dimensionalidad (quizás infinita) a través de la función $\phi$. SVM encuentra un hiperplano que separa ambas clases con el máximo margen posible. \\
-
-$C>0$ es un hiperparámetro de penalidad que regula cuánto error se permite, introduciendo  variables slack $\xi_i$ que permiten a algunos vectores estar del lado equivocado de la frontera. Esta situación es ilustrada en la figura \ref{fig:svm_5}\\
 
 
 \begin{figure}[h!]
@@ -451,18 +574,104 @@ $C>0$ es un hiperparámetro de penalidad que regula cuánto error se permite, in
 \label{fig:svm_5}
 \end{figure}
 
-$K(x_i,x_j) = \phi(x_i)^T \phi(x_j)$ es llamada \textbf{función kernel}. Algunas de las funciones kernel más populares son:
+Computacionalmente es conveniente re-expresar este problema como sigue:
+
+\begin{center}
+$\begin{aligned}
+\min\limits_{\beta, \beta_0} \   \frac{1}{2} \| \beta \|^2 &+ C \sum\limits_{i=1}^N \xi_i \\
+\textrm{sujeto a} \quad  y_{i}(x_i^T \beta + \beta_0)
+  &\geq 1 - \xi_i, \ \ i=1,\ldots,N    \\
+  \xi_i &\geq 0 \ \ i=1,\ldots,N    \\
+\end{aligned}
+$
+\end{center}
+
+Donde el parámetro de costo (o regularización) $C$ reemplaza la restricción $\sum\limits_i \xi_i \leq constant$. Los detalles matemáticos de la resolución de este problema de optimización utilizando multiplicadores de Lagrange pueden ser consultados en \cite{statisticallearning}. \\
+
+\subsubsection{El truco del kernel}
+
+El algoritmo descripto tiene una importante limitación: sólo es capaz de encontrar fronteras lineales en el espacio de atributos. Esto puede solucionarse mediante el uso de una función $\phi$ que mapea los datos a algún espacio de mayor dimensionalidad donde, potencialmente, las clases serán separables por una frontera lineal. Esta situación es ilustrada en la figura \ref{fig:svm_4}\\
+
+\begin{figure}[h!]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{Kap1/svm5.png} 
+  \end{center}
+ \caption{ Utilización de una función kernel para mapear puntos que no son linealmente separables a un espacio de mayor dimensionalidad, donde pueden ser separados por un hiperplano. Créditos: Drew Wilimitis, \url{towardsdatascience.com} }
+\label{fig:svm_4}
+\end{figure}
+
+
+\begin{center}
+$\begin{aligned}
+\min\limits_{\beta, \beta_0}   \frac{1}{2} \| \beta \|^2 &+ C \sum\limits_{i=1}^N \xi_i \\
+\textrm{sujeto a} \quad  y_{i}(\phi(x_i)^T \beta + \beta_0)
+  &\geq 1 - \xi_i, i=1,\ldots,N    \\
+  \xi_i &\geq 0 \ \forall i 
+\end{aligned}
+$
+\end{center}
+
+La solución a este nuevo problema de optimización toma la forma:
+
+\begin{center}
+$\hat{f}(x) = \sum\limits_{i=1}^N \hat{\alpha_i} y_i K(x,x_i) + \hat{\beta}_0$ 
+\end{center}
+
+Donde $K(a,b) = \langle \phi(a),\phi(b) \rangle$. Nuevamente, el lector puede consultar los detalles matemáticos en \cite{statisticallearning}. Un punto clave es que la solución sólo involucra productos internos en el espacio de mayor dimensionalidad, por lo que nunca es necesario calcular el mapeo explícito de alguna instancia $x$ a $\phi(x)$. Todo lo que se requiere es definir una \textbf{función kernel} $K$ que calcule el producto interno en el espacio de mayor dimensionalidad. Las tres elecciones más populares de kernel son:
 
 \begin{itemize}
 \item \textbf{Lineal}: $K(x_i,x_j) = x_i^T x_j$
 \item \textbf{Polinomial}: $K(x_i,x_j)= (\gamma x_i^T x_j + r)^d , \ \gamma > 0$
-\item \textbf{Radial Basis Function} (RBF)\footnote{El kernel RBF, también llamado Gaussiano, puede reescribirse como $K(x_i,x_j)=\sum_{n=0}^{+\infty}\frac{(x_i.x_j)^n}{\sigma^n.n!}$. Es decir, el kernel RBF es una combinación de todos los kernels polinomiales de grado $n\geq0$. Dado que n puede ser arbitrariamente grande, decimos que el kernel Gaussiano trabaja con vectores en infinitas dimensiones.}: $K(x_i,x_j)= exp (-\gamma\left\| x_i - x_j \right\|^2  ), \ \gamma>0.$
+\item \textbf{Radial Basis Function} (RBF)\footnote{El kernel RBF, también llamado Gaussiano, puede reescribirse como $K(x_i,x_j)=\sum\limits_{n=0}^{+\infty}\frac{(x_i.x_j)^n}{\sigma^n.n!}$. Es decir, el kernel RBF es una combinación de todos los kernels polinomiales de grado $n\geq0$. Dado que n puede ser arbitrariamente grande, decimos que el kernel Gaussiano trabaja con vectores en infinitas dimensiones.}: $K(x_i,x_j)= exp (-\gamma\left\| x_i - x_j \right\|^2  ), \ \gamma>0.$
 \end{itemize}
 
-Donde $\gamma$ y $d$ son parámetros del kernel. Una vez que se han escogido los hiperparámetros necesarios, y se ha hallado el hiperplano separador óptimo, es muy sencillo realizar predicciones para nuevas instancias: se asignará una clase de acuerdo al lado del hiperplano separador en que la nueva instancia se encuentra.  \\
+Donde $\gamma$ y $d$ son parámetros del kernel.
 
-SVM es uno de los métodos de predicción con mayor sustento teórico, dado que se basa en aprendizaje estadístico o teoría VC (Vapnik-Chervonenkis). \cite{vapnik71uniform} \cite{vapnik74theory}.
+\subsubsection{Función de pérdida y regularización}
+\label{regper}
+El problema de optimización presentado en la sección anterior:
 
+\begin{center}
+$\begin{aligned}
+\min\limits_{\beta, \beta_0}   \frac{1}{2} \| \beta \|^2 &+ C \sum\limits_{i=1}^N \xi_i \\
+\textrm{sujeto a} \quad  y_{i}(\phi(x_i)^T \beta + \beta_0)
+  &\geq 1 - \xi_i, i=1,\ldots,N    \\
+  \xi_i &\geq 0 \ \forall i 
+\end{aligned}
+$
+\end{center}
+
+Puede reformularse como sigue \cite{statisticallearning} \cite{lopezmartinez2017regularization}:
+
+\begin{center}
+$
+\min\limits_{\beta, \beta_0}  \sum_{i=0}^n [1-y_i(\beta_0 + x_i^T \beta)]_+ \frac{\lambda}{2} \| \beta \|^2
+$
+\end{center}
+
+Donde el primer término de la suma es el término de pérdida (loss) y el segundo término es el término de regularización. $\lambda$ es un parámetro de regularización, relacionado a $\frac{1}{C}$ en la formulación inicial; y la función $(1-a)_+ = \max(0,1-a)$ es llamada función de pérdida de bisagra (del inglés, hinge loss function). \\
+
+El término de perdida mide cuán bien el modelo aproximará las etiquetas del conjunto de entrenamiento. Es posible utilizar una función de pérdida distinta, por ejemplo el cuadrado de la función de pérdida de bisagra. Otras funciones de pérdida pueden apreciarse en la figura \ref{fig:loss_func}. En este trabajo se usará en todos los experimentos el cuadrado de la función de bisagra como penalización. \\
+
+
+\begin{figure}[h!]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{Kap1/loss_func.png} 
+  \end{center}
+ \caption{ Gráfico de distintas funciones de pérdida. Créditos: Cagdas Ozgenc }
+\label{fig:loss_func}
+\end{figure}
+
+Por otro lado, el término de regularización impone algún tipo de penalidad sobre la complejidad del modelo. Es posible utilizar distintos tipos de norma sobre los coeficientes $\beta$ en el término de regularización (e.g. $L_1$, $L_2$). Tanto $L_1$ como $L_2$ buscan mantener los coeficientes $\beta$ cercanos a cero, aunque presentan ciertas diferencias \cite{lopezmartinez2017regularization}:
+
+\begin{itemize}
+\item $L_1$ tiene la capacidad de llevar algunos de los coeficientes $\beta_i$ al valor 0 para $\lambda$ suficientemente grande, promoviendo  soluciones $\beta$ dispersas y realizando selección de variables (ver sección \ref{seleccion_v}) de forma implícita. Una desventaja es que $L_1$ tiende a descartar atributos correlacionados, incluso cuando todos son relevantes para el problema a tratar. En otras palabras, $L_1$ falla en identificar atributos que son relevantes de forma conjunta.
+\item Contrariamente, $L_2$ no puede producir coeficientes $\beta$ dispersos, y por lo tanto no puede realizar selección de variables de forma automática. Esto implica que atributos correlacionados que no deberían ser ignorados por el modelo no serán ignorados.
+\end{itemize}
+
+En este trabajo se utilizará la penalidad $L2$ en todos los experimentos. \\
+
+Finalmente, cabe mencionar que SVM es uno de los métodos de predicción con mayor sustento teórico, dado que se basa en aprendizaje estadístico o teoría VC (Vapnik-Chervonenkis). \cite{vapnik71uniform} \cite{vapnik74theory}.
 
 \section{Antecedentes relevantes a esta tesina}
 
@@ -484,15 +693,16 @@ En primer lugar, se debe notar que ambos métodos proceden de formas radicalment
 Una primera consecuencia es que RF es inmune a \textbf{diferentes escalas} en los atributos \cite{statisticallearning}. Los datos no necesitan estar normalizados ni centrados para que RF funcione, mientras que la naturaleza geométrica de SVM implica que los distintos atributos necesariamente han de estar expresados en la misma escala \cite{svm_practical}. Más aún, las rutinas de optimización que usualmente implementan la fase de training en SVM pueden fallar en converger, o tardar significativamente más tiempo, si los datos no se encuentran escalados a [0,1] o [-1,1]
 \cite{svm_practical}. Por lo tanto, resulta vital realizar un preprocesamiento adecuado a los datos a la hora de aplicar SVM. \\ 
 
-Una segunda consecuencia es que RF puede \textbf{ignorar atrobitps que no son muy informativos} fácilmente, pues los árboles de decisión tienen un mecanismo simple para darse cuenta de que no sirven (ningún split será un buen candidato) \cite{statisticallearning}. De acuerdo a \cite{statisticallearning}, los árboles de decisión ``realizan una selección de variables internamente como una parte integral en su forma de proceder''. Ignorar atributos no informativos puede ser más complejo para SVM, pues la rutina de optimización tendrá que asignar un valor nulo a los coeficientes correspondientes en $w$. Un cierto atributo puede ser poco informativo por distintos motivos: puede haber sido incluido en el dataset pero no contener información relevante para predecir la variable target, puede ser extremadamente ruidoso, etc.  Las técnicas de selección de variables  (Feature Selection) que se aplicarán en capítulos posteriores son una forma adecuada de deshacerse de atributos no informativos, y deberían reducir el impacto de este problema en SVM. \\
+Una segunda consecuencia es que RF puede \textbf{ignorar atributos que no son muy informativos} fácilmente, pues los árboles de decisión tienen un mecanismo simple para darse cuenta de que no sirven (ningún split será un buen candidato) \cite{statisticallearning}. De acuerdo a \cite{statisticallearning}, los árboles de decisión ``realizan una selección de variables internamente como una parte integral en su forma de proceder''. Ignorar atributos no informativos puede ser más complejo para SVM, pues la rutina de optimización tendría que asignar un valor nulo a los coeficientes correspondientes en $w$. La elección del tipo de penalidad (ver sección \ref{regper}) es importante en este sentido. Un cierto atributo puede ser poco informativo por distintos motivos: puede haber sido incluido en el dataset pero no contener información relevante para predecir la variable target, puede ser extremadamente ruidoso, etc.  Las técnicas de selección de variables  (Feature Selection) que se aplicarán en capítulos posteriores son una forma adecuada de deshacerse de atributos no informativos, y podrían reducir el impacto de este problema en SVM. \\
 
-Una tercera consecuencia es que RF no se ve afectado por \textbf{atributos altamente correlacionados}, pues cada árbol de decisión se dará cuenta fácilmente de que no es informativo realizar el mismo split en dos atributos correlacionados \cite{rf_collinearity}. Por otro lado, puede ser más complejo para SVM aprender a ponderar correctamente información redundante. Por tal motivo, es interesante explorar correlaciones entre atributos y analizar el impacto de eliminar redundancias en los datos. \\
+Resulta interesante explorar la potencial presencia de \textbf{atributos altamente correlacionados}. RF puede verse negativamente afectado por este fenómeno, pues la información contenida en dos atributos altamente correlacionados tendrá mayor probabilidad de ser utilizada para realizar una división en un nodo. Por otro lado, el impacto negativo puede verse disminuido por la forma en que los árboles de decisión son construidos. El algoritmo comprenderá que, si ya se realizó un split utilizando una cierta variable, realizar el mismo split utilizando una variable altamente correlacionada probablemente no ayudará a separar las clases objetivo. Resulta interesante explorar si las SVM se ven perjudicadas por la presencia de atributos correlacionados, y analizar el impacto de eliminar tales redundancias \cite{rf_collinearity}. La elección del tipo de penalidad (ver sección \ref{regper}) es un factor a considerar en este sentido\\
 
-Otro punto a considerar es cómo manejar el \textbf{overfitting} (sobreajuste) durante la fase de training. SVM requiere una cuidadosa estimación del hiperparámetro de regularización C para controlar este fenómeno, mientras que Random Forest por su naturaleza de ensamble es inmune a sobreajustar al aumentar el número de árboles \cite{rf}. Más aún, si se utiliza un kernel con parámetros adicionales como RBF en SVM, se requiere estimar cuidadosamente otros \textbf{hiperparámetros}, por ejemplo realizando Cross Validation Grid Search \cite{svm_practical}. Contrariamente, Random Forest es considerado un método off-the-shelf \cite{offshelf}, pues suele producir buenos resultados sin una optimización de hiperparámetros meticulosa. Por lo tanto, resulta de vital importancia una cuidadosa optimización de hiperparámetros de regularización y de kernel en SVM. \\
+Otro punto a considerar es cómo manejar el \textbf{overfitting} (sobreajuste) durante la fase de training. RF requiere la estimación de \textbf{hiperparámetros}  para manejar apropiadamente el sobreajuste \cite{louppe2015understanding}, tal como el número máximo de atributos a considerar en cada nodo. Por otro lado, SVM requiere una cuidadosa estimación del hiperparámetro de regularización C, así como la elección de algún tipo de penalidad (\ref{regper}). Más aún, si se utiliza un kernel con parámetros adicionales como RBF, se requiere es
+imar cuidadosamente otros hiperparámetros \cite{svm_practical}. Contrariamente, Random Forest es considerado un método off-the-shelf \cite{offshelf}, pues suele producir buenos resultados sin una optimización de hiperparámetros tan meticulosa. Por lo tanto, resulta de vital importancia una cuidadosa optimización de hiperparámetros de regularización y de kernel en SVM. \\
 
 El marcado \textbf{imbalance de clases} presente en los datos, con aproximadamente 2000 elementos de clase negativa (no-RRL) por cada elemento de clase positiva (RRL), puede afectar negativamente el desempeño de RF y SVM. En \cite{jbc}, se determinó que corregir el imbalance de clases de estos datos mediante undersampling conduce a una pérdida de desempeño en Random Forest, siendo conveniente entrenar los modelos utilizando los datos sin balancear. Por otro lado, es posible que esto no sea cierto para SVM, dado que el imbalance de clases puede ocasionar pérdida de performance pues el hiperplano soporte elegido estará más alejado de la clase positiva, y habrá mayor cantidad de vectores soporte de la clase negativa \cite{imbalanced_svm}. Resulta por lo tanto interesante explorar diversas técnicas de undersampling y oversampling a la hora de aplicar SVM. \\
 
-La existencia de \textbf{atributos ruidosos y outliers} en los datos es de esperarse en datasets astronómicos, que pueden incluir errores de medición y observación. RF no se ve afectado por outliers, pues los árboles de decisión funcionan creando cubetas (bins) que no se ven influenciadas por valores extremos \cite{statisticallearning}. Atributos que son altamente ruidosos no serán informativos a la hora de dividir la clase objetivo, y podrán ser ignorados por los árboles de decisión. Es interesante explorar distintos preprocesamientos tendientes a limpiar o suavizar los datos a la hora de aplicar SVM, pues puede ayudar a mitigar el efecto de outliers y ruido en los datos. \\
+La existencia de \textbf{atributos ruidosos y outliers} en los datos es de esperarse en datasets astronómicos, que pueden incluir errores de medición y observación. RF no se ve afectado por outliers, pues los árboles de decisión funcionan creando cubetas (bins) que no se ven influenciadas por valores extremos \cite{statisticallearning}. Atributos que son altamente ruidosos no serán informativos a la hora de dividir la clase objetivo, y podrán ser ignorados por los árboles de decisión. Es interesante explorar distintos preprocesamientos tendientes a limpiar o suavizar los datos a la hora de aplicar SVM, pues puede ayudar a mitigar el efecto de outliers y ruido en los datos. Nótese que la función de pérdida utilizada por SVM (ver sección \ref{regper}) es menos sensible a outliers que otro tipo de funciones de pérdida, y la inclusión de regularización tratará de minimizar el valor de los coeficientes de SV, reduciendo el sobreajuste a outliers en los datos.\\
 
 La siguiente tabla resume los puntos discutidos en esta sección. Durante el resto de este trabajo, se explorará cada uno de ellos. 
 
