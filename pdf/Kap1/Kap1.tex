@@ -18,7 +18,7 @@ La astronomía está atravesando una profunda transformación debido al desarrol
 
 \par Investigaciones recientes han mostrado que algoritmos de aprendizaje automatizado basados en ensambles de árboles tienen un excelente desempeño en este tipo de tareas, en tanto que otros métodos tradicionales como Support Vector Machines parecen no ser tan efectivos \cite{elorrieta} \cite{jbc}. El objetivo de esta tesina es intentar mejorar los resultados previos en el problema de detección de RR Lyrae en la VVV utilizando Support Vector Machines, así como comprender por qué métodos basados en ensambles de árboles aparentan funcionar mejor en este tipo de datos.  \\
 
-\par Durante este trabajo se hizo uso de una amplia variedad de técnicas de aprendizaje automatizado, incluyendo diversos tipos de preprocesamiento, reducción de dimensionalidad y selección de variables, visualización de los datos y corrección de imbalance de clases. 
+\par Durante este trabajo se hizo uso de una amplia variedad de técnicas de aprendizaje automatizado, incluyendo diversos tipos de preprocesamiento, reducción de dimensionalidad y selección de atributos, visualización de los datos y corrección de imbalance de clases. 
 
 \section {Conceptos astronómicos}
 
@@ -220,7 +220,7 @@ Una alternativa para medir cuán bien $\hat{f}$ aproxima a $f$ sin necesidad de 
 \end{enumerate}
 
 \subsection{Medidas de performance en clasificación binaria}
-
+\label{metricas_binarias}
 En este trabajo estamos particularmente interesados en problemas de \textbf{clasificación binaria}, es decir, problemas de aprendizaje automatizado supervisado en los cuales el conjunto de etiquetas contiene solo dos elementos, o clases, a menudo llamados clase positiva y negativa. En el contexto de clasificación binaria, dado un modelo entrenado, cada elemento se puede clasificar en una de las siguientes cuatro categorías: \\
 
 \begin{table}[h!]
@@ -378,7 +378,7 @@ Una de las ventajas clave de los árboles de decisión binarios es su interpreta
 
 \subsubsection{Cassification And Regression Tree (CART)}
 \label{cart}
-Veamos a continuación cómo se construye un árbol de decisión utilizando el algoritmo CART. Supongamos que el problema consta de $p$ atributos de entrada y una variable de salida, y se cuenta con $N$ observaciones $(x_i,y_i)$ para $i=1,\ldots,n$, donde $x_i=(x_{i1},\ldots, x_{ip})$. El algoritmo necesita automáticamente decidir qué variables y qué valores de tales variables utilizará en cada nodo (split), así como la topología (forma) del árbol. \\
+Veamos a continuación cómo se construye un árbol de decisión utilizando el algoritmo CART. Supongamos que el problema consta de $p$ atributos de entrada y una variable de salida, y se cuenta con $N$ observaciones $(x_i,y_i)$ para $i=1,\ldots,n$, donde $x_i=(x_{i1},\ldots, x_{ip})$. El algoritmo necesita automáticamente decidir qué atributos y qué valores de tales atributos utilizará en cada nodo (split), así como la topología (forma) del árbol. \\
 
 Supongamos que tenemos una partición del dominio en M regiones $R_1, \ldots, R_M$, y modelamos la respuesta con una constante $c_m$ en cada región:
 
@@ -394,7 +394,7 @@ $\hat{c}_m = avg(y_i \ | \ x_i \in R_m)$
 
 En problemas de clasificación, puede usarse la etiqueta más frecuente (moda) de $y_i$ en la región $R_m$. \\
 
-Para encontrar la mejor partición binaria se utiliza un algoritmo greedy, buscando la variable $j$ y el valor de división $s$ que resuelve:
+Para encontrar la mejor partición binaria se utiliza un algoritmo greedy, buscando el atributo $j$ y el valor de división $s$ que resuelve:
 
 \begin{center}
 $ \min\limits_{j,s}[ \min\limits_{c_1} \sum\limits_{x_i \in R_1(j,s)} (y_i - c_1)^2 + 	\min\limits_{c_2} \sum\limits_{x_i \in R_2(j,s)} (y_i - c_2)^2  ]$
@@ -404,7 +404,7 @@ Donde $R_1(j,s) = \{ X | X_j \leq s \}$ y $R_2(j,s) = \{ X | X_j > s \}$. \\
 
 En problemas de clasificación, se utilizan otras métricas para decidir cuál es el mejor valor de corte (split), intentando incentivar la homogeneidad de la variable objetivo en los subconjuntos producidos. Dos métricas muy populares son \textit{Gini Impurity} e \textit{Information Gain} \cite{ginigain}.\\
 
-Para cada variable, determinar el mejor punto de división $s$ puede hacerse muy rápidamente y por lo tanto, escaneando todos los atributos, se puede hallar el mejor par $(j,s)$. \\
+Para cada atributo, determinar el mejor punto de división $s$ puede hacerse muy rápidamente y por lo tanto, escaneando todos los atributos, se puede hallar el mejor par $(j,s)$. \\
 
 Habiendo encontrado la mejor división, se particionan los datos en las dos regiones resultantes y se repite recursivamente el proceso de división en cada una de las dos regiones. Una cuestión a considerar es cuándo detener este proceso, pues árboles muy grandes pueden sobreajustar los datos, en tanto que árboles muy pequeños pueden no capturar la estructura del problema. La estrategia preferida es construir un árbol grande, deteniendo el proceso de división cuando una cantidad mínima de de nodos es alcanzada. Posteriormente, este árbol es \textit{podado}, reduciendo su tamaño. 
 
@@ -461,7 +461,7 @@ Bagging tiene la capacidad de reducir dramáticamente la varianza de predictores
 \begin{center}
   \includegraphics[width=0.56\textwidth]{Kap1/bootstrap_trees.png} 
 \end{center}
-\caption{ En esta imagen puede verse un árbol de decisión, en color naranja, construido a partir de un cierto dataset. Los restantes 11 árboles fueron construidos a partir de distintos bootstraps del dataset en cuestión. Nótese que la topología de los árboles y las variables utilizadas en cada nodo son notablemente distintas para cada $b$. Fuente: \protect\cite{statisticallearning} }
+\caption{ En esta imagen puede verse un árbol de decisión, en color naranja, construido a partir de un cierto dataset. Los restantes 11 árboles fueron construidos a partir de distintos bootstraps del dataset en cuestión. Nótese que la topología de los árboles y los atributos utilizadas en cada nodo son notablemente distintas para cada $b$. Fuente: \protect\cite{statisticallearning} }
 \label{fig:bootstrap_trees}
 \end{figure}
 
@@ -665,8 +665,8 @@ El término de perdida mide cuán bien el modelo aproximará las etiquetas del c
 Por otro lado, el término de regularización impone algún tipo de penalidad sobre la complejidad del modelo. Es posible utilizar distintos tipos de norma sobre los coeficientes $\beta$ en el término de regularización (e.g. $L_1$, $L_2$). Tanto $L_1$ como $L_2$ buscan mantener los coeficientes $\beta$ cercanos a cero, aunque presentan ciertas diferencias \cite{lopezmartinez2017regularization}:
 
 \begin{itemize}
-\item $L_1$ tiene la capacidad de llevar algunos de los coeficientes $\beta_i$ al valor 0 para $\lambda$ suficientemente grande, promoviendo  soluciones $\beta$ dispersas y realizando selección de variables (ver sección \ref{seleccion_v}) de forma implícita. Una desventaja es que $L_1$ tiende a descartar atributos correlacionados, incluso cuando todos son relevantes para el problema a tratar. En otras palabras, $L_1$ falla en identificar atributos que son relevantes de forma conjunta.
-\item Contrariamente, $L_2$ no puede producir coeficientes $\beta$ dispersos, y por lo tanto no puede realizar selección de variables de forma automática. Esto implica que atributos correlacionados que no deberían ser ignorados por el modelo no serán ignorados.
+\item $L_1$ tiene la capacidad de llevar algunos de los coeficientes $\beta_i$ al valor 0 para $\lambda$ suficientemente grande, promoviendo  soluciones $\beta$ dispersas y realizando selección de atributos (ver sección \ref{seleccion_v}) de forma implícita. Una desventaja es que $L_1$ tiende a descartar atributos correlacionados, incluso cuando todos son relevantes para el problema a tratar. En otras palabras, $L_1$ falla en identificar atributos que son relevantes de forma conjunta.
+\item Contrariamente, $L_2$ no puede producir coeficientes $\beta$ dispersos, y por lo tanto no puede realizar selección de atributos de forma automática. Esto implica que atributos correlacionados que no deberían ser ignorados por el modelo no serán ignorados.
 \end{itemize}
 
 En este trabajo se utilizará la penalidad $L2$ en todos los experimentos. \\
@@ -693,9 +693,9 @@ En primer lugar, se debe notar que ambos métodos proceden de formas radicalment
 Una primera consecuencia es que RF es inmune a \textbf{diferentes escalas} en los atributos \cite{statisticallearning}. Los datos no necesitan estar normalizados ni centrados para que RF funcione, mientras que la naturaleza geométrica de SVM implica que los distintos atributos necesariamente han de estar expresados en la misma escala \cite{svm_practical}. Más aún, las rutinas de optimización que usualmente implementan la fase de training en SVM pueden fallar en converger, o tardar significativamente más tiempo, si los datos no se encuentran escalados a [0,1] o [-1,1]
 \cite{svm_practical}. Por lo tanto, resulta vital realizar un preprocesamiento adecuado a los datos a la hora de aplicar SVM. \\ 
 
-Una segunda consecuencia es que RF puede \textbf{ignorar atributos que no son muy informativos} fácilmente, pues los árboles de decisión tienen un mecanismo simple para darse cuenta de que no sirven (ningún split será un buen candidato) \cite{statisticallearning}. De acuerdo a \cite{statisticallearning}, los árboles de decisión ``realizan una selección de variables internamente como una parte integral en su forma de proceder''. Ignorar atributos no informativos puede ser más complejo para SVM, pues la rutina de optimización tendría que asignar un valor nulo a los coeficientes correspondientes en $w$. La elección del tipo de penalidad (ver sección \ref{regper}) es importante en este sentido. Un cierto atributo puede ser poco informativo por distintos motivos: puede haber sido incluido en el dataset pero no contener información relevante para predecir la variable target, puede ser extremadamente ruidoso, etc.  Las técnicas de selección de variables  (Feature Selection) que se aplicarán en capítulos posteriores son una forma adecuada de deshacerse de atributos no informativos, y podrían reducir el impacto de este problema en SVM. \\
+Una segunda consecuencia es que RF puede \textbf{ignorar atributos que no son muy informativos} fácilmente, pues los árboles de decisión tienen un mecanismo simple para darse cuenta de que no sirven (ningún split será un buen candidato) \cite{statisticallearning}. De acuerdo a \cite{statisticallearning}, los árboles de decisión ``realizan una selección de atributos internamente como una parte integral en su forma de proceder''. Ignorar atributos no informativos puede ser más complejo para SVM, pues la rutina de optimización tendría que asignar un valor nulo a los coeficientes correspondientes en $w$. La elección del tipo de penalidad (ver sección \ref{regper}) es importante en este sentido. Un cierto atributo puede ser poco informativo por distintos motivos: puede haber sido incluido en el dataset pero no contener información relevante para predecir la variable target, puede ser extremadamente ruidoso, etc.  Las técnicas de selección de atributos  (Feature Selection) que se aplicarán en capítulos posteriores son una forma adecuada de deshacerse de atributos no informativos, y podrían reducir el impacto de este problema en SVM. \\
 
-Resulta interesante explorar la potencial presencia de \textbf{atributos altamente correlacionados}. RF puede verse negativamente afectado por este fenómeno, pues la información contenida en dos atributos altamente correlacionados tendrá mayor probabilidad de ser utilizada para realizar una división en un nodo. Por otro lado, el impacto negativo puede verse disminuido por la forma en que los árboles de decisión son construidos. El algoritmo comprenderá que, si ya se realizó un split utilizando una cierta variable, realizar el mismo split utilizando una variable altamente correlacionada probablemente no ayudará a separar las clases objetivo. Resulta interesante explorar si las SVM se ven perjudicadas por la presencia de atributos correlacionados, y analizar el impacto de eliminar tales redundancias \cite{rf_collinearity}. La elección del tipo de penalidad (ver sección \ref{regper}) es un factor a considerar en este sentido\\
+Resulta interesante explorar la potencial presencia de \textbf{atributos altamente correlacionados}. RF puede verse negativamente afectado por este fenómeno, pues la información contenida en dos atributos altamente correlacionados tendrá mayor probabilidad de ser utilizada para realizar una división en un nodo. Por otro lado, el impacto negativo puede verse disminuido por la forma en que los árboles de decisión son construidos. El algoritmo comprenderá que, si ya se realizó un split utilizando un cierto atributo, realizar el mismo split utilizando un atributo altamente correlacionado probablemente no ayudará a separar las clases objetivo. Resulta interesante explorar si las SVM se ven perjudicadas por la presencia de atributos correlacionados, y analizar el impacto de eliminar tales redundancias \cite{rf_collinearity}. La elección del tipo de penalidad (ver sección \ref{regper}) es un factor a considerar en este sentido\\
 
 Otro punto a considerar es cómo manejar el \textbf{overfitting} (sobreajuste) durante la fase de training. RF requiere la estimación de \textbf{hiperparámetros}  para manejar apropiadamente el sobreajuste \cite{louppe2015understanding}, tal como el número máximo de atributos a considerar en cada nodo. Por otro lado, SVM requiere una cuidadosa estimación del hiperparámetro de regularización C, así como la elección de algún tipo de penalidad (\ref{regper}). Más aún, si se utiliza un kernel con parámetros adicionales como RBF, se requiere es
 imar cuidadosamente otros hiperparámetros \cite{svm_practical}. Contrariamente, Random Forest es considerado un método off-the-shelf \cite{offshelf}, pues suele producir buenos resultados sin una optimización de hiperparámetros tan meticulosa. Por lo tanto, resulta de vital importancia una cuidadosa optimización de hiperparámetros de regularización y de kernel en SVM. \\

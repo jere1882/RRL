@@ -169,7 +169,7 @@ Hay distintos motivos por los cuales binning quantile puede estar mejorando cons
 \begin{itemize}
 \item Errores de medición: Se reduce el efecto de errores menores de observación. Es decir, se aplica un efecto de suavizado local (local smoothing) sobre los datos. Esto es razonable para datasets astronómicos, donde los instrumentos de medición que generan los datos siempre tendrán un error inherente.
 \item Manejo de outliers: Valores extremos son asignados a las cubetas de los extremos, evitando que tengan un efecto significativo sobre los parámetros del modelo.
-\item Binning tiene una cierta similitud a la forma en que los árboles de decisión funcionan: dividir una variable continua en subintervalos, eligiendo ciertos puntos de corte; y tomar decisiones dependiendo de en qué subintervalo un cierto valor está. Es posible que para nuestros datos, ciertas variables tengan un efecto particular sobre la clase objetivo a un threshold específico; y binning ayude a SVM a \textit{entender} esto con mayor facilidad, concentrándose en interacciones de alto orden entre las variables.
+\item Binning tiene una cierta similitud a la forma en que los árboles de decisión funcionan: dividir un atributo continuo en subintervalos, eligiendo ciertos puntos de corte; y tomar decisiones dependiendo de en qué subintervalo un cierto valor está. Es posible que para nuestros datos, ciertos atributos tengan un efecto particular sobre la clase objetivo a un threshold específico; y binning ayude a SVM a \textit{entender} esto con mayor facilidad, concentrándose en interacciones de alto orden entre los atributos.
 \item La distribución de probabilidad subyacente de cada atributo será convertida a una distribución uniforme.
 \end{itemize} 
 

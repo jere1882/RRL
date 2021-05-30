@@ -2,18 +2,18 @@
 \label{inspeccionando}
 En este capítulo se aplicarán distintas técnicas con el objeto de entender en mayor detalle los datos astronómicos con que estamos trabajando, así como descubrir diferentes características del problema de clasificación de RRL. Tener un mayor entendimiento de los datos que se está manipulando puede ayudar a entender por qué RF funciona mejor que SVM.
 
-\section{Importancia de variables}
+\section{Importancia de atributos}
 
-En esta sección se intentó determinar qué variables son más relevantes a la hora de clasificar RRLs. Para ello se utilizarán:
+En esta sección se intentó determinar qué atributos son más relevantes a la hora de clasificar RRLs. Para ello se utilizarán:
 \begin{itemize}
 \item Tests estadísticos univariable, como los utilizados en la sección \ref{filtros_univ}
 \item Ranking de importancia asignados por los clasificadores RF y SVM ya entrenados.
 \end{itemize} 
 
-Contemplaremos todos los atributos en esta sección, es decir, se omitirá el paso de selección de variables.
+Contemplaremos todos los atributos en esta sección, es decir, se omitirá el paso de selección de atributos.
 
 \subsection{Importancia de atributos basada en tests estadísticos}
-Se aplicaron nuevamente tests estadísticos a cada uno de los 62 atributos de los datasets, esta vez con la intención de entender qué variables son más importantes para predecir RRLs.\\
+Se aplicaron nuevamente tests estadísticos a cada uno de los 62 atributos de los datasets, esta vez con la intención de entender qué atributos son más importantes para predecir RRLs. \\
 
 Sea $x_i$ la variable aleatoria que rige el $i-$ésimo atributo de nuestro dataset ($0 \leq i < 62$), discretizado utilizando 100 bins quantile. Por lo tanto, $x_i$ es una variable aleatoria discreta para $0 \leq i < 62$. Sea $y$ la variable aleatoria discreta a predecir, que indica si una dada estrella es RRL o no. \\
 
@@ -178,7 +178,7 @@ Utilizando el mismo nivel de significación, $\chi^2$ parece ser un poco más co
 \item PairSlopeTrend
 \end{itemize}
 
-Podemos ver que ambos tests coinciden en que varios de los atributos que describen las componentes de Fourier parecen ser irrelevantes a la hora de diferenciar RRLs. Estos atributos están entre los primeros en ser eliminados en los experimentos de selección de variables (ver sección \ref{filtros_univ}) que se realizaron en el capítulo anterior, y se ha verificado que eliminarlos no reduce performance, de hecho la mejora en SVM-RBF. \\
+Podemos ver que ambos tests coinciden en que varios de los atributos que describen las componentes de Fourier parecen ser irrelevantes a la hora de diferenciar RRLs. Estos atributos están entre los primeros en ser eliminados en los experimentos de selección de atributos (ver sección \ref{filtros_univ}) que se realizaron en el capítulo anterior, y se ha verificado que eliminarlos no reduce performance, de hecho la mejora en SVM-RBF. \\
 
 \begin{figure}[h!]
 \centering
@@ -210,7 +210,7 @@ En la práctica, la forma de utilizar estos puntajes muchas veces consiste en se
 \begin{figure}[h!]
 \centering
   \includegraphics[width=1\textwidth]{Kap6/test=b278_variable_importance_ranking}
-\caption{ Ranking de variables obtenido por las métricas $\chi^2$, ANOVA F-score e información mutua calculadas para cada atributo del tile b278. En el anexo \protect\ref{indice_atributos} puede consultarse la lista completa de atributos. }
+\caption{ Ranking de atributos obtenido por las métricas $\chi^2$, ANOVA F-score e información mutua calculadas para cada atributo del tile b278. En el anexo \protect\ref{indice_atributos} puede consultarse la lista completa de atributos. }
 \label{fig:ranking_b278}
 \end{figure}
 
@@ -229,14 +229,14 @@ En la figura \ref{fig:ml_importance_b278} podemos ver la importancia (normalizad
 \label{fig:ml_importance_b278}
 \end{figure}
 
-Los rankings de variables generados por Random Forest son muy consistentes entre distintos tiles. Se puede observar que:
+Los rankings de atributos generados por Random Forest son muy consistentes entre distintos tiles. Se puede observar que:
 
 \begin{itemize}
-\item La variable más importante es \textbf{PeriodFit} seguida por \textbf{Psi\_eta}. Nótese que tanto ANOVA como mutual information consistentemente colocaban a PeriodFit como el atributo más importante y a Psi\_eta entre los 5 más importantes. Por otro lado, el ranking de $\chi^2$ posiciona a Psi\_eta con la máxima importancia pero en algunos tiles fallaba en detectar la verdadera importancia de PeriodFit.
-\item Con aproximadamente la mitad de importancia que las dos variables recién mencionadas, RF también considera importantes a Psi\_CS, c89\_jh\_color y c89\_jk\_color, n\_09\_jh\_color y n\_09\_jk\_color, y Autocor\_length. Con distintos grados de precisión, los tests estadísticos efectivamente marcan a estos atributos como relevantes para detectar RRLs.
+\item El atributo más importante es \textbf{PeriodFit} seguido por \textbf{Psi\_eta}. Nótese que tanto ANOVA como mutual information consistentemente colocaban a PeriodFit como el atributo más importante y a Psi\_eta entre los 5 más importantes. Por otro lado, el ranking de $\chi^2$ posiciona a Psi\_eta con la máxima importancia pero en algunos tiles fallaba en detectar la verdadera importancia de PeriodFit.
+\item Con aproximadamente la mitad de importancia que los dos atributos recién mencionados, RF también considera importantes a Psi\_CS, c89\_jh\_color y c89\_jk\_color, n\_09\_jh\_color y n\_09\_jk\_color, y Autocor\_length. Con distintos grados de precisión, los tests estadísticos efectivamente marcan a estos atributos como relevantes para detectar RRLs.
 \end{itemize}
 
-Por otro lado, luego de analizar a qué variables SVM-Lineal está ponderando, podemos observar que se está prestando alta atención a las variables de color (48 a 60). Se puede también observar que SVM ignora atributos clave como PeriodFit y Psi\_eta que, como ya hemos validado a través de tests estadísticos e importancia gini, son altamente informativos para detectar RRLs. \\
+Por otro lado, luego de analizar a qué atributos SVM-Lineal está ponderando, podemos observar que se está prestando alta atención a los atributos de color (48 a 60). Se puede también observar que SVM ignora atributos clave como PeriodFit y Psi\_eta que, como ya hemos validado a través de tests estadísticos e importancia gini, son altamente informativos para detectar RRLs. \\
 
 \subsection{Importancia de atributos basada en permutaciones}
 Una tercer forma de estimar la importancia de cada atributo a la hora de identificar estrellas de tipo RRL es conocida como \textit{importancia de atributos basada en permutaciones} (del inglés, permutation feature importance), y fue introducida en \cite{rf}, y posteriormente extendida en \cite{fsiher}. Esta técnica de inspección de modelos puede ser utilizada con cualquier clasificador de aprendizaje automatizado, y es especialmente útil para estimar la importancia de cada atributo al utilizar modelos no lineales u opacos (como SVM RBF). \\
@@ -262,15 +262,15 @@ Podemos observar que:
 \begin{itemize}
 \item La estimación de importancia de RF destaca los atributos 41, 40, 46, 31, 43, 61 y 10, y no se condice completamente con la obtenida utilizando la importancia Gini.
 \item La estimación de importancia de SVM Lineal se condice con la obtenida en la sección anterior utilizando el vector de coeficientes $w$. Nuevamente podemos ver que SVM Lineal considera muy importantes a los atributos de color (48-60), en tanto que considera irrelevantes a mayoría de los atributos que RF considera importantes.
-\item La estimación de importancia de SVM RBF tiene una cierta similitud a la de SVM Lineal, con la notable diferencia de que las variables de color dejan de tener importancia mayor. El hecho de no dar tanta importancia a las variables de color puede ser el motivo pro el que SVM RBF funciona mejor que SVM Lineal, dado que la importancia basada en RF y en tests estadísticos indica que los atributos de color son de importancia menor.
-\item Es interesante resaltar que algunas variables clave para SVM (10 y 39) son muy poco informativas para RF. Recíprocamente, variables clave para RF (40 y 41) no son particularmente importantes para SVM. Esto parece indicar que ambos clasificadores están haciendo uso de atributos completamente distintos para producir su decisión.
+\item La estimación de importancia de SVM RBF tiene una cierta similitud a la de SVM Lineal, con la notable diferencia de que los atributos de color dejan de tener importancia mayor. Este puede ser el motivo pro el que SVM RBF funciona mejor que SVM Lineal, dado que la importancia basada en RF y en tests estadísticos indica que los atributos de color son de importancia menor.
+\item Es interesante resaltar que algunos atributos clave para SVM (10 y 39) son muy poco informativos para RF. Recíprocamente, atributos clave para RF (40 y 41) no son particularmente importantes para SVM. Esto parece indicar que ambos clasificadores están haciendo uso de atributos completamente distintos para producir su decisión.
 \end{itemize}
 
 \section{ Análisis de correlaciones }
 
 \subsection{ Correlación entre atributos }
 
-En esta sección nos concentraremos en entender las distintas correlaciones presentes entre los atributos de nuestros datasets, sin tener en cuenta la variable a predecir. Para ello, se computó un coeficiente de correlación en $[-1,1]$ para cada par de atributos, que mide cuán fuertemente correlacionado cada par está. Un valor de $\pm 1$ indica un grado de asociación perfecto entre las variables, en tanto que valores cercanos a $0$ indican una relación más débil. El signo indica si la relación es directa o inversa.  \\
+En esta sección nos concentraremos en entender las distintas correlaciones presentes entre los atributos de nuestros datasets, sin tener en cuenta la variable a predecir. Para ello, se computó un coeficiente de correlación en $[-1,1]$ para cada par de atributos, que mide cuán fuertemente correlacionado cada par está. Un valor de $\pm 1$ indica un grado de asociación perfecto entre los atributos, en tanto que valores cercanos a $0$ indican una relación más débil. El signo indica si la relación es directa o inversa.  \\
 
 A la hora de realizar tales cálculos, es muy importante utilizar una métrica de correlación adecuada \cite{how_to_choose_correlation}. Por ejemplo, la métrica más comúnmente utilizada, el coeficiente de correlación de Pearson \cite{pagano2010understanding}, sería inadecuada para nuestros atributos, dado que requiere que ambos atributos estén distribuidos de forma normal y sean continuos. \\
 
@@ -305,7 +305,7 @@ Los bloques de atributos correlacionados más prominentes son:
 \item Los atributos que describen las amplitudes de las primeras tres componentes de Fourier de los tres primeros períodos candidatos (atributos 10-13, 17-20 y 24-27) están todos correlacionados entre sí. Esto indica que los primeros tres períodos candidatos de cada RRL son similares en amplitud.
 \end{itemize}
 
-Numéricamente, algunas de las correlaciones son extremadamente fuertes, alcanzando valores absolutos mayores a 0.99, lo cuál indica que ciertos pares de variables contienen información completamente redundante.
+Numéricamente, algunas de las correlaciones son extremadamente fuertes, alcanzando valores absolutos mayores a 0.99, lo cuál indica que ciertos pares de atributos contienen información completamente redundante.
 
 \subsection{ Eliminación de atributos correlacionados }
 
@@ -353,7 +353,7 @@ Para resumir la información de las figuras \ref{fig:svml_correlation_remove} y 
 \item A diferencia de SVM-Lineal, la performance de SVM-RBF se ve perjudicada al eliminar incluso los atributos con mayor coeficiente de correlación. 
 \end{itemize}
 
-Como conclusión de esta sección, podemos decir que la existencia de atributos altamente correlacionados no tiene un impacto negativo en la performance de los clasificadores SVM. De hecho, prescindir de los atributos más correlacionados no mejora en absoluto la performance de los clasificadores estudiados. Las correlaciones entre variables no son el motivo por el cuál SVM funciona peor que RF.
+Como conclusión de esta sección, podemos decir que la existencia de atributos altamente correlacionados no tiene un impacto negativo en la performance de los clasificadores SVM. De hecho, prescindir de los atributos más correlacionados no mejora en absoluto la performance de los clasificadores estudiados. Las correlaciones entre atributos no son el motivo por el cuál SVM funciona peor que RF.
 
 \begin{figure}[h!]
 \begin{tabular}{cc}
@@ -398,7 +398,7 @@ Un punto clave a resaltar es que las distribuciones de probabilidad que rigen al
 Se ha observado que las distribuciones de probabilidad subyacentes a cada tile son diferentes entre sí, dado que la enorme cantidad de instancias de cada tile nos garantiza que las diferencias no son por chance. Esto podría representar un gran problema para SVM por dos motivos:
 
 \begin{itemize}
-\item La performance de SVM es altamente dependiente de la elección de hiperparámetros $C$ y $\gamma$. Dado que hemos seleccionado valores para estos hiperparémtros realizando cross validation en b278, existe la posibilidad de que tales valores no generalicen muy bien al entrenar y testear con otros tiles, cuya distribución de probabilidad puede ser distinta. Lo mismo aplica a otros hiperparámetros que hemos hallado en capítulos anteriores: número de bins, atributos a eliminar en selección de variables, etcétera.
+\item La performance de SVM es altamente dependiente de la elección de hiperparámetros $C$ y $\gamma$. Dado que hemos seleccionado valores para estos hiperparémtros realizando cross validation en b278, existe la posibilidad de que tales valores no generalicen muy bien al entrenar y testear con otros tiles, cuya distribución de probabilidad puede ser distinta. Lo mismo aplica a otros hiperparámetros que hemos hallado en capítulos anteriores: número de bins, atributos a eliminar en selección de atributos, etcétera.
 \item El hiperplano separador hallado al entrenar SVM con un cierto tile puede no generalizar muy bien al testear con otro tile cuya distribución de probabilidad es distinta.
 \end{itemize}
 

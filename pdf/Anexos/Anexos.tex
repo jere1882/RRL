@@ -146,7 +146,7 @@ A continuación se enumeran todos los atributos nuevamente, así como un número
 \end{enumerate}
 \end{multicols}
 
-\chapter{Anexo B}\label{anexoB}
+\chapter{Gráficas}\label{anexoB}
 
 \section{Tests estadísticos - pvalues}
 \label{anexo_b_pvalues}
@@ -174,7 +174,7 @@ A continuación se enumeran todos los atributos nuevamente, así como un número
 
 \section{Tests estadísticos - rankings}
 \label{anexo_b_rankings}
- En esta sección se muestran los rankings de variables generados por los tests $\chi^2$ y ANOVA, así como por información mutua, complementando la figura \ref{fig:ranking_b278}.
+ En esta sección se muestran los rankings de atributos generados por los tests $\chi^2$ y ANOVA, así como por información mutua, complementando la figura \ref{fig:ranking_b278}.
  
 \begin{figure}[h!]
 \centering
@@ -249,5 +249,16 @@ En esta sección se muestran las distribuciones de probabilidad de los atributos
   \includegraphics[width=\textwidth]{Kap6/allfeatures_b360.png}
     \caption{Histogramas de frecuencia para los atributos del tile b2360}
 \end{figure}
+
+\chapter{Glosario de siglas}
+\label{glosario}
+\textbf{TP}: Número de verdaderos positivos (True positives) en un conjunto de test. Ver \ref{metricas_binarias}\\
+\textbf{TN}: Número de verdaderos negativos (True negatives) en un conjunto de test. Ver \ref{metricas_binarias}\\
+\textbf{FP}: Número de falsos positivos (False positives) en un conjunto de test. Ver \ref{metricas_binarias}\\
+\textbf{FN}: Número de falsos negativos (False negatives) en un conjunto de test. Ver \ref{metricas_binarias}\\
+\textbf{AUCPR}: Área debajo de la curva de precision-recall. Ver \ref{imbalance}.\\
+\textbf{R-AUCPR}: Área debajo de la curva de precision-recall restringida a recall [0.35,1]. Ver \ref{imbalance}. \\
+\textbf{ROC (Curva)}: (Del inglés, receiver operating characteristic). Dado un clasificador que retorna un puntaje en $[0,1]$ para cada instancia a clasificar, la curva ROC se obtiene graficando la proporción de falsos positivos ($\frac{FP}{FP+TN}$) en el eje $x$  y el recall en el eje $y$, para cada valor de corte $t$ en $[0,1]$. (análogamente a la curva de precision recall definida en la sección \ref{imbalance}).
+\textbf{AUCROC}: Area debajo de la curva ROC. \\
 
 \end{appendix}

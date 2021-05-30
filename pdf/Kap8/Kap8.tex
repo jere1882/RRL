@@ -212,7 +212,7 @@ Debido a la alta dimensionalidad de los tiles de Carpyncho, se decidió utilizar
 \item Seleccionar aleatoriamente $n$ elementos de $t_1$ y $n$ elementos de $t_2$. Descartar las viejas etiquetas a predecir (RRL o noRRL). Se combinan todos los datos en un nuevo dataset $t$. Etiquetar cada fila de $t$ con clase $1$ si proviene del $t_1$ y $0$ si proviene de $t_2$. 
 \item Dividir $t$ en un conjunto de entrenamiento (75\% de los datos) y un conjunto de test (25\% de los datos).
 \item Entrenar un clasificador RF y un clasificador de regresión logística (LR en adelante,\cite{statisticallearning}) utilizando el dataset de entrenamiento.
-\item Utilizar ambos modelos para calcular accuracy y el área debajo de la curva ROC en test. Estas métricas son apropiadas por que $t$ es un dataset completamente balanceado.
+\item Utilizar ambos modelos para calcular accuracy y el área debajo de la curva ROC\footnote{La curva ROC se define en el glosario \ref{glosario}} en test. Estas métricas son apropiadas por que $t$ es un dataset completamente balanceado.
 \end{enumerate}
 
 Algunos detalles del experimento:
@@ -230,7 +230,7 @@ La figura \ref{fig:covariate_matrix} muestra los resultados obtenidos. En trabaj
 \item El par $b261$ y $b278$ presenta la menor cantidad de covariate shift. Esto explicaría por qué las curvas $b261 \mapsto b278$ y $b278 \mapsto b261$ en la figura \ref{fig:poder_predictivo_curvas} son prácticamente idénticas.
 \item La severidad del covariate shift detectado parece ser proporcional a la distancia espacial de los tiles (ver figura \ref{fig:vvv_tiles}). De ser cierto, sería beneficioso entrenar y testear con tiles que se encuentran espacialmente cerca, siempre que sea posible.
 \item Utilizando el umbral de 0.8 AUC empleado en los trabajos previamente citados, ambos clasificadores coinciden en que todos los pares de tiles testeados se ven severamente afectados por covariate shift.
-\item Nótese que se muestra la matriz completa, en vez de mostrar sólo una matriz triangular. Esto es porque se distingue entre el tile de train y entrenamiento. El tile de train define cuáles serán los 45 atributos que se mantendrán en el experimento durante el paso de selección de variables, previo a entrenar los clasificadores. A pesar de esta diferencia, vemos que el covariate shift medido con $t1 \mapsto t2$ es prácticamente el mismo que el medido con $t2 \mapsto t1$.
+\item Nótese que se muestra la matriz completa, en vez de mostrar sólo una matriz triangular. Esto es porque se distingue entre el tile de train y entrenamiento. El tile de train define cuáles serán los 45 atributos que se mantendrán en el experimento durante el paso de selección de atributos, previo a entrenar los clasificadores. A pesar de esta diferencia, vemos que el covariate shift medido con $t1 \mapsto t2$ es prácticamente el mismo que el medido con $t2 \mapsto t1$.
 \item Obviamente, cuando el tile de entrenamiento y de testeo son el mismo resulta imposible distinguirlos, y los clasificadores tienen la misma performance que un clasificador aleatorio (accuracy del 50\%, área debajo de la curva ROC 0.5).
 \end{itemize}
 
@@ -278,9 +278,9 @@ Variaciones de los métodos recién explicados pueden consultarse en \cite{adapt
 
 Es factible aplicar los dos métodos recién descriptos a nuestro problema de clasificación de RRLs. En primer lugar, tanto RF como SVM permiten asignar un cierto peso o importancia a cada elemento de los datos de entrenamiento, lo cual posibilita el uso de importance reweighting. Hay una amplia variedad de técnicas propuestas para calcular los pesos adecuados, pero se ha decidido no aplicarlas en este trabajo para mantener la longitud del mismo acotada. Sería, sin embargo, muy interesante explorar los potenciales beneficios que se podría obtener. \\
 
-Se optó por intentar eliminar atributos que causan covariate shift, estudiando puntualmente el par de tiles $b360-b234$, pues muestra la mayor divergencia. En primer lugar, se analizó la importancia de cada variable a la hora de diferenciar entre $b360$ y $b234$. Esta importancia se obtiene a partir de los clasificadores entrenados en la sección anterior; en el caso de RF es la importancia gini y en el caso de LR se obtienede forma transparente a partir de los coeficientes asignados a cada variable \cite{molnar2019}. \\
+Se optó por intentar eliminar atributos que causan covariate shift, estudiando puntualmente el par de tiles $b360-b234$, pues muestra la mayor divergencia. En primer lugar, se analizó la importancia de cada atributo a la hora de diferenciar entre $b360$ y $b234$. Esta importancia se obtiene a partir de los clasificadores entrenados en la sección anterior; en el caso de RF es la importancia gini y en el caso de LR se obtienede forma transparente a partir de los coeficientes asignados a cada atributo \cite{molnar2019}. \\
 
-En la figura \ref{fig:covariate_ranking} se muestra, para cada atributo, la importancia obtenida por RF y LR (normalizada) a la hora de separar ambos tiles. Notar que se aplicó selección de variables previamente, por lo tanto sólo 45 atributos fueron evaluados. Los atributos están ordenados en el eje $x$ de acuerdo a su importancia para clasificar RRLs en el tile b360, de acuerdo a mutual information (ver sección \ref{experimentos_test_estadisticos}). Algunas observaciones:
+En la figura \ref{fig:covariate_ranking} se muestra, para cada atributo, la importancia obtenida por RF y LR (normalizada) a la hora de separar ambos tiles. Notar que se aplicó selección de atributos previamente, por lo tanto sólo 45 atributos fueron evaluados. Los atributos están ordenados en el eje $x$ de acuerdo a su importancia para clasificar RRLs en el tile b360, de acuerdo a mutual information (ver sección \ref{experimentos_test_estadisticos}). Algunas observaciones:
 
 \begin{itemize}
 \item Tanto RF como LR señalan mayormente a atributos de color entre los más informativos para distinguir entre b360 y b234. Es decir, los atributos de color contribuyen mucho a la presencia de covariate shift. Quizás sea necesario realizar algún tipo de preprocesamiento extra de tal forma que los datos de color sean más homogéneos entre distintos tiles.
@@ -334,7 +334,7 @@ Desafortunadamente, no se observó mejoría alguna en R-AUPRC. Esto puede debers
 En este capítulo se verificó, utilizando distancia discriminatoria, que el problema de clasificación que se aborda en esta tesina sufre de un fenómeno denominado covariate shift, en el cual las distribuciones de probabilidad de los datos de entrenamiento y de testeo son significativamente distintas. \\
 
 Si bien en la sección \ref{impacto} se verificó que esto no imposibilita hallar hiperparámetros adecuados para todos los tiles, la presencia de covariate drift se propone como una explicación razonable a la disparidad de performance en clasificación que se ve al utilizar distintos tiles de entrenamiento y testeo. \\
-
+f
 Se intentó reducir el impacto de covariate shift eliminando los atributos que más contribuyen a distinguir distintos tiles. Sin embargo, esta técnica no logró mejorar la performance de los clasificadores SVM. Es probable esto se deba a que prácticamente todos los atributos contribuyen a la disparidad entre distintos tiles, y eliminar tan solo un puñado de atributos no logrará corregir la disparidad global de los distintos tiles. Se propone el uso de técnicas más sofisticadas, como importance reweighting, como alternativas interesantes para explorar en trabajos futuros. \\
 
 Trabajos previos indican que los árboles de decisión se ven menos afectados por covariate shift que SVM. Esto se condice con el hecho de que todos los pares de tiles donde RF supera en performance a SVM estén entre aquellos que maximizan la presencia de covariate shift.

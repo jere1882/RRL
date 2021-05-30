@@ -1,29 +1,29 @@
-\chapter{Selección y extracción de variables}
+\chapter{Selección y extracción de atributos}
 
 En esta sección se aplicarán diversas técnicas para reducir la cantidad de atributos necesaria para describir cada estrella. Esta reducción se puede alcanzar de dos formas \cite{fs4}:
 
 \begin{itemize}
 
-\item \textbf{Selección de Variables} (Feature Selection): Utilizar un subconjunto de atributos del dataset original, sin transformarlos, por lo tanto manteniendo su interpretación original. Ejemplo: Filtros univariable. (Ver sección \ref{filtros_univ}).
-\item \textbf{Extracción de Variables} (Feature Extraction): Transformar los atributos originales en un nuevo conjunto de atributos, reduciendo la cantidad de atributos e intentando conservar la información relevante. Ejemplo: PCA (Ver sección \ref{PCA}).
+\item \textbf{Selección de Atributos} (Feature Selection): Utilizar un subconjunto de atributos del dataset original, sin transformarlos, por lo tanto manteniendo su interpretación original. Ejemplo: Filtros univariable. (Ver sección \ref{filtros_univ}).
+\item \textbf{Extracción de Atributos} (Feature Extraction): Transformar los atributos originales en un nuevo conjunto de atributos, reduciendo la cantidad de atributos e intentando conservar la información relevante. Ejemplo: PCA (Ver sección \ref{PCA}).
 \end{itemize} 
 
-\section{Selección de variables}
-\subsection{Introducción a selección de variables}
+\section{Selección de atributos}
+\subsection{Introducción a selección de atributos}
 \label{seleccion_v}
 
 
 En la mayoría de los problemas de clasificación con datos provenientes del mundo real, los atributos relevantes son a menudo desconocidos a priori. Usualmente, muchos atributos candidatos son introducidos con el objeto de representar el dominio lo mejor posible. Desafortunadamente, muchos de estos atributos candidatos son parcial o completamente irrelevantes o redundantes para el concepto objetivo \cite{fs2}.  \\ 
 
-Selección de variables, como ya se mencionó, consiste en elegir sólo un subconjunto de atributos de un cierto dataset, descartando los demás de acuerdo a un cierto criterio \cite{fs1}. Realizar selección de variables como un paso previo a aplicar un algoritmo de aprendizaje automatizado puede proveer varias ventajas \cite{fs3}:
+Selección de atributos, como ya se mencionó, consiste en elegir sólo un subconjunto de atributos de un cierto dataset, descartando los demás de acuerdo a un cierto criterio \cite{fs1}. Realizar selección de atributos como un paso previo a aplicar un algoritmo de aprendizaje automatizado puede proveer varias ventajas \cite{fs3}:
 
 \begin{itemize}
-\item \textbf{Desempeño}: En ciertos datasets, muchas variables no son informativas para el problema en cuestión. Al eliminar atributos irrelevantes, ruidosos o redundantes, se reduce el riesgo de sobreajuste, mejorando el desempeño del clasificador en test. Más aún, algunos algoritmos simplemente trabajan mucho mejor con menos variables. 
+\item \textbf{Desempeño}: En ciertos datasets, muchos atributos no son informativas para el problema en cuestión. Al eliminar atributos irrelevantes, ruidosos o redundantes, se reduce el riesgo de sobreajuste, mejorando el desempeño del clasificador en test. Más aún, algunos algoritmos simplemente trabajan mucho mejor con menos variables. 
 \item \textbf{Eficiencia}: Reducción en complejidad computacional y espacial.
-\item \textbf{Entendimiento}: El modelo resulta más sencillo y fácil de interpretar. Adicionalmente, muchas técnicas utilizadas para realizar selección de variables permiten en el proceso descubrir información sobre el problema, por ejemplo cuáles son las variables más importantes (Ver capítulo \ref{inspeccionando}).
+\item \textbf{Entendimiento}: El modelo resulta más sencillo y fácil de interpretar. Adicionalmente, muchas técnicas utilizadas para realizar selección de atributos permiten en el proceso descubrir información sobre el problema, por ejemplo cuáles son las variables más importantes (Ver capítulo \ref{inspeccionando}).
 \end{itemize}
 
-En este trabajo se aplicaron métodos de selección de variables de \textbf{filtrado} \cite{fs4}, que asignan un puntaje o ranking a atributos individuales o a grupos de atributos. Los \textbf{filtros univariable} asignan un puntaje a cada atributo por separado, mientras que los \textbf{filtros multivariable} evalúan subconjuntos de atributos a la vez. 
+En este trabajo se aplicaron métodos de selección de atributos de \textbf{filtrado} \cite{fs4}, que asignan un puntaje o ranking a atributos individuales o a grupos de atributos. Los \textbf{filtros univariable} asignan un puntaje a cada atributo por separado, mientras que los \textbf{filtros multivariable} evalúan subconjuntos de atributos a la vez. 
 
 \subsection{Filtros univariable}
 
@@ -37,7 +37,7 @@ En este trabajo se experimentó únicamente con filtros univariable, los cuales 
 \item \textbf{mutual\_info}: Calcula la información mútua  \cite{han2012mining} entre dos variables aleatorias, la cuál es una medida de la reducción en incertidumbre para una variable aleatoria suponiendo que se conoce el valor de la otra. Intuitivamente, mide cuánta información una variable aleatoria contiene sobre otra. La implementación provista por sklearn hace uso de modelos no paramétricos basados en estimar la entropía de distancias de KNN (K vecinos más cercanos), tal y como se describe en \cite{mutual_info}. Este test es capaz de medir correlaciones no necesariamente lineares.
 \end{itemize}
 
-Nótese que en este trabajo no se han aplicado filtros multivariable. Es perfectamente posible que una cierta variable sea inútil en sí misma pero provea un aumento significativo en performance al ser utilizada con otras \cite{fs3}. Sin embargo, los filtros multivariable son computacionalmente mucho más costosos y muestran tendencia a sobreajustar, por lo que se decidió no aplicarlos. 
+Nótese que en este trabajo no se han aplicado filtros multivariable. Es perfectamente posible que un cierto atributo sea inútil en sí mismo pero provea un aumento significativo en performance al ser utilizado con otros \cite{fs3}. Sin embargo, los filtros multivariable son computacionalmente mucho más costosos y muestran tendencia a sobreajustar, por lo que se decidió no aplicarlos. 
 
 \subsection{Experimentos en SVM-Lineal}
 
@@ -46,7 +46,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \begin{itemize}
 \item El aumento en R-AUPRC es muy modesto o nulo. Los filtros utilizados no tienen un impacto positivo significativo en el desempeño de nuestro clasificador.
 \item Hay aproximadamente 20 atributos que no contribuyen a mejorar el desempeño en clasificación usando SVM-L, pues eliminarlos no empeora las curvas de precision-recall significativamente. Se puede obtener una reducción importante en tiempo de entrenamiento y memoria eliminándolos. En la figura \ref{fig:svml_univariate_unified} se puede apreciar, al ver todas las curvas juntas, que el R-AUPRC deja de mejorar para $k\geq40$ (i.e., las curvas tienden a aplanarse).
-\item Los ranking de variables provistos por $f\_classif$ y $mutual\_info$ producen curvas consistentes. Ninguno de los dos filtros parece ser notablemente superior al otro. Nótese, sin embargo, que si se decide seleccionar un número muy pequeño de atributos ($k\leq5$), $mutual\_info$ produce mejores resultados. Esto es irrelevante para nuestra aplicación, dado que los valores de R-AUPRC para $k$ tan pequeños son muy inferiores a la base de referencia.
+\item Los ranking de atributos provistos por $f\_classif$ y $mutual\_info$ producen curvas consistentes. Ninguno de los dos filtros parece ser notablemente superior al otro. Nótese, sin embargo, que si se decide seleccionar un número muy pequeño de atributos ($k\leq5$), $mutual\_info$ produce mejores resultados. Esto es irrelevante para nuestra aplicación, dado que los valores de R-AUPRC para $k$ tan pequeños son muy inferiores a la base de referencia.
 \end{itemize}
 
 \begin{figure}[h!]
@@ -57,7 +57,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b278test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b278test=b261} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b360test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_METHODS_train=b360test=b278} 
 \end{tabular}
-\caption{Aplicación de filtros univariable en SVM-Lineal. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con los $k$ atributos de mayor puntaje. La línea roja punteada es la performance de SVM sin usar selección de variables.}
+\caption{Aplicación de filtros univariable en SVM-Lineal. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con los $k$ atributos de mayor puntaje. La línea roja punteada es la performance de SVM sin usar selección de atributos.}
 \label{fig:svml_univariate}
 \end{figure}
 
@@ -70,7 +70,7 @@ En la figura \ref{fig:svml_univariate} se encuentran los resultados de aplicar f
 \label{fig:svml_univariate_unified}
 \end{figure}
 
-Para elegir un valor óptimo de $k$ de forma analítica, se decidió calcular cuánto mejora (o empeora) el R-AUPRC para cada valor de $k$ respecto a no utilizar selección de variables. Dado que este análisis se realizó sobre 8 pares de tiles, en la figura \ref{fig:optimal_k_svml} se muestra el promedio de la diferencia entre el R-AUPRC utilizando k atributos y la base de referencia. Adicionalmente, en color naranja, se muestra la diferencia obtenida por aquel par de tiles que menos se beneficia para cada valor de $k$. \\
+Para elegir un valor óptimo de $k$ de forma analítica, se decidió calcular cuánto mejora (o empeora) el R-AUPRC para cada valor de $k$ respecto a no utilizar selección de atributos. Dado que este análisis se realizó sobre 8 pares de tiles, en la figura \ref{fig:optimal_k_svml} se muestra el promedio de la diferencia entre el R-AUPRC utilizando k atributos y la base de referencia. Adicionalmente, en color naranja, se muestra la diferencia obtenida por aquel par de tiles que menos se beneficia para cada valor de $k$. \\
 
 Esta gráfica nos permite entender qué valores de $k$ son más convenientes, o al menos no incurren en grandes pérdidas de R-AUPRC. Las conclusiones finales son:
 
@@ -108,7 +108,7 @@ En la figura \ref{fig:svmk_univariate} se encuentran los resultados de aplicar f
 \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b278test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b278test=b261} 
  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b360test=b234}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_METHODS_train=b360test=b278} 
 \end{tabular}
-\caption{Aplicación de filtros univariable en SVM-RBF. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con los $k$ atributos de mayor puntaje. La línea roja punteada es la performance de SVM sin usar selección de variables.}
+\caption{Aplicación de filtros univariable en SVM-RBF. Para cada par de tiles, se calcula el R-AUPRC de la curva de precision-recall en test obtenida entrenando con los $k$ atributos de mayor puntaje. La línea roja punteada es la performance de SVM sin usar selección de atributos.}
 \label{fig:svmk_univariate}
 \end{figure}
 
@@ -125,7 +125,7 @@ Nuevamente, resulta complicado determinar el número óptimo de atributos a sele
 
 \begin{itemize}
 \item Seleccionar $35 \leq k \leq 55$ atributos de acuerdo al ranking de $mutual\_info$ permite mejorar el R-AUPRC respecto a la base de referencia en \textit{todos} los pares testeados. En particular, $k=45$ maximiza la mínima diferencia y el promedio.
-\item Seleccionar variables de acuerdo al criterio $f\_classif$ es menos beneficioso, pues existen pocos valores de $k$ para los cuales el R-AUPRC no empeora en ningún par de tiles testeado; y la mejora es un poco más modesta que la observada utilizando $mutual\_info$. Esto puede deberse a que $f\_classif$ es incapaz de detectar correlaciones no lineales, y puede estar causando el descarte prematuro de variables que resultan útiles a SVM-RBF para detectar RRLs.
+\item Seleccionar atributos de acuerdo al criterio $f\_classif$ es menos beneficioso, pues existen pocos valores de $k$ para los cuales el R-AUPRC no empeora en ningún par de tiles testeado; y la mejora es un poco más modesta que la observada utilizando $mutual\_info$. Esto puede deberse a que $f\_classif$ es incapaz de detectar correlaciones no lineales, y puede estar causando el descarte prematuro de atributos que resultan útiles a SVM-RBF para detectar RRLs.
 \end{itemize}
 
 \begin{figure}[h!]
@@ -137,16 +137,16 @@ Nuevamente, resulta complicado determinar el número óptimo de atributos a sele
 \label{fig:optimal_k_svmk}
 \end{figure}
 
-\section{Extracción de variables}
+\section{Extracción de atributos}
 
-\subsection{Introducción a extracción de variables}
+\subsection{Introducción a extracción de atributos}
 
 Consideremos un cierto fenómeno gobernado por $L$ variables independientes. En la práctica, este fenómeno probablemente aparentará tener muchos más grados de libertad, debido a la influencia de factores como ruido, imperfección en el sistema de mediciones, adición de atributos irrelevantes, etcétera. Se define la \textbf{dimensión intrínseca} de un fenómeno como el \textit{número de variables independientes que explica satisfactoriamente ese 
 fenómeno}\cite{carreira}. \\
 
-Dado un dataset $X$ con $d$ atributos numéricos, extracción de variables consiste en hallar un mapeo $\mathds{R}^d \mapsto \mathds{R}^p$ con $p \leq d$; donde idealmente $p$ será la dimensionalidad intrínseca de X. Este mapeo es utilizado para encontrar una representación más compacta de $X$ sin perder información \cite{fextraction}. Al igual que en selección de variables, se espera obtener un beneficio en términos de desempeño y eficiencia. Adicionalmente, los datos pueden ser más fáciles de visualizar o separar en el nuevo espacio. \\
+Dado un dataset $X$ con $d$ atributos numéricos, extracción de atributos consiste en hallar un mapeo $\mathds{R}^d \mapsto \mathds{R}^p$ con $p \leq d$; donde idealmente $p$ será la dimensionalidad intrínseca de X. Este mapeo es utilizado para encontrar una representación más compacta de $X$ sin perder información \cite{fextraction}. Al igual que en selección de atributos, se espera obtener un beneficio en términos de desempeño y eficiencia. Adicionalmente, los datos pueden ser más fáciles de visualizar o separar en el nuevo espacio. \\
 
-Los métodos de extracción de variables pueden clasificarse en dos tipos \cite{fextraction}: 
+Los métodos de extracción de atributos pueden clasificarse en dos tipos \cite{fextraction}: 
 \begin{itemize}
 \item \textbf{Supervisados}: Tienen en cuenta las etiquetas (clases) de cada instancia a proyectar.
 \item \textbf{No supervisados}: No tienen en cuenta la separación entre clases, y se concentran principalmente en la variación y distribución de los datos.
@@ -156,9 +156,18 @@ Los métodos de extracción de variables pueden clasificarse en dos tipos \cite{
 
 \label{PCA}
 
-En esta sección se describirá un método de extracción de variables no supervizado muy popular: Principal Component Analysis (PCA) \cite{han2012mining}. \\
+En esta sección se describirá un método de extracción de atributos no supervizado muy popular: Principal Component Analysis (PCA) \cite{han2012mining}. \\
 
-Supongamos que se desea reducir la cantidad de variables de un dataset $X$ descripto por $p$ atributos. Se definen las \textbf{componentes principales} de $X$ como la secuencia de $p$ vectores unitarios, donde el $i$-ésimo vector es la dirección que mejor ajusta los datos en tanto que es ortogonal a los primeros $i-1$ vectores. En este contexto, la dirección o línea que mejor ajusta los datos es definida como aquella que minimiza la distancia cuadrada promedio de todos los puntos a la línea. \\
+A grandes rasgos, PCA consiste en entender cuáles son las direcciones más importantes de nuestros datos (i.e., las direcciones donde hay mayor variabilidad). Luego se transforman los datos, alineándolos a estas direcciones importantes. Finalmente, las direcciones menos importantes pueden ser eliminadas. Este proceso se ilustra en la figura \ref{fig:pca_silly} \\
+
+\begin{figure}[h!]
+\centering
+  \includegraphics[width=\textwidth]{Kap5/pca_example_silly.jpg}
+\caption{Ejemplo de PCA. En la figura (a) se muestra un dataset en tres dimensiones. En la figura (b) se identifican las tres direcciones (perpendiculares entre sí) con mayor variabilidad. En la figura (c) se  alinean los datos con las direcciones de mayor variabilidad, y se elimina la componente con menor variabilidad. Como consecuencia, la dimensionalidad de los datos se redujo en 1. Fuente: \url{cnx.org}}
+\label{fig:pca_silly}
+\end{figure}
+
+Supongamos que se desea reducir la cantidad de atributos de un dataset $X$ descripto por $p$ atributos. Se definen las \textbf{componentes principales} de $X$ como la secuencia de $p$ vectores unitarios, donde el $i$-ésimo vector es la dirección que mejor ajusta los datos en tanto que es ortogonal a los primeros $i-1$ vectores. En este contexto, la dirección o línea que mejor ajusta los datos es definida como aquella que minimiza la distancia cuadrada promedio de todos los puntos a la línea. \\
 
 Estas direcciones constituyen una base ortonormal en la cual las distintas dimensiones individuales están linealmente decorrelacionadas.  Equivalentemente, la $i$-ésima componente principal puede ser definida como la dirección ortogonal a las primeras $i-1$ componentes principales que maximiza la varianza de los datos proyectados. En la figura \ref{fig:pca} se puede ver un ejemplo ilustrativo.  \\
 
@@ -185,7 +194,7 @@ Podemos ver que el uso de PCA tiene un efecto muy dispar en distintos pares de t
 \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_INDIVIDUAL_CURVES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de PCA a SVM Lineal. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa la base de referencia de SVM, obtenido sin utilizar extracción de variables. La línea verde punteada representa la performance de RF.}
+\caption{Aplicación de PCA a SVM Lineal. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa la base de referencia de SVM, obtenido sin utilizar extracción de atributos. La línea verde punteada representa la performance de RF.}
 \label{fig:pca_l}
 \end{figure}
 
@@ -199,13 +208,13 @@ Podemos ver que el uso de PCA tiene un efecto muy dispar en distintos pares de t
 \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_INDIVIDUAL_CURVES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de PCA a SVM RBF. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el R-AUPRC de SVM-RBF obtenido sin utilizar extracción de variables. La línea verde punteada representa la performance de RF.}
+\caption{Aplicación de PCA a SVM RBF. Para cada par de tiles, se muestra el R-AUPRC obtenido al entrenar y testear usando las primeras $k$ componentes principales. La línea punteada roja representa el R-AUPRC de SVM-RBF obtenido sin utilizar extracción de atributos. La línea verde punteada representa la performance de RF.}
 \label{fig:pca_k}
 \end{figure}
 
-\subsection{Clustering de variables}
+\subsection{Clustering de atributos}
 
-En esta sección se aplicó un último método de extracción de variables no supervisado, llamado \textbf{clustering de variables}. En primer lugar, se introducirán brevemente algunos conceptos de aprendizaje automatizado no supervisado para poder describir esta técnica. \\
+En esta sección se aplicó un último método de extracción de atributos no supervisado, llamado \textbf{clustering de atributos}. En primer lugar, se introducirán brevemente algunos conceptos de aprendizaje automatizado no supervisado para poder describir esta técnica. \\
 
 Dado un dataset no etiquetado $X$ con $n$ elementos, la tarea de \textbf{clustering} \cite{Jain88} consiste en dividir los $n$ objetos en grupos, de tal forma que todos los objetos en un mismo grupo (\textit{cluster}) son más similares (en algún sentido) a aquellos que están en otros grupos (\textit{clusters}). \\
 
@@ -227,31 +236,31 @@ Los algoritmos de clustering jerárquico generalmente se dividen en dos grandes 
 \item \textbf{Divisivos} (Top-down):  Todos los elementos del dataset comienzan en un mismo cluster, y divisiones son realizadas recursivamente.
 \end{itemize}
 
-En esta sección nos concentraremos en algoritmos de clustering jerárquico aglomerativos, que iterativamente combinan el par de clusters que minimiza una cierta métrica de disimilitud \cite{clustering}. En este experimento se utilizaron las siguientes métricas de disimilitud:
+En esta sección nos concentraremos en algoritmos de clustering jerárquico aglomerativos, que iterativamente combinan el par de clusters que minimiza una cierta métrica de disimilitud \cite{clustering}. En este experimento se utilizaron las siguientes estrategias para definir los clusters:
 
 \begin{itemize}
-\item \textbf{Single linkage}: La distancia mínima entre pares de puntos, uno en cada cluster \cite{iretrieval}. Esta métrica busca conectividad, no grupos compactos.   
+\item \textbf{Single linkage}: La distancia euclídea mínima entre pares de puntos, uno en cada cluster \cite{iretrieval}. Esta métrica busca conectividad, no grupos compactos.   
 
-\item \textbf{Complete linkage}: La distancia máxima entre pares de puntos, uno en cada cluster \cite{iretrieval}. Intuitivamente, esta métrica busca agrupar conjuntos \textit{completamente vecinos}, formando clusters compactos. 
+\item \textbf{Complete linkage}: La distancia euclídea máxima entre pares de puntos, uno en cada cluster \cite{iretrieval}. Intuitivamente, esta métrica busca agrupar conjuntos \textit{completamente vecinos}, formando clusters compactos. 
 
-\item \textbf{Average linkage}: Promedio de las distancias entre todas las observaciones de pares de clusters \cite{iretrieval}. Esta métrica busca grupos conectados y compactos.
+\item \textbf{Average linkage}: Promedio de las distancias euclídea entre todas las observaciones de pares de clusters \cite{iretrieval}. Esta métrica busca grupos conectados y compactos.
 
-\item \textbf{Ward}: Minimiza la suma de las diferencias cuadradas dentro de todos los clusters \cite{ward}. Es un enfoque que busca minimizar la varianza.
+\item \textbf{Ward}: Minimiza la suma de las diferencias euclídeas cuadradas dentro de todos los clusters \cite{ward}. Es un enfoque que busca minimizar la varianza.
 \end{itemize}
 
-En la figura \ref{fig:linkages} se pueden observar los clusters generados por las cuatro métricas explicadas en tres datasets ilustrativos. \\
+En la figura \ref{fig:linkages} se pueden observar los clusters generados por las cuatro estrategias explicadas en tres datasets ilustrativos. \\
 
 \begin{figure}[h!]
  \includegraphics[width=\textwidth]{Kap5/jerarquico_tecnicas.png}
-\caption{Efecto de distintas métricas de similitud en clustering jerárquico. Imagen tomada de la documentación oficial de Sklearn.}
+\caption{Efecto de distintas estrategias en clustering jerárquico. Imagen tomada de la documentación oficial de Sklearn.}
 \label{fig:linkages}
 \end{figure}
 
-En esta sección se aplicó clustering para combinar atributos, en lugar de elementos de un dataset. En clustering aglomerativo estándar, el algoritmo recibe un dataset con $n$ elementos descriptos por $m$ atributos representado por una matriz $M \in \mathbf{R}^{n \times m}$. En \textbf{clustering de variables} (feature agglomeration, en inglés) \cite{fs3}, el algoritmo de clustering aglomerativo simplemente recibe como argumento la transpuesta del dataset, $M^T$, e intentará combinar atributos que se comportan de forma similar, reemplazándolos por el centroide del cluster\footnote{Usualmente se utiliza el promedio, aunque se podría una función arbitraria (llamada \textit{pooling function}) para definir cómo unificar clusters }. \\
+En esta sección se aplicó clustering para combinar atributos, en lugar de elementos de un dataset. En clustering aglomerativo estándar, el algoritmo recibe un dataset con $n$ elementos descriptos por $m$ atributos representado por una matriz $M \in \mathbf{R}^{n \times m}$. En \textbf{clustering de atributos} (feature agglomeration, en inglés) \cite{fs3}, el algoritmo de clustering aglomerativo simplemente recibe como argumento la transpuesta del dataset, $M^T$, e intentará combinar atributos que se comportan de forma similar, reemplazándolos por el centroide del cluster\footnote{Usualmente se utiliza el promedio, aunque se podría una función arbitraria (llamada \textit{pooling function}) para definir cómo unificar clusters }. \\
 
 Los resultados de estos experimentos pueden verse en las figuras \ref{fig:agg_l} y \ref{fig:agg_k} para SVM lineal y SVM RBF respectivamente. Las curvas generadas son notablemente similares a las obtenidas utilizando PCA. \\
 
-La métrica de disimilaridad utilizada para hallar clústers no tiene un gran impacto en las curvas generadas. Al igual que en PCA, utilizar clustering de variables produce aumentos muy interesantes de R-AUPRC en ciertos pares de tiles y desmejorías notables en otros; es por esto que se decidió no utilizar esta técnica en secciones posteriores.
+La estrategia utilizada para hallar clústers no tiene un gran impacto en las curvas generadas. Al igual que en PCA, utilizar clustering de atributos produce aumentos muy interesantes de R-AUPRC en ciertos pares de tiles y desmejorías notables en otros; es por esto que se decidió no utilizar esta técnica en secciones posteriores.
 
 \begin{figure}[h!]
 \begin{tabular}{cccc}
@@ -263,7 +272,7 @@ La métrica de disimilaridad utilizada para hallar clústers no tiene un gran im
 \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/linear_ALL_LINKAGES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de clustering de variables a SVM Lineal}
+\caption{Aplicación de clustering de atributos a SVM Lineal}
 \label{fig:agg_l}
 \end{figure}
 
@@ -277,7 +286,7 @@ La métrica de disimilaridad utilizada para hallar clústers no tiene un gran im
 \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b278test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b278test=b261.png} 
  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b360test=b234.png}  \includegraphics[width=0.25\textwidth]{Kap5/rbf_ALL_LINKAGES_train=b360test=b278.png} 
 \end{tabular}
-\caption{Aplicación de clustering de variables a SVM RBF}
+\caption{Aplicación de clustering de atributos a SVM RBF}
 \label{fig:agg_k}
 \end{figure}
 
@@ -285,7 +294,7 @@ La métrica de disimilaridad utilizada para hallar clústers no tiene un gran im
 \label{mejores_fs}
 En este capítulo se han explorado distintas técnicas para reducir la dimensionalidad de los datos. Ninguna de las técnicas estudiadas tuvo un impacto pronunciado en las curvas de precision-recall, por lo que la aplicación de estos métodos tiene sentido principalmente para reducir la complejidad temporal y espacial de nuestros clasificadores. \\
 
-Dado que las técnicas de extracción de variables probaron generar resultados bastante inestables, se decidió preferir el uso de selección de variables (filtros univariable) en el resto de este trabajo. En base a los valores graficados en las figuras \ref{fig:optimal_k_svml} y \ref{fig:optimal_k_svmk}, se decidió optar por aquellos hiperparámetros que maximizan la ganancia promedio en R-AUPRC, sujeto a no empeorar significativamente la performance en ningún par de tiles.
+Dado que las técnicas de extracción de atributos probaron generar resultados bastante inestables, se decidió preferir el uso de selección de atributos (filtros univariable) en el resto de este trabajo. En base a los valores graficados en las figuras \ref{fig:optimal_k_svml} y \ref{fig:optimal_k_svmk}, se decidió optar por aquellos hiperparámetros que maximizan la ganancia promedio en R-AUPRC, sujeto a no empeorar significativamente la performance en ningún par de tiles.
 
 \begin{itemize}
 \item Seleccionar los 48 atributos más importantes de acuerdo a $mutual\_info$ en SVM-Lineal.
@@ -313,7 +322,7 @@ b360                & b234               & 0.42        & 0.26                  &
 b360                & b261               & 0.54        & 0.41                  & 0.41                  & -0.01         \\ \hline
 \multicolumn{2}{|c|}{avg}                & 0.38        & 0.29                  & 0.29                  & 0             \\ \hline
 \end{tabular}
-\caption{En esta tabla podemos ver el incremento nulo en R-AUPRC que se obtiene al utilizar selección de variables en SVM-Lineal. }
+\caption{En esta tabla podemos ver el incremento nulo en R-AUPRC que se obtiene al utilizar selección de atributos en SVM-Lineal. }
 \label{tab:fs_comparison_l} 
 \end{table}
 
@@ -336,6 +345,6 @@ b360                & b234               & 0.42        & 0.30                   
 b360                & b261               & 0.54        & 0.45                    & 0.45                    & 0.00          \\ \hline
 \multicolumn{2}{|c|}{avg}                & 0.38        & 0.31                    & 0.33                   & {\color[HTML]{009901} .02}          \\ \hline
 \end{tabular}
-\caption{En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar selección de variables en SVM-RBF. }
+\caption{En esta tabla podemos ver el incremento en R-AUPRC que se obtiene al utilizar selección de atributos en SVM-RBF. }
 \label{tab:fs_comparison_r} 
 \end{table}
