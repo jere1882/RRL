@@ -48,7 +48,7 @@ def explore_rbf_potential(train="b278",test="b234",kernel="rbf"):
             p,r,t = metrics.precision_recall_curve(yt,decs)
 
             precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             scores[(c,gamma)] = auc(recall_interpolated, precision_interpolated)
 
@@ -98,7 +98,7 @@ def get_pr_curve(train="b278",test="b234",c=0.1,gamma=0.1,kernel="rbf"):
             pickle.dump(scores,s_file)
 
         precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         print("AUC=",auc(recall_interpolated, precision_interpolated))
             
@@ -206,7 +206,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         (p,r) = get_pr_curve(train,test,opt_c,opt_g,"svmk")
 
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         print("SVM-OPT-AUC", auc(recall_interpolated, precision_interpolated))
 
@@ -217,7 +217,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
             curves = pickle.load(input_file)
         p,r = curves["svmk"]
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         print("SVM-NO-OPT-AUC", auc(recall_interpolated, precision_interpolated))
         ax.plot(r,p, label="RBF SVM",color='#2ca02c' )
@@ -734,7 +734,7 @@ def plot_remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b3
     for i in results.keys():
         (p,r) = results[i]
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         aucs[i+1] = auc(recall_interpolated, precision_interpolated)
         

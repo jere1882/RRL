@@ -28,7 +28,7 @@ def explore_nu_svc(train="b234",test="b278"):
     ax.plot(r,p,linewidth=3,label="Random Forest")
     
     precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-    recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+    recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
     precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
     robust_auc_rf = auc(recall_interpolated, precision_interpolated)
     ############################
@@ -55,7 +55,7 @@ def explore_nu_svc(train="b234",test="b278"):
             p,r,t = metrics.precision_recall_curve(yt,decs)
 
             precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             scores[nu] = auc(recall_interpolated, precision_interpolated)
             print("auc=",scores[nu])
@@ -100,7 +100,7 @@ def explore_nu_svc(train="b234",test="b278"):
         p,r,t = metrics.precision_recall_curve(yt,decs)
 
         precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         scores[c] = auc(recall_interpolated, precision_interpolated)
         

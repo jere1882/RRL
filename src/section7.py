@@ -66,7 +66,7 @@ def univariate_selection_experiment(train="b234",test="b278",method="f_classif",
         test_predictions = clf.decision_function(Xt)
         p, r, t = metrics.precision_recall_curve(yt, test_predictions)
         precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         robust_auc = auc(recall_interpolated, precision_interpolated)
         curves[i] = (p,r)      
@@ -123,7 +123,7 @@ def calculate_aucs_univariate_selection(train="b234",test="b278",method="f_class
     for i in range(0,nfeatures):
         p,r = curves[i]
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         robust_auc = auc(recall_interpolated, precision_interpolated)     
         scores[nfeatures-i] = robust_auc
@@ -372,7 +372,7 @@ def generate_pca_plots(train="b278",test="b234",kernel="linear"):
     for i in range(0,nfeatures):
         p,r = curves[i]
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         robust_auc = auc(recall_interpolated, precision_interpolated)     
         scores[nfeatures-i] = robust_auc
@@ -500,7 +500,7 @@ def generate_feature_agglomeration_individual_subplot(train="b278",test="b234",l
     for i in range(0,nfeatures):
         p,r = curves[i]
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         robust_auc = auc(recall_interpolated, precision_interpolated)     
         scores[nfeatures-i] = robust_auc
@@ -687,7 +687,7 @@ def generate_test_performance_data_fs_subplots():
 
             #p,r = curves["rf"]
             #precision_fold, recall_fold = p[::-1], r[::-1]
-            #recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            #recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             #precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             #robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("rf",train,test)] = 0# robust_auc
@@ -695,7 +695,7 @@ def generate_test_performance_data_fs_subplots():
 
             p,r = curves["svml"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("svml",train,test)] = robust_auc
@@ -703,7 +703,7 @@ def generate_test_performance_data_fs_subplots():
             
             p,r = curves["svmk"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("svmk",train,test)] = robust_auc

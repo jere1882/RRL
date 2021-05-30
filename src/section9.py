@@ -45,7 +45,7 @@ def calculate_undersampling_performance(train="b278",test="b234",kernel="linear"
         decs  = clf.decision_function(Xt)
         p,r,t = metrics.precision_recall_curve(yt,decs)
         precision_fold, recall_fold = p[::-1], r[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         robust_auc = auc(recall_interpolated, precision_interpolated)
 
@@ -265,7 +265,7 @@ def oversampling_generate_data(train="b278",test="b234",method="naive",kernel="l
             decs  = clf.decision_function(Xt)
             p,r,t = metrics.precision_recall_curve(yt,decs)
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)
             scores[i] = (p,r,robust_auc)
@@ -502,7 +502,7 @@ def class_weight(test="b278",train="b234",kernel="linear"):
         p,r,t = metrics.precision_recall_curve(yt,decs)
         
         precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+        recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         robust_auc = auc(recall_interpolated, precision_interpolated)
         scores[i]=(p,r,robust_auc)
@@ -745,7 +745,7 @@ def generate_test_performance_data_imb_subplots():
                 
             p,r = rf_curves["rf"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("rf",train,test)] = robust_auc
@@ -758,7 +758,7 @@ def generate_test_performance_data_imb_subplots():
                 
             p,r = curves["svml"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("svml",train,test)] = robust_auc
@@ -769,7 +769,7 @@ def generate_test_performance_data_imb_subplots():
                 curves = pickle.load(input_file)
             p,r = curves["svmk"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("svmK",train,test)] = robust_auc

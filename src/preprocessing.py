@@ -1,12 +1,43 @@
-exec(open("/home/jere/Dropbox/University/Tesina/src/src/section1+2+3.py").read())
+"""
+PREPROCESSING EXPERIMENTS 
+Chapter 4 of the master's thesis
 
-results_folder_preproces = "/home/jere/Desktop/preprocessing/"
+Description: 
 
-################################################### ESTANDARIZACION ################################################################
+- Carry out expriments using a wide variety of nomalization and scaling
+  techniques in order to see if the AUC improves
+- Try using discretization techniques such as binning
+- Try using sklearn's PowerTransformer and QuantileTransformer:
+
+Usage:
+
+	preprocessing.py carpyncho_path output_path
+
+See: https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing
+"""
+
+import model_selection
+
+CARPYNCHO_LOCAL_FOLDER    = sys.argv[1]     # "/home/jere/carpyncho/"
+EXPERIMENTS_OUTPUT_FOLDER_PR = sys.argv[2] # "/home/jere/Desktop/preprocessing/"
+CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
+
+######################## Standardization ########################
 
 def generate_scales_svm_data(train="b278",test="b234",kernel="linear"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
+    """ 
+    Estimate the performance of SVM when trained in tile @p train and tested in tile @test,
+    using kernel @p kernel and different standarization techiques. Persist the results in 
+    pickle format.
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    """
+    X,y = CARPYNCHO.retrieve_tile(train,"full")
+    Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
 
     curves = {}
@@ -70,15 +101,21 @@ def generate_scales_svm_data(train="b278",test="b234",kernel="linear"):
     plt.ylabel('precision')
     plt.title('train ' + str(train) + '- test '+str(test))
 
-    with open(results_folder_preproces+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'wb') as output:
         pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
-
-    plt.savefig(results_folder_preproces+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 
 def generate_figure_5_subplot(train="b278",test="b234",kernel="linear"):
-        
-    with open(results_folder_preproces+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'rb') as output:
+    """     
+    Plot the precision-recall curves of SVM + different stantarization techniques
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    """
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-Estandarizaciones-train='+train+ "test="+test+".pkl", 'rb') as output:
         curves = pickle.load(output)      
 
     fig, ax = plt.subplots()
@@ -105,7 +142,7 @@ def generate_figure_5_subplot(train="b278",test="b234",kernel="linear"):
         leg = ax.legend()
         
     plt.title('train ' + str(train) + '- test '+str(test))
-    plt.savefig(results_folder_preproces+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-Estandarizaciones-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 
 def generate_figure_5_data(kernel):
@@ -113,37 +150,46 @@ def generate_figure_5_data(kernel):
     generate_scales_svm_data("b234","b261",kernel)
     generate_scales_svm_data("b261","b360",kernel)
     generate_scales_svm_data("b360","b278",kernel)
-    #generate_scales_svm_data("b278","b261",kernel)
-    #generate_scales_svm_data("b234","b360",kernel)
-    #generate_scales_svm_data("b261","b278",kernel)
-    #generate_scales_svm_data("b360","b234",kernel)
+    generate_scales_svm_data("b278","b261",kernel)
+    generate_scales_svm_data("b234","b360",kernel)
+    generate_scales_svm_data("b261","b278",kernel)
+    generate_scales_svm_data("b360","b234",kernel)
         
 def generate_figure_5_plots(kernel):
     generate_figure_5_subplot(kernel=kernel)
     generate_figure_5_subplot("b234","b261",kernel)
     generate_figure_5_subplot("b261","b360",kernel)
     generate_figure_5_subplot("b360","b278",kernel)
-    #generate_figure_5_subplot("b278","b261",kernel)
-    #generate_figure_5_subplot("b234","b360",kernel)
-    #generate_figure_5_subplot("b261","b278",kernel)
-    #generate_figure_5_subplot("b360","b234",kernel)
+    generate_figure_5_subplot("b278","b261",kernel)
+    generate_figure_5_subplot("b234","b360",kernel)
+    generate_figure_5_subplot("b261","b278",kernel)
+    generate_figure_5_subplot("b360","b234",kernel)
         
         
 #################################################### BINNING #######################################################
 
 def get_robust_auc_from_p_r(p,r):
-        p, r  = p[::-1], r[::-1],
-        recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
-        precision_interpolated = np.interp(recall_interpolated, r, p)
-        return auc(recall_interpolated, precision_interpolated)
+    """     
+    Get the area under the precision recall curve restricted to (mi)
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    """
+    p, r  = p[::-1], r[::-1],
+    recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
+    precision_interpolated = np.interp(recall_interpolated, r, p)
+    return auc(recall_interpolated, precision_interpolated)
 
 bins_range = [10,50,100,150,200,300,500]
 kmeans_bins_range = [5,10]
 
 def kbins_discretizers(train="b278",test="b234",kernel="linear"):
     
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
+    X,y = CARPYNCHO.retrieve_tile(train,"full")
+    Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
 
     curves = {}
@@ -191,16 +237,16 @@ def kbins_discretizers(train="b278",test="b234",kernel="linear"):
 
     leg = ax.legend();
     
-    with open(results_folder_preproces+kernel+'-bins-train='+train+ "test="+test+".pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-bins-train='+train+ "test="+test+".pkl", 'wb') as output:
         pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
 
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder_preproces+kernel+'-KBinsDiscretizer-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-KBinsDiscretizer-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
         
-    with open(results_folder_preproces+kernel+'-bins-train='+train+ "test="+test+".pkl", 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-bins-train='+train+ "test="+test+".pkl", 'rb') as output:
         curves = pickle.load(output)      
 
 
@@ -241,7 +287,7 @@ def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
     #plt.show()
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder_preproces+kernel+'-KBinsDiscretizerAUC-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-KBinsDiscretizerAUC-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_6_data(kernel):
     #kbins_discretizers(kernel=kernel)
@@ -266,8 +312,8 @@ n_quantiles_values = [5,10,25,50,100,250,500,1000]
 
 def quantile_transformer(train="b278",test="b234",kernel="linear"):
     
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
+    X,y = CARPYNCHO.retrieve_tile(train,"full")
+    Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
 
     curves = {}
@@ -306,17 +352,17 @@ def quantile_transformer(train="b278",test="b234",kernel="linear"):
 
     leg = ax.legend();
     
-    with open(results_folder_preproces+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'wb') as output:
         pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
 
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder_preproces+kernel+'-quantile-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-quantile-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 
 def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
         
-    with open(results_folder_preproces+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'rb') as output:
         curves = pickle.load(output)      
 
 
@@ -351,7 +397,7 @@ def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
     #plt.show()
     plt.title('train ' + str(train) + ' - test '+str(test))
 
-    plt.savefig(results_folder_preproces+kernel+'-quantiles-AUC-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-quantiles-AUC-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_7_data(kernel):
     quantile_transformer("b278","b234",kernel)
@@ -373,8 +419,8 @@ def generate_figure_7_subplots(kernel):
 ########################################################## OVERALL COMPARISON ###############################################################
 
 def best_preprocessing_linear(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test) 
+    X,y = CARPYNCHO.retrieve_tile(train,"full")
+    Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
 
     clf = make_pipeline(StandardScaler(),LinearSVC(C=get_optimal_parameters_i("svml")["C"],verbose=3,dual=False, max_iter=100000))
@@ -408,7 +454,7 @@ def best_preprocessing_linear(train="b278",test="b234"):
         leg = ax.legend();
 
     plt.title('train ' + str(train) + ' - test '+str(test))
-    plt.savefig(results_folder_preproces+"linear"+'best-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"linear"+'best-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_8_subplots():
     best_preprocessing_linear("b278","b234")
@@ -421,8 +467,8 @@ def generate_figure_8_subplots():
     best_preprocessing_linear("b360","b234")
 
 def best_preprocessing_rbf(train="b278",test="b234"):
-    X,y = retrieve_tile(train,"full")
-    Xt,yt=retrieve_tile(test)
+    X,y = CARPYNCHO.retrieve_tile(train,"full")
+    Xt,yt=CARPYNCHO.retrieve_tile(test)
     fig, ax = plt.subplots()
 
     svc = Pipeline(
@@ -454,7 +500,7 @@ def best_preprocessing_rbf(train="b278",test="b234"):
         leg = ax.legend();
 
     plt.title('train ' + str(train) + ' - test '+str(test))
-    plt.savefig(results_folder_preproces+"rbf"+'best-train='+train+ "test="+test+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"rbf"+'best-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_9_subplots():
     best_preprocessing_rbf("b278","b234")
@@ -487,7 +533,7 @@ def get_params(method):
         
 def optimize_svml_hist_hyperparameters(tile, rate="full", n_folds=10,optional_suffix=""):
 
-    X,y = retrieve_tile(tile,rate)
+    X,y = CARPYNCHO.retrieve_tile(tile,rate)
                  
     cachedir = tempfile.mkdtemp()
     
@@ -531,7 +577,7 @@ def optimize_svmk_hist_hyperparameters(tile="b278", rate="full", n_folds=10,opti
     nystroem_approx_svm = Pipeline( [("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')), ("scaler",StandardScaler()), ("feature_map", Nystroem()), ("svm", LinearSVC(dual=False,max_iter=100000))])
 
 
-    X,y = retrieve_tile(tile,rate) 
+    X,y = CARPYNCHO.retrieve_tile(tile,rate) 
 
     nystroem_approx_svm.set_params(feature_map__n_components=150)
 
@@ -602,9 +648,9 @@ def plot_heatmaps_preproc(train_tile="b278"):
         plt.title(title, loc='left')
 
         if cmap==None:
-            plt.savefig(results_folder_preproces+"heatmapk"+"NONE.png")
+            plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"heatmapk"+"NONE.png")
         else:
-            plt.savefig(results_folder_preproces+"heatmapk"+cmap+".png")
+            plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"heatmapk"+cmap+".png")
 
         ###### PRINT THE SVM-L HEATMAP######
         
@@ -626,9 +672,9 @@ def plot_heatmaps_preproc(train_tile="b278"):
         plt.title(title, loc='left')
 
         if cmap==None:
-            plt.savefig(results_folder_preproces+"heatmapl"+"NONE.png")
+            plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"heatmapl"+"NONE.png")
         else:
-            plt.savefig(results_folder_preproces+"heatmapl"+cmap+".png")
+            plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"heatmapl"+cmap+".png")
 
 ################ End of section Performance comparison ###############
 
@@ -646,7 +692,7 @@ def get_optimal_parameters_p(kernel="linear"):
 def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"]):
 
     # RF
-    X,y=retrieve_tile(train_tile)
+    X,y=CARPYNCHO.retrieve_tile(train_tile)
     clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
     clf.fit(X,y)
 
@@ -669,7 +715,7 @@ def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","
         
         
     for test in test_tiles:
-        Xtest, ytest = retrieve_tile(test)
+        Xtest, ytest = CARPYNCHO.retrieve_tile(test)
         curves = {}
         
         #RF
@@ -687,7 +733,7 @@ def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","
         precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
         curves["svmk"] = (precision,recall)
 
-        with open(results_folder_preproces+"best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
             pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
     
     
@@ -706,14 +752,14 @@ def generate_figure_10_subplots():
         for test in ["b278","b234","b261","b360"]:
             if (train==test):
                 continue
-            with open(results_folder_preproces+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
+            with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
                 curves = pickle.load(input_file)
 
             fig, ax = plt.subplots()
 
             p,r = curves["rf"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("rf",train,test)] = robust_auc
@@ -721,7 +767,7 @@ def generate_figure_10_subplots():
 
             p,r = curves["svml"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("svml",train,test)] = robust_auc
@@ -729,7 +775,7 @@ def generate_figure_10_subplots():
             
             p,r = curves["svmk"]
             precision_fold, recall_fold = p[::-1], r[::-1]
-            recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+            recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             robust_auc = auc(recall_interpolated, precision_interpolated)     
             scores[("svmk",train,test)] = robust_auc
@@ -741,9 +787,9 @@ def generate_figure_10_subplots():
 
             leg = ax.legend();
     
-            plt.savefig(results_folder_preproces+"best-train="+train+ "test="+test+".png")
+            plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+"best-train="+train+ "test="+test+".png")
 
-    with open(results_folder_preproces+"baseline_aucs.pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl", 'wb') as output:
         pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL)   
 
 def run_all_figure_10():
@@ -751,7 +797,7 @@ def run_all_figure_10():
     generate_figure_10_subplots()
 
 def get_baseline_preprocessing_stage(train,test,method):
-    with open(results_folder_preproces+"baseline_aucs.pkl", 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl", 'rb') as output:
         scores = pickle.load(output)
         
     if (method=="linear" or method=="lineal"):
@@ -780,4 +826,40 @@ def generate_table_comparison(scores_after, scores_before):
 
     return((scores,scoreso))
    
-# generate_table_comparison(results_folder_preproces+"baseline_aucs.pkl",results_folder_initial_estimation+"baseline_aucs.pkl")
+# generate_table_comparison(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl",results_folder_initial_estimation+"baseline_aucs.pkl")
+
+
+
+def generate_test_performance_data_normas(train_tile="b234",test_tiles=["b360"]):
+
+    # RF
+    X,y=CARPYNCHO.retrieve_tile(train_tile)
+
+
+    #SVM-K2
+    nystroem_approx_svm2 = Pipeline( 
+        [('disc',KBinsDiscretizer(n_bins=get_optimal_parameters_p("svmk")["n_bins"], encode='ordinal', strategy='quantile')),
+         ("scaler",StandardScaler()), 
+         ("feature_map", Nystroem(n_components=300,gamma=get_optimal_parameters_p("svmk")["gamma"],)), 
+         ("svm", LinearSVC(dual=False,max_iter=10000,penalty='l1'))])
+
+    nystroem_approx_svm2.fit(X,y)   
+            
+        
+    for test in test_tiles:
+        Xtest, ytest = CARPYNCHO.retrieve_tile(test)
+        curves = {}
+
+        # SVM-K
+        test_predictions = nystroem_approx_svm2.decision_function(Xtest)
+        precision, recall, thresh = metrics.precision_recall_curve(ytest, test_predictions)
+        curves["svmkl1"] = (precision,recall)
+        
+        with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"NORMAS_best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
+            pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
+            
+with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"NORMAS_best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
+	pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL) 
+	
+with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl", 'rb') as output:
+	scores = pickle.load(output)

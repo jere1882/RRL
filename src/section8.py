@@ -281,7 +281,7 @@ def calculate_correlations(threshold=0.5,train="b278",test=["b234","b278","b261"
                 decs  = clf.decision_function(Xt)
                 p,r,t = metrics.precision_recall_curve(yt,decs)
                 precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
-                recall_interpolated    = np.linspace(min_recall_global, 1, n_samples_prc)
+                recall_interpolated    = np.linspace(MIN_RECALL_GLOBAL, 1, N_SAMPLES_PRC)
                 precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
                 robust_auc = auc(recall_interpolated, precision_interpolated)
 
