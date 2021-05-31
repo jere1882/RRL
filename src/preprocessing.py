@@ -11,16 +11,38 @@ Description:
 
 Usage:
 
-	preprocessing.py carpyncho_path output_path
+    preprocessing.py carpyncho_path output_path
 
-See: https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing
+References
+----------
+.. [1] https://scikit-learn.org/stable/modules/preprocessing.html
 """
 
-import model_selection
+from model_selection import *
 
-CARPYNCHO_LOCAL_FOLDER    = sys.argv[1]     # "/home/jere/carpyncho/"
-EXPERIMENTS_OUTPUT_FOLDER_PR = sys.argv[2] # "/home/jere/Desktop/preprocessing/"
-CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
+CARPYNCHO_LOCAL_FOLDER    = ""     # "/home/jere/carpyncho/"
+EXPERIMENTS_OUTPUT_FOLDER_PR = ""  # "/home/jere/Desktop/ms/"
+
+def init(carpyncho_local_folder_path, output_folder):
+    """
+    Initialize this module
+    
+    Parameters
+    ----------
+    carpyncho_local_folder_path: Path in the local filesystem where VVV tiles downloaded from
+      Carpyncho are stored (see common.py)
+    
+    output_folder: Path where final and intermediate results of model selection experiments 
+      will be saved
+    """
+
+    global CARPYNCHO_LOCAL_FOLDER
+    global EXPERIMENTS_OUTPUT_FOLDER_PR
+    global CARPYNCHO
+    
+    CARPYNCHO_LOCAL_FOLDER = carpyncho_local_folder_path
+    EXPERIMENTS_OUTPUT_FOLDER_PR = output_folder
+    CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
 
 ######################## Standardization ########################
 
@@ -35,6 +57,12 @@ def generate_scales_svm_data(train="b278",test="b234",kernel="linear"):
     train: id of the tile to be used as training dataset
     test:  id of the tile to be used as test dataset
     kernel: kernel to be used in SVM (either "linear" or "rbf")
+
+
+    References
+    ----------
+    .. [1] https://scikit-learn.org/stable/modules/preprocessing.html#standardization-or-mean-removal-and-variance-scaling
+
     """
     X,y = CARPYNCHO.retrieve_tile(train,"full")
     Xt,yt=CARPYNCHO.retrieve_tile(test) 
@@ -166,7 +194,7 @@ def generate_figure_5_plots(kernel):
     generate_figure_5_subplot("b360","b234",kernel)
         
         
-#################################################### BINNING #######################################################
+######################## BINNING######################## 
 
 def get_robust_auc_from_p_r(p,r):
     """     
@@ -183,11 +211,27 @@ def get_robust_auc_from_p_r(p,r):
     precision_interpolated = np.interp(recall_interpolated, r, p)
     return auc(recall_interpolated, precision_interpolated)
 
-bins_range = [10,50,100,150,200,300,500]
-kmeans_bins_range = [5,10]
+BINS_RANGE = [10,50,100,150,200,300,500]
+KMEANS_BINS_RANGE = [5,10]
 
 def kbins_discretizers(train="b278",test="b234",kernel="linear"):
+    """     
+    Calculate the performance of SVM training in tile @p train and testing in tile
+    @p test, using different strategies of binning as preprocessing.
     
+    Results are persisted in the local filesystem
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    
+    References
+    ----------
+    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.KBinsDiscretizer.html
+    
+    """
     X,y = CARPYNCHO.retrieve_tile(train,"full")
     Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
@@ -209,7 +253,7 @@ def kbins_discretizers(train="b278",test="b234",kernel="linear"):
     curves["baseline"]=(p,r,get_robust_auc_from_p_r(p,r))
     
     # Bins quantile
-    for bins in bins_range:
+    for bins in BINS_RANGE:
         clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='quantile'),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
@@ -218,7 +262,7 @@ def kbins_discretizers(train="b278",test="b234",kernel="linear"):
         curves[("quantile",bins)]=(p,r,get_robust_auc_from_p_r(p,r))
 
     # Bins uniformes
-    for bins in bins_range:
+    for bins in BINS_RANGE:
         clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='uniform'),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
@@ -227,7 +271,7 @@ def kbins_discretizers(train="b278",test="b234",kernel="linear"):
         curves[("uniform",bins)]=(p,r,get_robust_auc_from_p_r(p,r))
 
     # Bins kmeans
-    for bins in kmeans_bins_range:
+    for bins in KMEANS_BINS_RANGE:
         clf = make_pipeline(KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='kmeans'),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
@@ -245,7 +289,18 @@ def kbins_discretizers(train="b278",test="b234",kernel="linear"):
     plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-KBinsDiscretizer-train='+train+ "test="+test+".png",bbox_inches='tight')
 
 def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
-        
+    """     
+    Plot the performance of SVM training in tile @p train and testing in tile
+    @p test, using different strategies of binning as preprocessing.
+    
+    Resulting plot is persisted in the local filesystem
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    """  
     with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-bins-train='+train+ "test="+test+".pkl", 'rb') as output:
         curves = pickle.load(output)      
 
@@ -254,31 +309,31 @@ def generate_figure_6_subplot(train="b278",test="b234",kernel="linear"):
 
     fig, ax = plt.subplots()
 
-    y = [auc for x in bins_range] 
+    y = [auc for x in BINS_RANGE] 
 
-    ax.plot(bins_range, y ,linewidth=1,label="baseline")
+    ax.plot(BINS_RANGE, y ,linewidth=1,label="baseline")
 
     ##### UNIFORM BINS
     aucs = []
-    for nbins in bins_range:
+    for nbins in BINS_RANGE:
         aucs = [curves[("uniform",nbins)][2]] + aucs 
 
-    ax.plot(bins_range,aucs,label="Uniform",marker='.')
+    ax.plot(BINS_RANGE,aucs,label="Uniform",marker='.')
 
     ##### QUANTILE BINS
     aucs = []
-    for nbins in bins_range:
+    for nbins in BINS_RANGE:
         aucs = [curves[("quantile",nbins)][2]] + aucs 
 
-    ax.plot(bins_range,aucs,label="Quantile",marker='.')
+    ax.plot(BINS_RANGE,aucs,label="Quantile",marker='.')
 
 
     ##### KMEANS BINS
     aucs = []
-    for nbins in kmeans_bins_range:
+    for nbins in KMEANS_BINS_RANGE:
         aucs = [curves[("kmeans",nbins)][2]] + aucs 
 
-    ax.plot(kmeans_bins_range,aucs,label="KMeans",marker='.')
+    ax.plot(KMEANS_BINS_RANGE,aucs,label="KMeans",marker='.')
 
     plt.xlabel('Number of bins')
     plt.ylabel('Robust AUPRC')
@@ -305,13 +360,29 @@ def generate_figure_6_subplots(kernel):
     generate_figure_6_subplot("b261","b360",kernel)
     generate_figure_6_subplot("b360","b278",kernel)
 
-######################################################  QUANTILE  TRANSFORMER ##########################################
+######################## QUANTILE  TRANSFORMER######################## 
 
 
-n_quantiles_values = [5,10,25,50,100,250,500,1000]
+N_QUANTILES_VALUE_RANGE = [5,10,25,50,100,250,500,1000]
 
 def quantile_transformer(train="b278",test="b234",kernel="linear"):
+    """     
+    Calculate the performance of SVM training in tile @p train and testing in tile
+    @p test, using different strategies of Quantile Transformers as preprocessing.
     
+    Results are persisted in the local filesystem
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    
+    References
+    ----------
+    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
+    
+    """
     X,y = CARPYNCHO.retrieve_tile(train,"full")
     Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
@@ -333,7 +404,7 @@ def quantile_transformer(train="b278",test="b234",kernel="linear"):
     curves["baseline"]=(p,r,get_robust_auc_from_p_r(p,r))
     
     # uniforme
-    for n_quantiles in n_quantiles_values:
+    for n_quantiles in N_QUANTILES_VALUE_RANGE:
         clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform"),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
@@ -342,7 +413,7 @@ def quantile_transformer(train="b278",test="b234",kernel="linear"):
         curves[("uniform",n_quantiles)]=(p,r,get_robust_auc_from_p_r(p,r))
 
     # normal
-    for n_quantiles in n_quantiles_values:
+    for n_quantiles in N_QUANTILES_VALUE_RANGE:
         clf = make_pipeline(QuantileTransformer(n_quantiles=n_quantiles, output_distribution="uniform"),svc) 
         clf.fit(X, y)
         decs  = clf.decision_function(Xt)
@@ -361,7 +432,23 @@ def quantile_transformer(train="b278",test="b234",kernel="linear"):
 
 
 def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
-        
+    """     
+    Plot the performance of SVM training in tile @p train and testing in tile
+    @p test, using different strategies of Quantile Transformers as preprocessing.
+    
+    Plots are persisted in the local filesystem
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    kernel: kernel to be used in SVM (either "linear" or "rbf")
+    
+    References
+    ----------
+    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
+    
+    """
     with open(EXPERIMENTS_OUTPUT_FOLDER_PR+kernel+'-quantile-train='+train+ "test="+test+".pkl", 'rb') as output:
         curves = pickle.load(output)      
 
@@ -370,23 +457,23 @@ def generate_figure_7_subplot(train="b278",test="b234",kernel="linear"):
 
     fig, ax = plt.subplots()
 
-    y = [auc for x in n_quantiles_values] 
+    y = [auc for x in N_QUANTILES_VALUE_RANGE] 
 
-    ax.plot(n_quantiles_values, y ,linewidth=1,label="baseline")
+    ax.plot(N_QUANTILES_VALUE_RANGE, y ,linewidth=1,label="baseline")
 
     ##### UNIFORM BINS
     aucs = []
-    for q in n_quantiles_values:
+    for q in N_QUANTILES_VALUE_RANGE:
         aucs = [curves[("uniform",q)][2]] + aucs 
 
-    ax.plot(n_quantiles_values,aucs,label="Uniform",marker='.')
+    ax.plot(N_QUANTILES_VALUE_RANGE,aucs,label="Uniform",marker='.')
 
     ##### QUANTILE BINS
     aucs = []
-    for q in n_quantiles_values:
+    for q in N_QUANTILES_VALUE_RANGE:
         aucs = [curves[("normal",q)][2]] + aucs 
 
-    ax.plot(n_quantiles_values,aucs,label="Normal",marker='.')
+    ax.plot(N_QUANTILES_VALUE_RANGE,aucs,label="Normal",marker='.')
 
 
     plt.xlabel('Number of quantiles')
@@ -416,9 +503,27 @@ def generate_figure_7_subplots(kernel):
     generate_figure_7_subplot("b360","b278",kernel)
 
 
-########################################################## OVERALL COMPARISON ###############################################################
+######################## OVERALL COMPARISON OF PREPROCESSING TECHNIQUES ######################## 
 
 def best_preprocessing_linear(train="b278",test="b234"):
+    """     
+    Calculate the performance of Linear SVM training in tile @p train and testing in tile
+    @p test, using a selection of preprocessing techniques that were proven to give good
+    results in previous experiments.
+    
+    Plots are persisted in the local filesystem
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    
+    References
+    ----------
+    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PowerTransformer.html
+    
+    """
+    
     X,y = CARPYNCHO.retrieve_tile(train,"full")
     Xt,yt=CARPYNCHO.retrieve_tile(test) 
     fig, ax = plt.subplots()
@@ -467,6 +572,23 @@ def generate_figure_8_subplots():
     best_preprocessing_linear("b360","b234")
 
 def best_preprocessing_rbf(train="b278",test="b234"):
+    """     
+    Calculate the performance of SVM  RBF training in tile @p train and testing in tile
+    @p test, using a selection of preprocessing techniques that were proven to give good
+    results in previous experiments.
+    
+    Plots are persisted in the local filesystem
+
+    Parameters
+    ----------  
+    train: id of the tile to be used as training dataset
+    test:  id of the tile to be used as test dataset
+    
+    References
+    ----------
+    .. [1] https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PowerTransformer.html
+    
+    """
     X,y = CARPYNCHO.retrieve_tile(train,"full")
     Xt,yt=CARPYNCHO.retrieve_tile(test)
     fig, ax = plt.subplots()
@@ -524,6 +646,10 @@ svm_param_grid_hist = [
 ]
 
 def get_params(method):
+    """
+    Get grid of parameters to explore in Cross Validation Grid Search
+
+    """
     if method=="rf":
         return rf_param_grid
     elif method=="svm": #Linear
@@ -531,12 +657,23 @@ def get_params(method):
     elif method=="svm-k":
         return asvm_rbf_param_grid
         
-def optimize_svml_hist_hyperparameters(tile, rate="full", n_folds=10,optional_suffix=""):
+def optimize_svml_hist_hyperparameters(tile, n_folds=10):
+    """
+    Run grid search cross validation on the given tile, optimizing Linear 
+    SVM hyperparameters. binning hyperparameter is also explored.
 
-    X,y = CARPYNCHO.retrieve_tile(tile,rate)
-                 
-    cachedir = tempfile.mkdtemp()
+    Parameters
+    ----------  
+    tile: Dataset to be used for the grid seach cross validation
+    n_folds: number of folds to be used in cross validation
+
+    Returns
+    ----------  
+    returns the resulting GridSearchCV object
+    """
     
+    X,y = CARPYNCHO.retrieve_tile(tile)
+                     
     pipe = Pipeline([
         ("discretizer",KBinsDiscretizer(encode='ordinal', strategy='quantile')),
         ('scaler', StandardScaler()),
@@ -548,36 +685,66 @@ def optimize_svml_hist_hyperparameters(tile, rate="full", n_folds=10,optional_su
         param_grid=svm_param_grid_hist, 
         scoring=get_scorers(True), 
         cv=n_folds,
-        n_jobs = n_jobs_global_param,
+        n_jobs = N_JOBS_GLOBAL_PARAM,
         verbose=1,
         refit="auc_prc_r",  # Use aps as the metric to actually decide which classifier is the best
     )
     
     gs_rf.fit(X,y)
     
-    shutil.rmtree(cachedir)
     
-    with open('experiments/svm/optimize_hyperparameters/cvobject_train='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/svm/optimize_hyperparameters/cvobject_train='+ tile +'.pkl', 'wb') as output:
         pickle.dump(gs_rf, output, pickle.HIGHEST_PROTOCOL)
         
     return gs_rf
 
 
-def cv_experiment_svm_hist(train_tile="b278", test_tiles=["b234","b261","b360"],rate="full"):
-    gs_rf = optimize_svml_hist_hyperparameters(train_tile,rate)
-    scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,trainrate=rate,folder="svm")
-    display_cv_results(train_tile,rate,folder="svm")
+def cv_experiment_svm_hist(train_tile="b278", test_tiles=["b234","b261","b360"]):
+    """ 
+    Find optimal parameters for Linear SVM doing grid search cross validation, and calculate
+    performance in test using the optimal hyperparameters. binning hyperparameter is also explored.
+
+    Parameters
+    ----------  
+    train_tile: Tile to be used for the hyperparameter optimization using grid search
+                cross validation. 
+    test_tiles: List of tiles to be used as test datasets for the optimal classifier
+                found using grid search cross validation
+
+    Returns
+    ----------  
+    a dictionary containing performance scores in test
+    """    
+    
+    gs_rf = optimize_svml_hist_hyperparameters(train_tile)
+    scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,folder="svm")
+    display_cv_results(train_tile,folder="svm")
     return scores
 
     
 ########### Reoptimise svm rbf parameters  #######################
     
-def optimize_svmk_hist_hyperparameters(tile="b278", rate="full", n_folds=10,optional_suffix=""):
+def optimize_svmk_hist_hyperparameters(tile="b278", n_folds=10):
+    """
+    Run grid search cross validation on the given tile, finding optimal 
+    SVM RBF hyperparameters. binning hyperparameter is also explored.
 
-    nystroem_approx_svm = Pipeline( [("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')), ("scaler",StandardScaler()), ("feature_map", Nystroem()), ("svm", LinearSVC(dual=False,max_iter=100000))])
+    Parameters
+    ----------  
+    tile: Dataset to be used for the grid seach cross validation
+    n_folds: number of folds to be used in cross validation
 
+    Returns
+    ----------  
+    returns the resulting GridSearchCV object
+    """
+    nystroem_approx_svm = Pipeline( 
+        [("discretizer",KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='quantile')), 
+         ("scaler",StandardScaler()), 
+         ("feature_map", Nystroem()), 
+         ("svm", LinearSVC(dual=False,max_iter=100000))])
 
-    X,y = CARPYNCHO.retrieve_tile(tile,rate) 
+    X,y = CARPYNCHO.retrieve_tile(tile) 
 
     nystroem_approx_svm.set_params(feature_map__n_components=150)
 
@@ -594,7 +761,7 @@ def optimize_svmk_hist_hyperparameters(tile="b278", rate="full", n_folds=10,opti
 
     gs_rf.fit(X,y)
 
-    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/svm-k/optimize_hyperparameters/cvobject_train='+ tile +'.pkl', 'wb') as output:
         pickle.dump(gs_rf, output, pickle.HIGHEST_PROTOCOL)
             
     return gs_rf
@@ -609,14 +776,17 @@ def cv_experiment_svmk_hist(train_tile="b278", test_tiles=["b234","b261","b360"]
 ########### Create heatmaps with the same scale showing parameter optimization results ########
 
 def plot_heatmaps_preproc(train_tile="b278"):
-
+    """
+    Plot histograms showing the results of grid search cross validation for SVM+binning
+    """
+    
     # Read cross validation objects
-    with open('experiments/svm/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/svm/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
         gs_rf= pickle.load(output)
 
     scores_l = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(svm_param_grid_hist[0]['clf__C']),len(svm_param_grid_hist[0]['discretizer__n_bins']))
 
-    with open('experiments/svm-k/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/svm-k/optimize_hyperparameters/cvobject_train='+train_tile+'.pkl', 'rb') as output:
         gs_rf= pickle.load(output)
 
     scores_svmk = gs_rf.cv_results_['mean_test_auc_prc_r'].reshape(len(asvm_rbf_param_grid[0]['feature_map__gamma']),len(asvm_rbf_param_grid[0]['svm__C']))
@@ -679,6 +849,9 @@ def plot_heatmaps_preproc(train_tile="b278"):
 ################ End of section Performance comparison ###############
 
 def get_optimal_parameters_p(kernel="linear"):
+    """
+    Get optimal hyperparameters found in the previous experiment
+    """
     optimal = {}
     if (kernel=="linear" or kernel=="svml"):
         optimal["C"]=10
@@ -690,7 +863,15 @@ def get_optimal_parameters_p(kernel="linear"):
     return optimal
 
 def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"]):
-
+    """
+    Estimate test performance of RF, Linear SVM and SVM RBF.
+    Persist the results in the local filesystem.
+    
+    Parameters
+    ----------  
+    train_tile: tile to be used as training dataset
+    test_tiles: list of tiles to be used as test datasets
+    """
     # RF
     X,y=CARPYNCHO.retrieve_tile(train_tile)
     clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
@@ -738,6 +919,10 @@ def generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","
     
     
 def generate_figure_10_data():
+    """
+    Estimate test performance of RF, Linear SVM and SVM RBF, training and testing using each
+    possible pair of tiles in ["b234","b261","b278","b360"].
+    """
     generate_test_performance_data(train_tile="b278",test_tiles=["b234","b261","b360"])
     generate_test_performance_data(train_tile="b234",test_tiles=["b278","b261","b360"])
     generate_test_performance_data(train_tile="b261",test_tiles=["b234","b278","b360"])
@@ -745,7 +930,10 @@ def generate_figure_10_data():
     
 
 def generate_figure_10_subplots():
-    
+    """
+    Plot precision-recall curves of RF, Linear SVM and SVM RBF, training and testing using each
+    possible pair of tiles in ["b234","b261","b278","b360"].
+    """
     scores = {}
     
     for train in ["b278","b234","b261","b360"]:
@@ -793,10 +981,28 @@ def generate_figure_10_subplots():
         pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL)   
 
 def run_all_figure_10():
+    """
+    Calculate and plot precision-recall curves of RF, Linear SVM and SVM RBF, training 
+    and testing using each possible pair of tiles in ["b234","b261","b278","b360"].
+    """
     generate_figure_10_data()
     generate_figure_10_subplots()
 
 def get_baseline_preprocessing_stage(train,test,method):
+    """
+    Get the area under the P-R curve obtained after including preprocessing techniques.
+    
+    Parameters
+    ----------  
+    train: tile to be used as training dataset
+    test: tile to be used as test dataset
+    method: either "rf", "svml" or "svmk"
+    
+    Return
+    ----------  
+    the area under the P-R curve restricted to [0.3,1] (a scalar value)
+    """
+    
     with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl", 'rb') as output:
         scores = pickle.load(output)
         
@@ -809,6 +1015,18 @@ def get_baseline_preprocessing_stage(train,test,method):
 
 
 def generate_table_comparison(scores_after, scores_before):
+    """
+    Print a table comparing the area under the precision-recall curve of
+    two different estimators.
+    
+    Parameters
+    ----------  
+    scores_before: dictionary that takes a tuple (method,train_tile,test_tile) 
+        and returns the area under the curve for that particular combination.
+    scores_after: a second dictionary that takes a tuple (method,train_tile,test_tile) 
+        and returns the area under the curve for that particular combination.
+    
+    """
     
     with open(scores_after, 'rb') as output:
         scores = pickle.load(output)
@@ -826,12 +1044,14 @@ def generate_table_comparison(scores_after, scores_before):
 
     return((scores,scoreso))
    
-# generate_table_comparison(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl",results_folder_initial_estimation+"baseline_aucs.pkl")
-
-
+# generate_table_comparison(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl",EXPERIMENTS_OUTPUT_FOLDER_MS+"baseline_aucs.pkl")
 
 def generate_test_performance_data_normas(train_tile="b234",test_tiles=["b360"]):
-
+    """
+    Evaluate the impact of using different norms (l1, l2) in SVM-RBF
+    
+    Notes: Experimental, untested. Not included in the final thesis.
+    """
     # RF
     X,y=CARPYNCHO.retrieve_tile(train_tile)
 
@@ -858,8 +1078,6 @@ def generate_test_performance_data_normas(train_tile="b234",test_tiles=["b360"])
         with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"NORMAS_best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
             pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)      
             
-with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"NORMAS_best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
-	pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL) 
-	
-with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"baseline_aucs.pkl", 'rb') as output:
-	scores = pickle.load(output)
+    with open(EXPERIMENTS_OUTPUT_FOLDER_PR+"NORMAS_best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
+        pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL) 
+

@@ -1,25 +1,26 @@
 """ 
-    This module offers the following utilities:
 
-    - Download datasets from Carpyncho and store them locally
-    - Retrieve datasets from local storage
-    - Do some basic preprocessing on the datasets
-    - Retrieve retrieve undersampled datasets
+This module offers the following utilities:
 
-    Notes
-    ----------
-    Methods in this module will store preprocessed tiles in the 
-    local filesystem:
- 
-    base_path/tiles/features{i}.pkl            # Features describing stars 
-                                               #  in tile i
-                                               
-    base_path/tiles/label{i}.pkl               # Labels indicating if starts 
-                                               #  in tile i are RR-Lyrae
-                                               
-    base_path/tiles/undersampled_indexes{i}_{rate}     # Randomly generated 
-                                                       # indexes used for
-                                                       # undersampling
+- Download datasets from Carpyncho and store them locally
+- Retrieve datasets from local storage
+- Do some basic preprocessing on the datasets
+- Retrieve retrieve undersampled datasets
+
+Notes
+----------
+Methods in this module will store preprocessed tiles in the 
+local filesystem:
+
+base_path/tiles/features{i}.pkl            # Features describing stars 
+										   #  in tile i
+										   
+base_path/tiles/label{i}.pkl               # Labels indicating if starts 
+										   #  in tile i are RR-Lyrae
+										   
+base_path/tiles/undersampled_indexes{i}_{rate}     # Randomly generated 
+												   # indexes used for
+												   # undersampling
 """
 
 import carpyncho

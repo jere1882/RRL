@@ -3,10 +3,10 @@ MODEL SELECTION EXPERIMENTS
 Chapters 2 and 3 of the master's thesis
 
 Description: Optimize each classifier's parameters by doing k-fold-cross-validation
-			 on a given tile.
+             on a given tile.
 Usage:
 
-	model_selection.py carpyncho_path output_path
+    model_selection.py carpyncho_path output_path
 """
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import LinearSVC
@@ -25,18 +25,40 @@ from sklearn.kernel_approximation import Nystroem
 from matplotlib.colors import Normalize
 from sklearn.preprocessing import KBinsDiscretizer
 from sklearn.metrics import roc_auc_score
+import sklearn.metrics as metrics
 from common import CarpynchoWrapper
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
 
 # GLOBAL PARAMETERS
-N_JOBS_GLOBAL_PARAM = 7 ## NUMBER OF PROCESSORS TO BE USED
-CARPYNCHO_LOCAL_FOLDER    = sys.argv[1]     # "/home/jere/carpyncho/"
-EXPERIMENTS_OUTPUT_FOLDER_MS = sys.argv[2]  # "/home/jere/Desktop/ms/"
-CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
+N_JOBS_GLOBAL_PARAM = 7            # NUMBER OF PROCESSORS TO BE USED
+CARPYNCHO_LOCAL_FOLDER    = ""     # "/home/jere/carpyncho/"
+EXPERIMENTS_OUTPUT_FOLDER_MS = ""  # "/home/jere/Desktop/ms/"
 
+def init(carpyncho_local_folder_path, output_folder):
+	"""
+	Initialize this module
+	
+	Parameters
+    ----------
+    carpyncho_local_folder_path: Path in the local filesystem where VVV tiles downloaded from
+	  Carpyncho are stored (see common.py)
+	
+    output_folder: Path where final and intermediate results of model selection experiments 
+      will be saved
+	"""
+
+	global CARPYNCHO_LOCAL_FOLDER
+	global EXPERIMENTS_OUTPUT_FOLDER_MS
+	global CARPYNCHO
+	
+	CARPYNCHO_LOCAL_FOLDER = carpyncho_local_folder_path
+	EXPERIMENTS_OUTPUT_FOLDER_MS = output_folder
+	CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
 
 """
-Define custom metrics of performance, to be used as cross validation scores
+Define custom performance metrics, to be used as cross validation scores
 """
 N_SAMPLES_PRC = 1000 # Parameter for interpolated metrics
 def auc_prc(y, y_pred):
@@ -110,7 +132,7 @@ def get_scorers(svm = True):
                 "pafr5i"     : pafr5_i_scorer,
                 #"pafr9"      : pafr9_scorer,
                 "pafr9i"     : pafr9_i_scorer,
-                #"aps"        : 'average_precision'
+                "aps"        : 'average_precision',
                 'auc_prc_r'   : auc_prc_robust
               }
               
@@ -177,13 +199,13 @@ def test_classifier(classifier,tilestest,folder,tiletrain=""):
         precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
         plt.plot(recall_interpolated, precision_interpolated)
         
-        plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_MS+"/optimize_hyperparameters/train="+ tiletrain "test="+tiletest+'.png') # Esto pisa todo cuando usas SVM!
+        plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_MS+"/"+folder+"/optimize_hyperparameters/train="+ tiletrain +"test="+tiletest+'.png') # Esto pisa todo cuando usas SVM!
 
         # 4) Print a message
         print("Testing on", tiletest, "resulted in", pafr9, pafr9i, pafr5, pafr5i, aps, pr_auc, pr_auci)
         
         
-    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+"/optimize_hyperparameters/testscores_train="+ tiletrain +".pkl", 'wb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+"/"+folder+"/optimize_hyperparameters/testscores_train="+ tiletrain +".pkl", 'wb') as s_file:
         pickle.dump(scores_out,s_file)
         
     return scores_out
@@ -310,7 +332,7 @@ def optimize_random_forest_hyperparameters(tile, n_folds=10):
         
     return gs_rf
 
-def cv_experiment_random_forest(train_tile="b278", test_tiles=["b234","b261","b360"],rate="full"):
+def cv_experiment_random_forest(train_tile="b278", test_tiles=["b234","b261","b360"]):
     """ 
     Find optimal parameters for random forest doing grid search cross validation, and calculate
     performance in test using the optimal hyperparameters.
@@ -327,10 +349,10 @@ def cv_experiment_random_forest(train_tile="b278", test_tiles=["b234","b261","b3
     a dictionary containing performance scores in test
 
     """    
-    gs_rf = optimize_random_forest_hyperparameters(train_tile,rate)
+    gs_rf = optimize_random_forest_hyperparameters(train_tile)
     
-    scores = test_classifier(gs_rf.best_estimator_,test_tiles,train_tile,rate,folder="rf")
-    display_cv_results(train_tile,rate,folder="rf")
+    scores = test_classifier(gs_rf.best_estimator_,test_tiles,train_tile,folder="rf")
+    display_cv_results(train_tile,rate,method="rf")
     return scores
    
 
@@ -388,7 +410,7 @@ def optimize_svm_hyperparameters(tile, n_folds=10):
         
     return gs_rf
 
-def cv_experiment_svm(train_tile="b278", test_tiles=["b234","b261","b360"],rate="full"):
+def cv_experiment_svm(train_tile="b278", test_tiles=["b234","b261","b360"]):
     """ 
     Find optimal parameters for svml doing grid search cross validation, and calculate
     performance in test using the optimal hyperparameters.
@@ -406,8 +428,8 @@ def cv_experiment_svm(train_tile="b278", test_tiles=["b234","b261","b360"],rate=
     """
 
     gs_rf = optimize_svm_hyperparameters(train_tile,rate)
-    scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,trainrate=rate,folder="svm")
-    display_cv_results(train_tile,rate,folder="svm")
+    scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,folder="svm")
+    display_cv_results(train_tile,method="svm")
     return scores
 
 
@@ -419,7 +441,7 @@ asvm_rbf_param_grid = [
     }
 ]
 
-def optimize_svmk_hyperparameters(tile="b278", rate="full", n_folds=10,optional_suffix=""):
+def optimize_svmk_hyperparameters(tile="b278",n_folds=10):
     """
     Run grid search cross validation on a given tile, optimizing svm RBF parameters.
 
@@ -454,12 +476,12 @@ def optimize_svmk_hyperparameters(tile="b278", rate="full", n_folds=10,optional_
 
     gs_rf.fit(X,y)
 
-    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/svm-k/optimize_hyperparameters/cvobject_train-nopreproces='+ tile + suffix(rate)+ optional_suffix +'.pkl', 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/svm-k/optimize_hyperparameters/cvobject_train-nopreproces='+ tile +'.pkl', 'wb') as output:
         pickle.dump(gs_rf, output, pickle.HIGHEST_PROTOCOL)
             
     return gs_rf
 
-def cv_experiment_svmk(train_tile="b278", test_tiles=["b234","b261","b360"],rate="full"):
+def cv_experiment_svmk(train_tile="b278", test_tiles=["b234","b261","b360"]):
     """ 
     Find optimal parameters for svm RBF doing grid search cross validation, and calculate
     performance in test using the optimal hyperparameters.
@@ -476,8 +498,8 @@ def cv_experiment_svmk(train_tile="b278", test_tiles=["b234","b261","b360"],rate
     a dictionary containing performance scores in test
     """
     gs_rf = optimize_svmk_hyperparameters(train_tile,rate)
-    scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,trainrate=rate,folder="svm-k")
-    display_cv_results(train_tile,rate,folder="svm-k")
+    scores = test_classifier(gs_rf.best_estimator_,tilestest=test_tiles,tiletrain=train_tile,folder="svm-k")
+    display_cv_results(train_tile,method="svm-k")
     return scores
 
 def get_params(method):
@@ -525,7 +547,7 @@ def generate_figure_1():
     """ 
     Plot cross validation results for RF
     """
-    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+ 'rf/optimize_hyperparameters/cv_results.csv', newline='') as csvfile:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_MS+'/rf/optimize_hyperparameters/cv_results.csv', newline='') as csvfile:
         dataset = pd.read_csv(csvfile, delimiter=' ')
 
     ntrees = dataset['n_estimators'][:12]
@@ -616,7 +638,7 @@ def generate_figure_2_subplots():
         for test in ["b278","b234","b261","b360"]:
             if (train==test):
                 continue
-            with open(EXPERIMENTS_OUTPUT_FOLDER_MS+"/rf/optimize_hyperparameters/test_results_train='+train+ "Test="+test+".pkl", 'rb') as input_file:
+            with open(EXPERIMENTS_OUTPUT_FOLDER_MS+"/rf/optimize_hyperparameters/test_results_train="+train+ "Test="+test+".pkl", 'rb') as input_file:
                 curves = pickle.load(input_file)
 
             fig, ax = plt.subplots()
