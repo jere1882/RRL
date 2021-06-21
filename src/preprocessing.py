@@ -9,10 +9,6 @@ Description:
 - Try using discretization techniques such as binning
 - Try using sklearn's PowerTransformer and QuantileTransformer:
 
-Usage:
-
-    preprocessing.py carpyncho_path output_path
-
 References
 ----------
 .. [1] https://scikit-learn.org/stable/modules/preprocessing.html
@@ -194,7 +190,7 @@ def generate_figure_5_plots(kernel):
     generate_figure_5_subplot("b360","b234",kernel)
         
         
-######################## BINNING######################## 
+######################## BINNING ######################## 
 
 def get_robust_auc_from_p_r(p,r):
     """     
@@ -361,7 +357,6 @@ def generate_figure_6_subplots(kernel):
     generate_figure_6_subplot("b360","b278",kernel)
 
 ######################## QUANTILE  TRANSFORMER######################## 
-
 
 N_QUANTILES_VALUE_RANGE = [5,10,25,50,100,250,500,1000]
 
@@ -929,7 +924,7 @@ def generate_figure_10_data():
     generate_test_performance_data(train_tile="b360",test_tiles=["b234","b261","b278"])
     
 
-def generate_figure_10_subplots():
+def generate_test_performance_data_subplots():
     """
     Plot precision-recall curves of RF, Linear SVM and SVM RBF, training and testing using each
     possible pair of tiles in ["b234","b261","b278","b360"].

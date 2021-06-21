@@ -4,9 +4,6 @@ Chapters 2 and 3 of the master's thesis
 
 Description: Optimize each classifier's parameters by doing k-fold-cross-validation
              on a given tile.
-Usage:
-
-    model_selection.py carpyncho_path output_path
 """
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import LinearSVC
