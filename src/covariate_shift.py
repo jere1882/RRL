@@ -1,14 +1,42 @@
-exec(open("/home/jere/Dropbox/University/Tesina/src/src/section9.py").read())
-#### EXPLORE THE EFFECT THAT DIFFERENT HYPERPARAMETERS HAVE ON SVM-RBF
+"""
+DATASET SHIFT (MOSTLY COVARIATE SHIFT)
+Chapters 8 master's thesis.
 
-results_folder_potential= "/home/jere/Desktop/section10/"
+Description: Run a sequence of experiments to determine the impact of covariate
+shift in our data. After that, try to correct the covariate shift present.
+"""
+
 import seaborn as sb
 import matplotlib.style
 import matplotlib as mpl
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.linear_model import LogisticRegression
+from imbalance import *
 
+CARPYNCHO_LOCAL_FOLDER       = ""  
+EXPERIMENTS_OUTPUT_FOLDER_SHIFT = ""
+
+def init(carpyncho_local_folder_path, output_folder_shift):
+    """
+    Initialize this module
+    
+    Parameters
+    ----------
+    carpyncho_local_folder_path: Path in the local filesystem where VVV tiles downloaded from
+      Carpyncho are stored (see common.py)
+
+    output_folder_shift: Path to the folder where final and intermediate results of ds 
+     shift experiments  will be saved
+    """
+
+    global CARPYNCHO_LOCAL_FOLDER
+    global EXPERIMENTS_OUTPUT_FOLDER_SHIFT
+    global CARPYNCHO
+    
+    CARPYNCHO_LOCAL_FOLDER = carpyncho_local_folder_path
+    EXPERIMENTS_OUTPUT_FOLDER_SHIFT = output_folder_shift
+    CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
 
 ###################### PART 1: OVERFITTING HYPERPARAMETERS ##################
 def get_range(param,legacy=False):
@@ -52,7 +80,7 @@ def explore_rbf_potential(train="b278",test="b234",kernel="rbf"):
             precision_interpolated = np.interp(recall_interpolated, recall_fold, precision_fold)
             scores[(c,gamma)] = auc(recall_interpolated, precision_interpolated)
 
-    with open(results_folder_potential+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'wb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'wb') as s_file:
         pickle.dump(scores,s_file)
     return scores  
 
@@ -73,7 +101,7 @@ def calculate_all_potential_rbf():
 def get_pr_curve(train="b278",test="b234",c=0.1,gamma=0.1,kernel="rbf"):
 
     try:
-        with open(results_folder_potential+"curves/_svmk_train="+train+"test="+test+"C=+"+str(c)+"g="+str(gamma)+"_curves.pkl", 'rb') as s_file:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"curves/_svmk_train="+train+"test="+test+"C=+"+str(c)+"g="+str(gamma)+"_curves.pkl", 'rb') as s_file:
             scores = pickle.load(s_file) 
         return scores
         
@@ -94,7 +122,7 @@ def get_pr_curve(train="b278",test="b234",c=0.1,gamma=0.1,kernel="rbf"):
         p,r,t = metrics.precision_recall_curve(yt,decs)
         scores = (p,r)
         #Cache it
-        with open(results_folder_potential+"curves/_svmk_train="+train+"test="+test+"C=+"+str(c)+"g="+str(gamma)+"_curves.pkl", 'wb') as s_file:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"curves/_svmk_train="+train+"test="+test+"C=+"+str(c)+"g="+str(gamma)+"_curves.pkl", 'wb') as s_file:
             pickle.dump(scores,s_file)
 
         precision_fold, recall_fold, thresh = p[::-1], r[::-1], t[::-1]
@@ -113,7 +141,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         else:
             prefix = ""
 
-        with open(results_folder_potential+prefix+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'rb') as s_file:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+prefix+ "_svmk_train="+train+"test="+test+"_scores.pkl", 'rb') as s_file:
             scores = pickle.load(s_file)
 
         c_values =  get_range("C",legacy)
@@ -187,7 +215,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         title = ('Robust AUPRC in test. Train: '+ train +' Test: ' + test).upper()
         plt.title(title, loc='left')
 
-        plt.savefig(results_folder_potential+"heatmap_train="+train+"_test="+test+".png",bbox_inches='tight')
+        plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"heatmap_train="+train+"_test="+test+".png",bbox_inches='tight')
     
 
         plt.close("all")
@@ -235,7 +263,7 @@ def plot_rbf_potential(train="b278",test="b234",legacy=False):
         if (train=="b234" and test=="b261"):
             leg = ax.legend();
 
-        plt.savefig(results_folder_potential+"best-train="+train+ "test="+test+".png",bbox_inches='tight')
+        plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"best-train="+train+ "test="+test+".png",bbox_inches='tight')
 
     #except:
       #  print("Unable to generate heatmap for ",train,test)
@@ -268,7 +296,7 @@ def calculate_covariate_shift(tile1="b234",tile2="b360"):
     
     data = calculate_covariate_shift_internal(X1,y1,X2,y2)
     
-    with open(results_folder_potential+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'wb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'wb') as s_file:
         pickle.dump(data,s_file)
 
 def calculate_covariate_shift_internal(X1,y1,X2,y2,classifiers=["rf","lr"]):
@@ -352,7 +380,7 @@ def calculate_covariate_shift_all_tiles():
     scores2= calculate_covariate_shift(tile1="b360",tile2="b360")
     
 def get_covariate_shift_auc(tile1,tile2,method="rf",metric="accuracy"):
-    with open(results_folder_potential+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
         data = pickle.load(s_file)
     key = method+"_"+metric
     return (data[key])
@@ -389,7 +417,7 @@ def print_covariate_shift_matrix(method="rf",metric="accuracy"):
         
     plt.title("Presencia de covariate shift. Clasificador "+method)
     
-    plt.savefig(results_folder_potential+"CS-Method+"+method+"metric"+metric+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"CS-Method+"+method+"metric"+metric+".png",bbox_inches='tight')
 
 ########################## CORRECTING COVARIATE DRIFT ########################
 
@@ -398,7 +426,7 @@ def get_covariate_shift_importance(tile1,tile2,method="rf"):
 
     X1,y1=get_feature_selected_tile(tile1,"rbf",tile1,"full")   
 
-    with open(results_folder_potential+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
         data = pickle.load(s_file)
 
     key = method+"_importance"
@@ -420,7 +448,7 @@ def plot_covariance_shift_scores(tile1="b360",tile2="b234"):
 
     X1,y1=get_feature_selected_tile(tile1,"rbf",tile1,"full")   
 
-    with open(results_folder_potential+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
         data = pickle.load(s_file)
         
     scores_rf = data["rf_importance"]
@@ -513,7 +541,7 @@ def calculate_covariate_shift_single(tile1="b360",tile2="b234",classifiers=["rf"
 
     ans = (data_auc_l,data_acc_l,data_auc_r,data_acc_r)
     
-    with open(results_folder_potential+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'wb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'wb') as s_file:
         pickle.dump(ans,s_file)
         
     return ans
@@ -521,7 +549,7 @@ def calculate_covariate_shift_single(tile1="b360",tile2="b234",classifiers=["rf"
 
 # Plot the importance obtained using 1-dimensional classifier
 def plot_calculate_covariate_shift_single(tile1="b360",tile2="b234"):
-    with open(results_folder_potential+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
         ans = pickle.load(s_file)
             
     fig, ax = plt.subplots(figsize=(15,15))
@@ -566,7 +594,7 @@ def remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",m
 
 
     if (single==False):  # Use high dimensional classifier data
-        with open(results_folder_potential+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
             data = pickle.load(s_file)
 
         key = method+"_importance"
@@ -577,7 +605,7 @@ def remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",m
             scores = np.abs(data[key][0])
             
     else:   # Use 1-dimentional classifier data
-        with open(results_folder_potential+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
             ans = pickle.load(s_file)
 
         if (method=="rf"):
@@ -617,7 +645,7 @@ def remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",m
     
     ret = (accum_acc, accum_auc,get_number_protected_features())
     
-    with open(results_folder_potential+"shift_decrease="+tile1+"test="+tile2+"method"+method+"_single="+str(single)+".pkl", 'wb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease="+tile1+"test="+tile2+"method"+method+"_single="+str(single)+".pkl", 'wb') as s_file:
         pickle.dump(ret,s_file)
     return(ret)
 
@@ -625,9 +653,9 @@ def remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",m
 ### Plot the reduction in drift after removing drifting features
 def plot_remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",single=False):
     
-    with open(results_folder_potential+"shift_decrease="+tile1+"test="+tile2+"methodrf_single="+str(single)+".pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease="+tile1+"test="+tile2+"methodrf_single="+str(single)+".pkl", 'rb') as s_file:
         ret_rf = pickle.load(s_file)
-    with open(results_folder_potential+"shift_decrease="+tile1+"test="+tile2+"methodlr_single="+str(single)+".pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease="+tile1+"test="+tile2+"methodlr_single="+str(single)+".pkl", 'rb') as s_file:
         ret_lr = pickle.load(s_file)
     fig, ax = plt.subplots()
 
@@ -643,7 +671,7 @@ def plot_remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b2
 
     plt.title('Covariate shift. Tiles ' + tile1 + " y " + tile2)
 
-    plt.savefig(results_folder_potential+"CS-Reduction-tile1"+tile1+"tile2"+tile2+"_single="+str(single)+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"CS-Reduction-tile1"+tile1+"tile2"+tile2+"_single="+str(single)+".png",bbox_inches='tight')
 
 
 ################## CORRECT DRIFT BY REMOVING FEATURES: Checking if original problem improved   ##############
@@ -684,14 +712,14 @@ def remove_covariate_shift_top_and_recalculate_rrl_classification_internal(tile1
             p,r,t = metrics.precision_recall_curve(yt,decs)            
             results[j] = (p,r)
     
-    with open(results_folder_potential+"shift_decrease_curves="+tile1+"test="+tile2+"method"+label+".pkl", 'wb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease_curves="+tile1+"test="+tile2+"method"+label+".pkl", 'wb') as s_file:
         pickle.dump(results,s_file)
     return(results)
 
 
 #### Remove features using high-dimensional classifier && recalculate R-AUCPRC in RRL classification
 def remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b360",tile2="b234",method="rf"):
-    with open(results_folder_potential+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
         data = pickle.load(s_file)
 
     key = method+"_importance"
@@ -705,7 +733,7 @@ def remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b360",t
     
 ### Remove drifting features using 1-dimensional classifier ranking
 def remove_covariate_shift_top_and_recalculate_rrl_classification_single(tile1="b360",tile2="b234",method="rf"):
-    with open(results_folder_potential+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
         ans = pickle.load(s_file)
 
     key = method+"_importance"
@@ -726,7 +754,7 @@ def plot_remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b3
     else:
         label = method
     
-    with open(results_folder_potential+"shift_decrease_curves="+tile1+"test="+tile2+"method"+label+".pkl", 'rb') as s_file:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease_curves="+tile1+"test="+tile2+"method"+label+".pkl", 'rb') as s_file:
         results = pickle.load(s_file)
 
     aucs = {}
@@ -750,7 +778,7 @@ def plot_remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b3
     plt.xticks(np.arange(len(aucs.keys())), labels=aucs.keys())
     plt.ylabel('R-AUCPRC')
     plt.title(" Tiles " + tile1 + " y " + tile2)
-    plt.savefig(results_folder_potential+"ROC-Increase+"+label+"tile1"+tile1+"tile2"+tile2+".png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"ROC-Increase+"+label+"tile1"+tile1+"tile2"+tile2+".png",bbox_inches='tight')
 
 
     """  #In case you wanna inspect some of the P-R curves
@@ -769,8 +797,6 @@ def plot_remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b3
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     """
-
-
 
 def calculate_all_data(tile1,tile2,method="rf"):
     calculate_covariate_shift_single(tile1=tile1,tile2=tile2,classifiers=[method])

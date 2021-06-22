@@ -2,17 +2,36 @@
 HANDLING IMBALANCE OF CLASSES
 Chapter 7 of master's thesis.
 """
-exec(open("/home/jere/Dropbox/University/Tesina/src/src/section8.py").read())
 from imblearn.combine import SMOTEENN
 from scipy import stats
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.over_sampling import SMOTE, ADASYN
 from imblearn.under_sampling import RandomUnderSampler
+from dimensionality_reduction import *
 
+CARPYNCHO_LOCAL_FOLDER       = ""  
+EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE = ""
 
-##### DEALING WITH CLASS IMBALANCE ####
+def init(carpyncho_local_folder_path, output_folder_imbalance):
+    """
+    Initialize this module
+    
+    Parameters
+    ----------
+    carpyncho_local_folder_path: Path in the local filesystem where VVV tiles downloaded from
+      Carpyncho are stored (see common.py)
 
-results_folder_imbalance= "/home/jere/Desktop/section9/"
+    output_folder_imbalance: Path to the folder where final and intermediate results of class 
+     imbalance experiments  will be saved
+    """
+
+    global CARPYNCHO_LOCAL_FOLDER
+    global EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE
+    global CARPYNCHO
+    
+    CARPYNCHO_LOCAL_FOLDER = carpyncho_local_folder_path
+    EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE = output_folder_imbalance
+    CARPYNCHO = CarpynchoWrapper(CARPYNCHO_LOCAL_FOLDER)
 
 ################################ Random Undersampling ###################################
 
@@ -23,7 +42,7 @@ def calculate_undersampling_performance(train="b278",test="b234",kernel="linear"
 
     scores = {}
     
-    for rate in get_supported_rates(train) + ["full"]:
+    for rate in CARPYNCHO.get_supported_rates(train) + ["full"]:
         X_res,y_res = get_feature_selected_tile(train,kernel,train,rate) 
         
         if (kernel=="linear"):
@@ -54,7 +73,7 @@ def calculate_undersampling_performance(train="b278",test="b234",kernel="linear"
 
         scores[str(rate)]=(p,r,robust_auc)
 
-    with open(results_folder_imbalance+"undersampling/train="+train+"_test="+test+"_"+kernel+"_curves"+str(random_id)+".pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"undersampling/train="+train+"_test="+test+"_"+kernel+"_curves"+str(random_id)+".pkl", 'wb') as output:
         pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL)   
          
 
@@ -75,7 +94,7 @@ def generate_underampling_data_mitigate_randomness(kernel="linear"):
         
 def plot_undersampling_performance(train="b278",test="b234",kernel="linear",random_ids=["","1","2"]):
     
-    X,y = retrieve_tile(train) 
+    X,y = CARPYNCHO.retrieve_tile(train) 
     fig, ax = plt.subplots()
 
     all_aucs = {}
@@ -83,13 +102,13 @@ def plot_undersampling_performance(train="b278",test="b234",kernel="linear",rand
     for r in random_ids:
         
         # Read experiment i data
-        with open(results_folder_imbalance+"undersampling/train="+train+"_test="+test+"_"+kernel+"_curves"+str(r)+".pkl", 'rb') as output:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"undersampling/train="+train+"_test="+test+"_"+kernel+"_curves"+str(r)+".pkl", 'rb') as output:
             scores = pickle.load(output)    
               
         # Print experiment i AUCPRC
         aucs = {}
         for k in scores.keys(): 
-            if (k!="full" and int(k) in get_supported_rates(train)):   
+            if (k!="full" and int(k) in CARPYNCHO.get_supported_rates(train)):   
                 (p,r,a) = scores[k]
                 aucs[int(k)] = a
             elif (k=="full"):
@@ -133,7 +152,7 @@ def plot_undersampling_performance(train="b278",test="b234",kernel="linear",rand
         leg = ax.legend(loc="lower right")
 
     plt.title('Train '+train+' - Test '+test)
-    plt.savefig(results_folder_imbalance+"undersampling/train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"undersampling/train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
     plt.close(fig)
     return avg_aucs
 
@@ -163,7 +182,7 @@ def undersampling_analyse_gain(kernel="linear"):
                 continue # We didn't calculate undersampling performance for that pair.
                 
             for key in aucs.keys():
-                if not(key in get_supported_rates(train)):
+                if not(key in CARPYNCHO.get_supported_rates(train)):
                     continue
                 auc_pair = aucs[key]
                 auc_diff = aucs[key] - get_baseline_fs_stage(train,test,kernel)  
@@ -210,7 +229,7 @@ def undersampling_analyse_gain(kernel="linear"):
     if (kernel=="linear"):
         leg = ax.legend(loc="lower right")
 
-    plt.savefig(results_folder_imbalance+"undersampling/"+kernel+"BEST.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"undersampling/"+kernel+"BEST.png",bbox_inches='tight')
     return (scores_avg,scores_min,scores_diff)
 
 def get_optimal_hyp_undersampling(kernel="linear"):
@@ -232,7 +251,7 @@ def oversampling_generate_data(train="b278",test="b234",method="naive",kernel="l
    # max_prop =  min_prop * 10 np.linspace(min_prop, max_prop, 10)
    
     
-    proportions = [ 1.0/x for x in get_supported_rates(train) ]  + [(sum(y)/len(y))*1.01]
+    proportions = [ 1.0/x for x in CARPYNCHO.get_supported_rates(train) ]  + [(sum(y)/len(y))*1.01]
 
     scores = {}
 
@@ -275,7 +294,7 @@ def oversampling_generate_data(train="b278",test="b234",method="naive",kernel="l
         except:
             print("Failure at proportion",i,"method",method)
         
-    with open(results_folder_imbalance+"oversampling/train="+train+"_test="+test+"_"+kernel+"_method"+method+"_curves.pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"oversampling/train="+train+"_test="+test+"_"+kernel+"_method"+method+"_curves.pkl", 'wb') as output:
         pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL)       
     
 def oversampling_generate_data_all_tiles(method="naive",kernel="linear"):
@@ -295,10 +314,10 @@ def oversampling_generate_data_all_tiles_all_methods(kernel="linear"):
     oversampling_generate_data_all_tiles("SMOTEENN",kernel)
 
 def plot_oversampling_performance(train="b278",test="b234",method="naive",kernel="linear"):
-    with open(results_folder_imbalance+"oversampling/train="+train+"_test="+test+"_"+kernel+"_method"+method+"_curves.pkl", 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"oversampling/train="+train+"_test="+test+"_"+kernel+"_method"+method+"_curves.pkl", 'rb') as output:
         scores = pickle.load(output)  
               
-    X,y = retrieve_tile(train) 
+    X,y = CARPYNCHO.retrieve_tile(train) 
 
     aucs = {}
     for k in scores.keys(): 
@@ -307,7 +326,7 @@ def plot_oversampling_performance(train="b278",test="b234",method="naive",kernel
 
     fig, ax = plt.subplots()
 
-    domain = get_supported_rates(train) + [len(y)/sum(y)]
+    domain = CARPYNCHO.get_supported_rates(train) + [len(y)/sum(y)]
     ax.plot(list(aucs.keys()), list(aucs.values()),marker='.') 
    
     ticks = [0,250,500,750,1000,1250,1500,1750,2000,3000]
@@ -330,7 +349,7 @@ def plot_oversampling_performance(train="b278",test="b234",method="naive",kernel
     plt.ylabel('Robust AUPRC')
     #plt.xticks(ticks,ticks)
     plt.title('Train '+train+' - Test '+test)
-    plt.savefig(results_folder_imbalance+"oversampling/"+method+"train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"oversampling/"+method+"train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
     plt.close(fig)
     return aucs
 
@@ -382,7 +401,7 @@ def plot_balancing_unified_performance(train="b278",test="b234",kernel="linear")
     plt.title('Train '+train+' - Test '+test)
     if (train=="b234" and test=="b261"):
         leg = ax.legend(loc="lower right");
-    plt.savefig(results_folder_imbalance+"oversampling/UNIFIED_train="+train+"_test="+test+"_"+kernel+"_curves.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"oversampling/UNIFIED_train="+train+"_test="+test+"_"+kernel+"_curves.png",bbox_inches='tight')
     plt.close(fig)
     
 def plot_all_balancing_unified_performance(kernel="linear"):
@@ -411,7 +430,7 @@ def calculate_oversampling_gain(kernel="linear",method="naive"):
                 continue # We didn't calculate undersampling performance for that pair.
                 
             for key in aucs.keys():
-                if not(key in get_supported_rates(train)):
+                if not(key in CARPYNCHO.get_supported_rates(train)):
                     continue
                 auc_pair = aucs[key]
                 auc_diff = aucs[key] - get_baseline_fs_stage(train,test,kernel)  
@@ -459,7 +478,7 @@ def calculate_oversampling_gain(kernel="linear",method="naive"):
         method="aleatorio"
     plt.title("Oversampling "+method)
     
-    plt.savefig(results_folder_imbalance+"oversampling/"+method+"_"+kernel+"BEST.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"oversampling/"+method+"_"+kernel+"BEST.png",bbox_inches='tight')
     
     return (scores_avg,scores_min)
 
@@ -510,7 +529,7 @@ def class_weight(test="b278",train="b234",kernel="linear"):
         robust_auc = auc(recall_interpolated, precision_interpolated)
         scores[i]=(p,r,robust_auc)
         
-    with open(results_folder_imbalance+"cw/train="+train+"_test="+test+"_"+kernel+"_curves.pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"cw/train="+train+"_test="+test+"_"+kernel+"_curves.pkl", 'wb') as output:
         pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL) 
 
 
@@ -526,10 +545,10 @@ def calculate_all_class_weight_data(kernel="linear"):
     
 
 def plot_class_weight(train="b278",test="b234",kernel="linear"):
-    with open(results_folder_imbalance+"cw/train="+train+"_test="+test+"_"+kernel+"_curves.pkl", 'rb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"cw/train="+train+"_test="+test+"_"+kernel+"_curves.pkl", 'rb') as output:
         scores = pickle.load(output)  
               
-    X,y = retrieve_tile(train) 
+    X,y = CARPYNCHO.retrieve_tile(train) 
 
     aucs = {}
     for k in scores.keys(): 
@@ -560,7 +579,7 @@ def plot_class_weight(train="b278",test="b234",kernel="linear"):
     plt.ylabel('Robust AUPRC')
     #plt.xticks(ticks,ticks)
     plt.title('Train '+train+' - Test '+test)
-    plt.savefig(results_folder_imbalance+"cw/train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"cw/train="+train+"_test="+test+"_"+kernel+"_individual_curves.png",bbox_inches='tight')
     plt.close(fig)
     return aucs
 
@@ -635,7 +654,7 @@ def class_weight_analyse_gain(kernel="linear"):
     if kernel=="linear":
         leg = ax.legend(loc="lower right")
 
-    plt.savefig(results_folder_imbalance+"cw/"+kernel+"BEST.png",bbox_inches='tight')
+    plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"cw/"+kernel+"BEST.png",bbox_inches='tight')
    
     return (scores_avg,scores_min,scores,scores_diff)
 
@@ -669,7 +688,7 @@ def get_optimal_parameters_imb(kernel="linear"):
 def generate_test_performance_data_imb(train_tile="b278",test_tiles=["b234","b261","b360"]):
 
     # RF
-    #X,y=retrieve_tile(train_tile)
+    #X,y=CARPYNCHO.retrieve_tile(train_tile)
     #clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
     #clf.fit(X,y)
 
@@ -722,7 +741,7 @@ def generate_test_performance_data_imb(train_tile="b278",test_tiles=["b234","b26
         precision, recall, thresh = metrics.precision_recall_curve(yt, test_predictions)
         curves["svmk"] = (precision,recall)
         """
-        with open(results_folder_imbalance+"best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"best-train="+train_tile+ "test="+test+".pkl", 'wb') as output:
             pickle.dump(curves,output, pickle.HIGHEST_PROTOCOL)    
 
 def generate_test_performance_data_imb_all():
@@ -756,7 +775,7 @@ def generate_test_performance_data_imb_subplots():
 
 
             # GET SVM-L DATA FROM IMBLEARNING STAGE
-            with open(results_folder_imbalance+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
+            with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"best-train="+train+ "test="+test+".pkl", 'rb') as input_file:
                 curves = pickle.load(input_file)
                 
             p,r = curves["svml"]
@@ -785,13 +804,13 @@ def generate_test_performance_data_imb_subplots():
 
             leg = ax.legend();
     
-            plt.savefig(results_folder_imbalance+"best-train="+train+ "test="+test+".png",bbox_inches='tight')
+            plt.savefig(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"best-train="+train+ "test="+test+".png",bbox_inches='tight')
 
-    with open(results_folder_imbalance+"baseline_aucs.pkl", 'wb') as output:
+    with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"baseline_aucs.pkl", 'wb') as output:
         pickle.dump(scores,output, pickle.HIGHEST_PROTOCOL)   
         
 # generate_table_comparison(results_folder_dimensionality_reduction+ "baseline_aucs.pkl", results_folder_preproces+"baseline_aucs.pkl")
-# generate_table_comparison(results_folder_imbalance+ "baseline_aucs.pkl", results_folder_dimensionality_reduction+"baseline_aucs.pkl")
+# generate_table_comparison(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+ "baseline_aucs.pkl", results_folder_dimensionality_reduction+"baseline_aucs.pkl")
 
 def get_baseline_imb_stage(train,test,method):
     
@@ -806,6 +825,6 @@ def get_baseline_imb_stage(train,test,method):
     elif (method=="svmk"):
         return get_baseline_fs_stage(train,test,method)
     else:
-        with open(results_folder_imbalance+"baseline_aucs.pkl", 'rb') as output:
+        with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"baseline_aucs.pkl", 'rb') as output:
             scores = pickle.load(output)      
         return scores[(method,train,test)]
