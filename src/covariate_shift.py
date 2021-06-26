@@ -51,8 +51,13 @@ def get_range(param,legacy=False):
         else:
             return np.logspace(-11, 1,13)
 
-def explore_rbf_potential(train="b278",test="b234",kernel="rbf"):
-  
+def explore_rbf_potential(train="b278",test="b234"):
+    """
+    Explore the potential of SVM RBF by fully overfitting hyperparameters. The goal of this 
+    experiment is to determine if SVM RBF, even with the best setting of hyperparameters, is
+    able to match RF.
+    """
+    kernel="rbf"
     X,y=get_feature_selected_tile(train,kernel,train,"full")   
     Xt,yt=get_feature_selected_tile(test,kernel,train,"full")  
     fig, ax = plt.subplots(figsize=(20,10))
@@ -133,7 +138,9 @@ def get_pr_curve(train="b278",test="b234",c=0.1,gamma=0.1,kernel="rbf"):
         return(p,r)
     
 def plot_rbf_potential(train="b278",test="b234",legacy=False):
-
+    """
+    Plot the performance of SVM RBF for each assignment of hyperparameters.
+    """
     #try:
         
         if (legacy):
@@ -288,6 +295,18 @@ def calculate_all_grids(legacy=False):
 
 ###  IDENTIFY DRIFT USING HIGH DIMENSIONAL CLASSIFIER
 def calculate_covariate_shift(tile1="b234",tile2="b360"):
+    """
+    Estimate the severity of the covariate shift between @p tile1 and @p tile2
+    using discriminative distance.
+
+    References
+    ----------
+    [1] Bickel, S., Bruckner, M., and Scher, T. (2007). Discriminative learning
+    for differing training and test distributions
+
+    [2] GeetaDharani., Y., Nair, N. G., Satpathy, P., and Christopher, J. (2019). 
+    Covariate shift: A review and analysis on classifiers.
+    """
     kernel="rbf" #This only matters for getting the optimal feature selection subset
 
     # Let's use tile1 feature selection for this.
@@ -300,7 +319,9 @@ def calculate_covariate_shift(tile1="b234",tile2="b360"):
         pickle.dump(data,s_file)
 
 def calculate_covariate_shift_internal(X1,y1,X2,y2,classifiers=["rf","lr"]):
-
+    """
+    Auxiliar function for calculate_covariate_shift
+    """
     # Let's combine both datasets. Lets set class 1 for those who come from tile 1 ; class 2 for those who come from tile 2
     n1 = X1.shape[0]
     n2 = X2.shape[0]
@@ -386,7 +407,10 @@ def get_covariate_shift_auc(tile1,tile2,method="rf",metric="accuracy"):
     return (data[key])
     
 def print_covariate_shift_matrix(method="rf",metric="accuracy"):
-    
+    """
+    Print a matrix indicating the severity of the covariate shift between all
+    pairs of tiles in  ["b234","b261","b278","b360"]
+    """
     tiles = ["b234","b261","b278","b360"]
 
     perf = np.zeros((len(tiles),len(tiles)))
@@ -421,9 +445,12 @@ def print_covariate_shift_matrix(method="rf",metric="accuracy"):
 
 ########################## CORRECTING COVARIATE DRIFT ########################
 
-# Print the importance based on high-dimensional classifier
 def get_covariate_shift_importance(tile1,tile2,method="rf"):
-
+    """
+    Calculate the importance of each attribute when it comes to
+    contributing to covariate shift using a high-dimensional
+    classifier
+    """
     X1,y1=get_feature_selected_tile(tile1,"rbf",tile1,"full")   
 
     with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
@@ -443,9 +470,12 @@ def get_covariate_shift_importance(tile1,tile2,method="rf"):
     for i in temp:
         print(X1.columns[i])
         
-# Plot the importance obtained using high dimensional classifier
 def plot_covariance_shift_scores(tile1="b360",tile2="b234"):
-
+    """
+    Plot the importance of each attribute when it comes to
+    contributing to covariate shift, calculated using a 
+    high-dimensional classifier
+    """
     X1,y1=get_feature_selected_tile(tile1,"rbf",tile1,"full")   
 
     with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
@@ -482,6 +512,11 @@ def plot_covariance_shift_scores(tile1="b360",tile2="b234"):
     
 #### Calculate feature importance using 1-dimensional classifier
 def calculate_covariate_shift_single(tile1="b360",tile2="b234",classifiers=["rf","lr"]):
+    """
+    Calculate the importance of each attribute when it comes to
+    contributing to covariate shift  using a one-dimensional 
+    classifier
+    """
     kernel="rbf" #This only matters for getting the optimal feature selection subset
 
     # Let's use tile1 feature selection for this.
@@ -546,9 +581,12 @@ def calculate_covariate_shift_single(tile1="b360",tile2="b234",classifiers=["rf"
         
     return ans
     
-
-# Plot the importance obtained using 1-dimensional classifier
 def plot_calculate_covariate_shift_single(tile1="b360",tile2="b234"):
+    """
+    Plot the importance of each attribute when it comes to
+    contributing to covariate shift, calculated using a 
+    one-dimensional classifier
+    """
     with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
         ans = pickle.load(s_file)
             
@@ -580,13 +618,18 @@ def plot_calculate_covariate_shift_single(tile1="b360",tile2="b234"):
 
 ######################## CORRECT DRIFT BY REMOVING FEATURES: Estimating decrease in shift   ######################
 
-# Number of features from the top features for distinguishing RRL and no-RRL
-# that won't be allowed to be removed
+# 
 def get_number_protected_features():
+    """
+    Number of features from the top features for distinguishing RRL and no-RRL
+    that won't be allowed to be removed
+    """
     return 5
-    
-#### Remove features using high-dimensional classifier && recalculate whether drift decreased
+
 def remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",method="rf",single=False):
+    """
+    Remove features using high-dimensional classifier && recalculate to see whether drift decreased
+    """
     kernel="rbf" #This only matters for getting the optimal feature selection subset
 
     X1,y1=get_feature_selected_tile(tile1,kernel,tile1,"full")   
@@ -649,10 +692,10 @@ def remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",m
         pickle.dump(ret,s_file)
     return(ret)
 
-
-### Plot the reduction in drift after removing drifting features
 def plot_remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b234",single=False):
-    
+    """
+    Plot the reduction in drift after removing drifting features
+    """
     with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease="+tile1+"test="+tile2+"methodrf_single="+str(single)+".pkl", 'rb') as s_file:
         ret_rf = pickle.load(s_file)
     with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_decrease="+tile1+"test="+tile2+"methodlr_single="+str(single)+".pkl", 'rb') as s_file:
@@ -676,8 +719,27 @@ def plot_remove_covariate_shift_top_and_recalculate_shift(tile1="b360",tile2="b2
 
 ################## CORRECT DRIFT BY REMOVING FEATURES: Checking if original problem improved   ##############
 
+def remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b360",tile2="b234",method="rf"):
+    """
+    Remove the most drifting features (according to high-dimensional classifier ranking) 
+    and recalculate R-AUCPRC in RRL classification
+    """
+    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
+        data = pickle.load(s_file)
+
+    key = method+"_importance"
+
+    if (method=="rf"):
+        scores = data[key]
+    else:
+        scores = np.abs(data[key][0])
+        
+    data = remove_covariate_shift_top_and_recalculate_rrl_classification_internal(tile1,tile2,scores,method)
+
 def remove_covariate_shift_top_and_recalculate_rrl_classification_internal(tile1,tile2,scores,label):
-    
+    """
+    Auxiliar function for remove_covariate_shift_top_and_recalculate_rrl_classification
+    """
     kernel="rbf" #This only matters for getting the optimal feature selection subset
     X1,ytr=get_feature_selected_tile(tile1,kernel,tile1,"full")   
     Xt,yt=get_feature_selected_tile(tile2,kernel,tile1,"full")   
@@ -717,22 +779,11 @@ def remove_covariate_shift_top_and_recalculate_rrl_classification_internal(tile1
     return(results)
 
 
-#### Remove features using high-dimensional classifier && recalculate R-AUCPRC in RRL classification
-def remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b360",tile2="b234",method="rf"):
-    with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+ "train="+tile1+"test="+tile2+"_cov_shift.pkl", 'rb') as s_file:
-        data = pickle.load(s_file)
-
-    key = method+"_importance"
-
-    if (method=="rf"):
-        scores = data[key]
-    else:
-        scores = np.abs(data[key][0])
-        
-    data = remove_covariate_shift_top_and_recalculate_rrl_classification_internal(tile1,tile2,scores,method)
-    
-### Remove drifting features using 1-dimensional classifier ranking
 def remove_covariate_shift_top_and_recalculate_rrl_classification_single(tile1="b360",tile2="b234",method="rf"):
+    """
+    Remove the most drifting features (according to one-dimensional classifier ranking) 
+    and recalculate R-AUCPRC in RRL classification
+    """
     with open(EXPERIMENTS_OUTPUT_FOLDER_SHIFT+"shift_importance_individual="+tile1+"test="+tile2+".pkl", 'rb') as s_file:
         ans = pickle.load(s_file)
 
@@ -748,7 +799,9 @@ def remove_covariate_shift_top_and_recalculate_rrl_classification_single(tile1="
 
 ### Plotting the change in performance
 def plot_remove_covariate_shift_top_and_recalculate_rrl_classification(tile1="b360",tile2="b234",method="rf",single=False):
-    
+    """
+    Plot the reduction in drift after removing the most drifting features
+    """
     if single:
         label = method + "_single"
     else:

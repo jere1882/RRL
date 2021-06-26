@@ -1,6 +1,9 @@
 """
 HANDLING IMBALANCE OF CLASSES
 Chapter 7 of master's thesis.
+
+References
+[1] https://imbalanced-learn.org/stable/user_guide.html#user-guide
 """
 from imblearn.combine import SMOTEENN
 from scipy import stats
@@ -35,9 +38,10 @@ def init(carpyncho_local_folder_path, output_folder_imbalance):
 
 ################################ Random Undersampling ###################################
 
-# Effect of undersample in svm-l
 def calculate_undersampling_performance(train="b278",test="b234",kernel="linear",random_id=""):
-    
+    """
+    Estimate the performance of SVM using random undersampling
+    """
     Xt,yt=get_feature_selected_tile(test,kernel,train,"full")   
 
     scores = {}
@@ -93,7 +97,9 @@ def generate_underampling_data_mitigate_randomness(kernel="linear"):
         generate_undersampling_data(kernel,r)
         
 def plot_undersampling_performance(train="b278",test="b234",kernel="linear",random_ids=["","1","2"]):
-    
+    """
+    Plot the performance of SVM using random undersampling
+    """
     X,y = CARPYNCHO.retrieve_tile(train) 
     fig, ax = plt.subplots()
 
@@ -167,7 +173,9 @@ def plot_undersampling_performance_all(kernel="linear"):
     scores8= plot_undersampling_performance(train="b360",test="b234",kernel=kernel)
 
 def undersampling_analyse_gain(kernel="linear"):
-
+    """
+    Analyse the average gain of using undersampling in SVM
+    """
     scores = {}
     scores_diff = {}
 
@@ -233,13 +241,19 @@ def undersampling_analyse_gain(kernel="linear"):
     return (scores_avg,scores_min,scores_diff)
 
 def get_optimal_hyp_undersampling(kernel="linear"):
-    
+    """
+    Select the best hyperparameters for undersampling in SVM
+    """
     (scores_avg,scores_min,scores_diff)= undersampling_analyse_gain(kernel)
     [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() if scores_min[k]>=-0.05 ]
-###### 
+
+######  OVERSAMPLING ######
 
 def oversampling_generate_data(train="b278",test="b234",method="naive",kernel="linear"):
-    
+    """
+    Estimate the performance of SVM using oversampling. Supported methods are 
+    naive, SMOTE, SMOTEEN and ADASYN
+    """
     X,y=get_feature_selected_tile(train,kernel,train,"full")   
     Xt,yt=get_feature_selected_tile(test,kernel,train,"full")   
 
@@ -314,6 +328,9 @@ def oversampling_generate_data_all_tiles_all_methods(kernel="linear"):
     oversampling_generate_data_all_tiles("SMOTEENN",kernel)
 
 def plot_oversampling_performance(train="b278",test="b234",method="naive",kernel="linear"):
+    """
+    Plot the performance of SVM using random oversampling
+    """
     with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"oversampling/train="+train+"_test="+test+"_"+kernel+"_method"+method+"_curves.pkl", 'rb') as output:
         scores = pickle.load(output)  
               
@@ -364,7 +381,10 @@ def oversampling_plot_all_tiles(method="naive",kernel="linear"):
     scores8= plot_oversampling_performance(train="b360",test="b234",method=method,kernel=kernel) 
   
 def plot_balancing_unified_performance(train="b278",test="b234",kernel="linear"):
-    
+    """
+    Plot the performance of SVM using random oversampling, unifying all oversampling
+    strategies
+    """
     #aucs_undersampling = plot_undersampling_performance(train,test,kernel)
     aucs_naive_over = plot_oversampling_performance(train,test,"naive",kernel)
     aucs_smote_over = plot_oversampling_performance(train,test,"SMOTE",kernel)
@@ -415,7 +435,9 @@ def plot_all_balancing_unified_performance(kernel="linear"):
     scores8= plot_balancing_unified_performance(train="b360",test="b234",kernel=kernel)
 
 def calculate_oversampling_gain(kernel="linear",method="naive"):
-    
+    """
+    Calculate the gain of using oversampling in SVM
+    """
     scores = {}
     scores_diff = {}
 
@@ -488,12 +510,18 @@ def calculate_oversampling_gain_all():
             calculate_oversampling_gain(kernel,method)
 
 def get_optimal_hyp_oversampling(kernel="linear"):
+    """
+    Get the optimal hyperparameters for oversampling in SVM
+    """
     (scores_avg,scores_min)= calculate_oversampling_gain(kernel,"naive")
     [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() if scores_min[k]>=-0.1 ]
     
 ##### CLASS WEIGHT #######
 def class_weight(test="b278",train="b234",kernel="linear"):
-    
+    """
+    Estimate the performance of SVM using class weight to reduce the impact of
+    class imbalance
+    """
     X,y=get_feature_selected_tile(train,kernel,train,"full")   
     Xt,yt=get_feature_selected_tile(test,kernel,train,"full")  
 
@@ -545,6 +573,9 @@ def calculate_all_class_weight_data(kernel="linear"):
     
 
 def plot_class_weight(train="b278",test="b234",kernel="linear"):
+    """
+    Plot the performance of SVM using class weight 
+    """
     with open(EXPERIMENTS_OUTPUT_FOLDER_IMBALANCE+"cw/train="+train+"_test="+test+"_"+kernel+"_curves.pkl", 'rb') as output:
         scores = pickle.load(output)  
               
@@ -594,7 +625,9 @@ def calculate_all_class_weight_plots(kernel="linear"):
     scores8= plot_class_weight(train="b360",test="b234",kernel=kernel)
     
 def class_weight_analyse_gain(kernel="linear"):
-
+    """
+    Plot the average gain in performance of SVM using class weight 
+    """
     scores = {}
     scores_diff = {}
 
@@ -659,13 +692,14 @@ def class_weight_analyse_gain(kernel="linear"):
     return (scores_avg,scores_min,scores,scores_diff)
 
 def get_optimal_hyp_cw(kernel="linear"):
+    """
+    Get the optimal hyperparameters for class weight in SVM
+    """
     (scores_avg,scores_min,scores,scores_diff)= class_weight_analyse_gain(kernel)
     [ print(k,"{:.3f}".format(scores_avg[k]),"{:.3f}".format(scores_min[k])) for k in scores_min.keys() ]
       
 
 ############## FINAL COMPARISON
-
-
 def get_optimal_parameters_imb(kernel="linear"):
     optimal = {}
     if (kernel=="linear" or kernel=="svml"):
@@ -686,7 +720,9 @@ def get_optimal_parameters_imb(kernel="linear"):
     return optimal
 
 def generate_test_performance_data_imb(train_tile="b278",test_tiles=["b234","b261","b360"]):
-
+    """
+    Estimate the performance in test using correction of imbalance techiques
+    """
     # RF
     #X,y=CARPYNCHO.retrieve_tile(train_tile)
     #clf = RandomForestClassifier(n_estimators=400, criterion="entropy", min_samples_leaf=2, max_features="sqrt",n_jobs=7)
