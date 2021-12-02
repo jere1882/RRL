@@ -2,7 +2,7 @@
 
 Python code of experiments carried out during my master's thesis + some extra follow up experments. SKLearn implementations were used throughout.
 
-This thesis builts on the following paper:
+This thesis builds on the following paper:
 
 ```
 Cabral, J. B., Ramos, F., Gurovich, S., & Granitto, P. (2020). 
@@ -10,7 +10,7 @@ Automatic Catalog of RRLyrae from ∼ 14 million VVV Light Curves: How far can w
 https://arxiv.org/abs/2005.00220
 ```
 
-It consists of classifying  RR-Lyrae stars in massive astronomical datasets using machine learning methods.
+It consists of classifying RR-Lyrae stars in massive astronomical datasets using machine learning.
 
 Section 1: Random Forests
 - cross validation grid search in order to optimize hyperparameters.
